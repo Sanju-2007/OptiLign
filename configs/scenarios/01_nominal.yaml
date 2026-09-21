@@ -1,0 +1,40 @@
+# OptiLign — Scenario 01: Nominal Tracking
+# Circular target at moderate speed, no disturbances.
+# This is the baseline scenario for all algorithm comparisons.
+
+scenario:
+  name: "01_nominal"
+  duration_s: 10.0
+  timestep_s: 0.01
+  seed: 42
+
+camera:
+  width: 640
+  height: 480
+  hfov_deg: 60.0
+  fps: 30.0
+  position: [0.0, 0.0, 0.0]
+  pan_rate_limit: 1.0
+  tilt_rate_limit: 1.0
+  actuator_time_constant: 0.05
+
+target:
+  trajectory_type: "circular"
+  position: [100.0, 0.0, 0.0]
+  radius: 10.0
+  angular_rate: 0.5
+  beacon_intensity: 220.0
+  beacon_size_px: 5.0
+
+detector:
+  mode: "classical"
+  confidence_threshold: 0.5
+
+estimator:
+  estimator_type: "kf"
+
+controller:
+  controller_type: "pid"
+  kp: 2.0
+  ki: 0.1
+  kd: 0.5

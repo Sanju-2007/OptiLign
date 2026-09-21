@@ -1,0 +1,54 @@
+{
+  "scenario_name": "OptiLign Aerospace FSOC PAT Mission",
+  "duration_s": 7.98,
+  "timestep_s": 0.02,
+  "total_steps": 400,
+  "pointing": {
+    "mean_radial_error_mrad": 6.0359425,
+    "rms_radial_error_mrad": 6.849696184320878,
+    "median_error_mrad": 5.8895,
+    "p95_error_mrad": 11.442399999999994,
+    "p99_error_mrad": 12.86318,
+    "max_error_mrad": 13.256,
+    "mean_error_deg": 0.34583403063364293,
+    "max_error_deg": 0.7595128532254193,
+    "mean_estimated_error_mrad": 5.0015975
+  },
+  "pat_state": {
+    "total_steps": 400,
+    "duration_s": 7.98,
+    "detection_rate": 0.8225,
+    "time_in_tracking_s": 6.6000000000000005,
+    "percent_in_tracking": 82.70676691729324,
+    "time_in_search_s": 0,
+    "percent_in_search": 0.0,
+    "time_in_reacquisition_s": 1.4000000000000001,
+    "percent_in_reacquisition": 17.54385964912281,
+    "time_in_acquisition_s": 0,
+    "percent_in_acquisition": 0.0,
+    "state_transitions_count": 2,
+    "reacquisition_events_count": 1,
+    "mean_time_to_reacquire_s": 1.4000000000000008
+  },
+  "link": {
+    "mean_rx_power_dbm": -18.717225,
+    "min_rx_power_dbm": -100.0,
+    "max_rx_power_dbm": 7.5,
+    "mean_pointing_loss_db": 342.75045,
+    "max_pointing_loss_db": 1887.32,
+    "mean_link_margin_db": 19.282775,
+    "min_link_margin_db": -62.0,
+    "link_availability_pct": 82.25,
+    "outage_steps_count": 71,
+    "outage_duration_s": 1.42,
+    "mean_ber": 0.17750000000000082
+  },
+  "performance": {
+    "fps": 50.125313283208015,
+    "mean_processing_time_ms": 19.950000000000003,
+    "acquisition_time_s": 0.0,
+    "lock_retention_rate_pct": 82.5,
+    "average_tracking_error_mrad": 6.0359425,
+    "maximum_tracking_error_mrad": 13.256
+  }
+}

@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "optilign"
+version = "0.1.0"
+description = "OptiLign — FSOC AI-Assisted Virtual Camera Coarse PAT Simulator"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "OptiLign Team"},
+]
+keywords = ["fsoc", "pat", "tracking", "simulation", "optical-communication"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+cv = [
+    "opencv-python>=4.9",
+]
+ai = [
+    "torch>=2.2",
+]
+gui = [
+    "PySide6>=6.6",
+    "pyqtgraph>=0.13",
+]
+control = [
+    "casadi>=3.6",
+]
+data = [
+    "pandas>=2.2",
+    "pyarrow>=15.0",
+]
+plot = [
+    "matplotlib>=3.8",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "mypy>=1.8",
+    "ruff>=0.3",
+]
+all = [
+    "optilign[cv,ai,gui,control,data,plot,dev]",
+]
+
+[project.scripts]
+fsoc-pat = "fsoc_pat.__main__:main"
+optilign = "fsoc_pat.__main__:main"
+optilign-gui = "fsoc_pat.gui.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: integration tests",
+    "regression: regression tests",
+    "performance: performance tests",
+]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "cv2.*",
+    "torch.*",
+    "casadi.*",
+    "pyqtgraph.*",
+    "PySide6.*",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "RUF", # ruff-specific
+]
+ignore = [
+    "E501",  # line too long — handled by formatter
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fsoc_pat"]

@@ -1,0 +1,71 @@
+{
+  "name": "Stratospheric_Balloon_Relay",
+  "description": "Near-space high-altitude solar-electric balloon relay platform at 24 km altitude.",
+  "platform": {
+    "base_altitude_m": 24000.0,
+    "sway_amplitude_deg": 0.08,
+    "sway_frequency_hz": 0.08,
+    "jitter_frequencies_hz": [
+      8.0,
+      24.0,
+      48.0
+    ],
+    "jitter_amplitudes_urad": [
+      18.0,
+      10.0,
+      4.0
+    ],
+    "wind_gust_buffet_std_urad": 8.0
+  },
+  "atmosphere": {
+    "model": "stratosphere",
+    "cn2": 2e-16,
+    "wind_speed_mps": 8.0,
+    "extinction_coefficient_db_km": 0.05,
+    "zenith_angle_deg": 45.0,
+    "cloud_occlusion_prob": 0.01,
+    "scintillation_index": 0.04
+  },
+  "disturbances": {
+    "sensor_read_noise_std": 3.0,
+    "background_clutter_count": 8,
+    "solar_glint_probability": 0.05,
+    "thermal_drift_rate_urad_s": 0.2
+  },
+  "payload": {
+    "laser_wavelength_nm": 1550.0,
+    "laser_power_mw": 1500.0,
+    "beam_divergence_mrad": 0.8,
+    "rx_aperture_diameter_m": 0.25,
+    "fsm_max_deflection_urad": 5000.0,
+    "fsm_bandwidth_hz": 1000.0,
+    "diffraction_limit_urad": 7.564000000000001
+  },
+  "telemetry_channels": [
+    "time_s",
+    "step",
+    "target_range_m",
+    "target_azimuth_rad",
+    "target_elevation_rad",
+    "gimbal_pan_rad",
+    "gimbal_tilt_rad",
+    "gimbal_rate_pan_rad_s",
+    "gimbal_rate_tilt_rad_s",
+    "fsm_pan_urad",
+    "fsm_tilt_urad",
+    "fsm_offload_active",
+    "coarse_error_urad",
+    "fine_error_urad",
+    "in_fine_lock",
+    "beacon_detected",
+    "detection_confidence",
+    "est_pixel_u",
+    "est_pixel_v",
+    "received_power_dbm",
+    "link_snr_db",
+    "bit_error_rate",
+    "pat_state",
+    "balloon_helium_superheat_c",
+    "gondola_solar_irradiance_wm2"
+  ]
+}

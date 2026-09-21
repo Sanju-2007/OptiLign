@@ -1,0 +1,59 @@
+# OptiLign — Default Configuration
+# All values are design assumptions unless explicitly from project requirements.
+# Units: SI (meters, radians, seconds) unless noted.
+
+scenario:
+  name: "default"
+  duration_s: 10.0        # Simulation duration (s)
+  timestep_s: 0.01        # Loop timestep (s) → 100 Hz
+  seed: 42                # Random seed for reproducibility
+
+camera:
+  width: 640              # Image width (px)
+  height: 480             # Image height (px)
+  hfov_deg: 60.0          # Horizontal FOV (degrees) — converted to rad internally
+  fps: 30.0               # Frame rate (Hz)
+  latency_s: 0.0          # Measurement latency (s)
+  position: [0.0, 0.0, 0.0]  # Camera position in world frame (m)
+  pan_rate_limit: 1.0     # Max pan rate (rad/s)
+  tilt_rate_limit: 1.0    # Max tilt rate (rad/s)
+  angular_accel_limit: 10.0  # Max angular acceleration (rad/s²)
+  actuator_time_constant: 0.05  # First-order lag (s)
+
+target:
+  trajectory_type: "circular"
+  position: [100.0, 0.0, 0.0]  # Center / initial position (m)
+  velocity: [0.0, 0.0, 0.0]     # For linear/const-accel (m/s)
+  acceleration: [0.0, 0.0, 0.0] # For const-accel (m/s²)
+  radius: 10.0            # Circular orbit radius (m)
+  angular_rate: 0.5        # Circular angular rate (rad/s)
+  beacon_intensity: 220.0  # Peak brightness (0-255)
+  beacon_size_px: 5.0      # Apparent size (px)
+
+detector:
+  mode: "classical"
+  confidence_threshold: 0.5
+  brightness_threshold: 100.0
+
+estimator:
+  estimator_type: "kf"
+  process_noise: 1.0
+  measurement_noise: 2.0
+
+controller:
+  controller_type: "pid"
+  kp: 2.0
+  ki: 0.1
+  kd: 0.5
+  output_limit: 1.0
+
+disturbances:
+  measurement_noise_std: 0.0
+  vibration_amplitude: 0.0
+  vibration_frequency: 0.0
+  jitter_std: 0.0
+  frame_drop_rate: 0.0
+
+link:
+  beam_divergence_deg: 0.1   # Half-angle (degrees)
+  acceptance_angle_deg: 0.05  # Half-angle (degrees)

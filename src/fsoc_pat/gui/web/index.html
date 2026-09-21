@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OptiLign — Next-Gen FSOC PAT Simulator</title>
+  <style>
+    /* Critical Inline Guard: Clean light theme isolation */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f8fafc !important;
+      color: #0f172a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .page-view {
+      display: none !important;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+    }
+    .page-view.active {
+      display: flex !important;
+      flex-direction: column;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css?v=2.8.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Three.js for high-fidelity 3D Environment rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body class="theme-light">
+
+  <!-- ======================================================================= -->
+  <!-- 1. HOME / LANDING VIEW (OptiLign Branding & Dynamic Optics Particle UI) -->
+  <!-- ======================================================================= -->
+  <div id="page-home" class="page-view active">
+    <!-- Interactive Laser & Particle Grid Canvas -->
+    <canvas id="canvas-home-bg"></canvas>
+    <div class="home-vignette"></div>
+
+    <header class="home-nav">
+      <div class="brand-badge">
+        <span class="laser-dot"></span>
+        <span class="brand-title">OPTILIGN</span>
+        <span class="version-tag">v2.5 PAT</span>
+      </div>
+      <div class="nav-links">
+        <span class="system-status"><span class="status-live-pulse"></span> SYSTEM READY</span>
+      </div>
+    </header>
+
+    <main class="home-hero">
+      <div class="hero-badge">
+        <span class="badge-icon">⚡</span>
+        <span>Dual-Stage Sub-Micro-Radian Optical Pointing, Acquisition & Tracking</span>
+      </div>
+      <h1 class="hero-title">
+        Precision Laser Communication <br>
+        <span class="gradient-text">Virtual Environment Simulator</span>
+      </h1>
+      <p class="hero-subtitle">
+        Design dynamic custom optical environments with high-fidelity fog, solar glare, atmospheric turbulence, multi-target swarms, and nano-radian precision tracking.
+      </p>
+
+      <div class="hero-actions">
+        <button id="btn-enter-sim" class="btn-enter-glow">
+          <span class="btn-icon">🌐</span>
+          <span class="btn-text">ENTER THE SIMULATOR</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+
+      <!-- Feature Grid Cards -->
+      <div class="hero-features">
+        <div class="feature-card">
+          <div class="feat-icon">🌐</div>
+          <h3>Dynamic Environments</h3>
+          <p>Parametric scales for fog severity, solar glint, temperature (-50°C to +50°C), and target distance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">🎯</div>
+          <h3>Multi-Target Swarms</h3>
+          <p>Autonomous acquisition and tracking with distractor beacons and agile 3D kinematics.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">🔭</div>
+          <h3>Dual-Stage PAT Control</h3>
+          <p>Coarse gimbal + high-speed Fast Steering Mirror (FSM) offloading achieving sub-µrad pointing.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon">📊</div>
+          <h3>Real-Time Telemetry</h3>
+          <p>Link margin, received power, bit-error rate, 60s rolling errors, and instant performance audits.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="home-footer">
+      <span>OptiLign Aerospace Engineering © 2026 • Free-Space Optical Communications Virtual Testbed</span>
+    </footer>
+  </div>
+
+
+  <!-- ======================================================================= -->
+  <!-- 2. MAIN SIMULATOR APPLICATION SHELL (Tabbed Window Panes)               -->
+  <!-- ======================================================================= -->
+  <div id="page-app" class="page-view">
+    <!-- Top System Header & Pane Switcher -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo" id="btn-home-return" title="Back to Home Page">
+          <span class="app-icon">📡</span>
+          <span class="logo-name">OPTILIGN</span>
+        </div>
+        
+        <!-- Tabbed Navigation Panes -->
+        <nav class="pane-nav">
+          <button class="pane-tab active" data-pane="simulator" id="tab-simulator">
+            <span class="tab-icon">🚀</span> Live Simulator & Tracking
+          </button>
+          <button class="pane-tab" data-pane="create-env" id="tab-create-env">
+            <span class="tab-icon">🛠️</span> Create Environment
+          </button>
+          <button class="pane-tab" data-pane="recent-envs" id="tab-recent-envs">
+            <span class="tab-icon">📂</span> Recent & Presets
+          </button>
+          <button class="pane-tab" data-pane="reports" id="tab-reports">
+            <span class="tab-icon">📊</span> Reports & Analytics
+          </button>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <div class="quick-stat">
+          <span class="qs-label">Active Env:</span>
+          <span class="qs-val" id="top-active-env">Urban Rooftop</span>
+        </div>
+        <div class="quick-stat">
+          <span class="qs-label">Clock:</span>
+          <span class="qs-val font-mono" id="top-sim-clock">00:00</span>
+        </div>
+        <button class="btn-top-create-env" id="btn-top-create-env" title="Open Create Virtual Environment Studio">🛠️ Create Environment</button>
+        <button class="btn-top-action" id="btn-pause-sim" title="Play / Pause Simulation">⏸</button>
+        <button class="btn-top-action btn-home-link" id="btn-nav-home" title="Return to Home Landing">⌂ Home</button>
+      </div>
+    </header>
+
+    <!-- Content Panes Container -->
+    <div class="panes-viewport">
+
+      <!-- =================================================================== -->
+      <!-- PANE 1: LIVE SIMULATOR & TRACKING (Act & Track)                     -->
+      <!-- =================================================================== -->
+      <section id="pane-simulator" class="pane-content active">
+        <!-- No Virtual Environment Created Overlay State (shown before user creates or activates an environment) -->
+        <div id="no-env-overlay" class="no-env-overlay active">
+          <div class="no-env-card">
+            <div class="no-env-icon-wrapper">
+              <span class="no-env-icon">⚠️</span>
+            </div>
+            <div class="no-env-badge">DEPLOYMENT REQUIRED</div>
+            <h2 class="no-env-title">No Virtual Environment Created</h2>
+            <p class="no-env-desc">
+              No virtual optical environment is currently active. Please configure atmospheric conditions, link distance, target kinematics, and laser parameters first to deploy the 3D simulation and optical tracking.
+            </p>
+            <div class="no-env-actions">
+              <button id="btn-no-env-create" class="btn-create-blue">
+                <span>🛠️</span> Create Virtual Environment
+              </button>
+              <button id="btn-no-env-presets" class="btn-secondary-preset">
+                <span>📂</span> Load Aerospace Preset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-grid">
+          <!-- Top Row -->
+          <div class="grid-top">
+            <!-- 3D Environment Viewport -->
+            <div class="panel panel-3d">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <h2>3D Optical Environment</h2>
+                  <span class="badge badge-accent" id="scene-mode-badge">WebGL 3D Orbit</span>
+                  <span class="badge" id="badge-weather-mode">Clear</span>
+                </div>
+                <div class="panel-actions 3d-live-controls">
+                  <!-- Quick Multi-Target Selector (1-6) & Target Motion Zig-Zag Pattern -->
+                  <div class="quick-target-grp" title="Set Active Targets (1 - 6 Swarm) & Motion Trajectory">
+                    <span class="quick-ctrl-lbl">Targets:</span>
+                    <div class="target-pills" id="quick-target-pills">
+                      <button class="pill-btn active" data-targets="1">1</button>
+                      <button class="pill-btn" data-targets="2">2</button>
+                      <button class="pill-btn" data-targets="3">3</button>
+                      <button class="pill-btn" data-targets="4">4</button>
+                      <button class="pill-btn" data-targets="5">5</button>
+                      <button class="pill-btn" data-targets="6">6</button>
+                    </div>
+                    <!-- Target Zig-Zag Motion Pattern Toggle (Small Zig-Zag Symbol) -->
+                    <button class="pill-btn zigzag-btn" id="btn-3d-random-flight" title="Toggle Target Motion: Zig-Zag Weaving Flight Path">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 12 7 4 12 20 17 4 22 12"></polyline></svg>
+                      <span class="zigzag-lbl">Zig-Zag</span>
+                    </button>
+                  </div>
+                  <!-- Quick Fog Slider -->
+                  <div class="quick-fog-grp" title="Live Atmospheric Fog Severity">
+                    <span class="quick-ctrl-lbl">🌫️ Fog:</span>
+                    <input type="range" id="quick-fog-slider" min="0" max="100" value="0" class="mini-range-slider">
+                    <span id="quick-fog-label" class="quick-ctrl-val">0%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-content canvas-wrapper" id="container-3d">
+                <canvas id="canvas-3d"></canvas>
+                
+                <!-- 3D Camera View Toolbar Overlay (Camera Viewpoints Only) -->
+                <div class="overlay-toolbar">
+                  <button class="tool-btn active" id="btn-tool-orbit" title="Orbit View (3rd Person)">⟲</button>
+                  <button class="tool-btn" id="btn-tool-pov" title="Camera POV (First-Person Camera View)">🎥</button>
+                  <button class="tool-btn" id="btn-tool-reset" title="Reset View">⤢</button>
+                </div>
+
+                <!-- Camera Position Overlay Card -->
+                <div class="camera-pos-card">
+                  <div class="card-title">Gimbal & Target LOS</div>
+                  <div class="pos-row"><span>Range:</span><span id="pos-dist">180.0 m</span></div>
+                  <div class="pos-row"><span>Yaw (Pan):</span><span id="pos-yaw">25.3°</span></div>
+                  <div class="pos-row"><span>Pitch (Tilt):</span><span id="pos-pitch">4.7°</span></div>
+                  <div class="pos-row"><span>Targets:</span><span id="pos-targets">1 Active</span></div>
+                  <div class="pos-row detection-row"><span>3D Tracking:</span><span id="pos-3d-detect" class="badge-detect-locked">🟢 TARGET LOCKED (ALPHA)</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Virtual Camera Viewport -->
+            <div class="panel panel-camera">
+              <div class="panel-header">
+                <h2>Virtual Camera View (FPA Sensor)</h2>
+                <div class="cam-mode-tags">
+                  <span class="tag-live">● LIVE FEED</span>
+                  <span class="tag-fov">HFOV 60°</span>
+                </div>
+              </div>
+              <div class="panel-content canvas-wrapper" id="container-camera">
+                <canvas id="canvas-camera" width="640" height="480"></canvas>
+                <!-- Beacon Signature Temporal Sequencer HUD -->
+                <div class="cam-beacon-sig-hud" id="cam-beacon-sig-hud" title="Optical Beacon Signature: [ON-OFF-ON-OFF-ON] Temporal Discriminator">
+                  <span class="sig-status-dot pulse" id="sig-status-dot"></span>
+                  <span class="sig-title">BEACON SIG:</span>
+                  <div class="sig-slots" id="sig-slots">
+                    <span class="sig-slot-pill active" data-slot="0">ON</span>
+                    <span class="sig-slot-pill" data-slot="1">OFF</span>
+                    <span class="sig-slot-pill" data-slot="2">ON</span>
+                    <span class="sig-slot-pill" data-slot="3">OFF</span>
+                    <span class="sig-slot-pill" data-slot="4">ON</span>
+                  </div>
+                  <span class="sig-lock-tag" id="sig-lock-tag">LOCKED (99.4%)</span>
+                </div>
+                <!-- ML Omnidirectional Search & Reacquisition HUD Banner -->
+                <div class="ml-search-hud-banner" id="ml-search-hud-banner" style="display: none;">
+                  <span class="ml-scan-spinner"></span>
+                  <span class="ml-scan-title">ML ALL-DEGREES SEARCH</span>
+                  <span class="ml-scan-angles" id="ml-scan-angles">PAN: 0.0° | TILT: 0.0°</span>
+                  <span class="ml-scan-match" id="ml-scan-match">ML PROB: 0.0%</span>
+                </div>
+                <div class="reticle-hud" id="reticle-hud">
+                  <div class="hud-bracket top-left"></div>
+                  <div class="hud-bracket top-right"></div>
+                  <div class="hud-bracket bottom-left"></div>
+                  <div class="hud-bracket bottom-right"></div>
+                  <div class="hud-target-label" id="hud-target-label">TARGET_01 [LOCKED]</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Telemetry Gauges Panel -->
+            <div class="panel panel-telemetry">
+              <div class="panel-header">
+                <h2>Environment Telemetry</h2>
+                <span class="badge badge-accent" id="telem-header-badge">OPTICAL CHANNEL</span>
+              </div>
+              <div class="panel-content telemetry-list">
+                <!-- Card 1: Optical Link & Power Budget -->
+                <div class="telem-card">
+                  <div class="telem-card-header">
+                    <span class="tc-title">OPTICAL LINK & POWER</span>
+                    <span class="tc-tag tag-locked" id="telem-link-tag">CARRIER LOCKED</span>
+                  </div>
+                  <div class="telem-card-body">
+                    <div class="telem-item">
+                      <span class="telem-label">Signal Strength</span>
+                      <div class="signal-wrapper">
+                        <div class="signal-bars">
+                          <span class="bar bar-1 active"></span>
+                          <span class="bar bar-2 active"></span>
+                          <span class="bar bar-3 active"></span>
+                          <span class="bar bar-4 active"></span>
+                          <span class="bar bar-5"></span>
+                        </div>
+                        <span class="telem-val font-mono" id="telem-signal">-62 dBm</span>
+                      </div>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Link Margin</span>
+                      <div class="telem-pill-wrap">
+                        <span class="telem-val font-accent font-mono" id="telem-margin">6.3 dB</span>
+                        <span class="margin-status-pill pill-opt">NOMINAL</span>
+                      </div>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Photodetector Flux</span>
+                      <span class="telem-val font-mono" id="telem-rx-flux">1.45 µW (-28.4 dBm)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2: Atmospheric Channel & Propagation -->
+                <div class="telem-card">
+                  <div class="telem-card-header">
+                    <span class="tc-title">ATMOSPHERIC PROPAGATION</span>
+                    <span class="tc-tag tag-channel">FSO CHANNEL</span>
+                  </div>
+                  <div class="telem-card-body">
+                    <div class="telem-item">
+                      <span class="telem-label">Atmosphere</span>
+                      <span class="telem-val" id="telem-weather">Clear</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Fog / Haze Severity</span>
+                      <span class="telem-val font-accent font-mono" id="telem-fog">0 %</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Turbulence (Rytov)</span>
+                      <span class="telem-val font-mono" id="telem-turb-val">0.038 (Weak)</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Ambient Temp</span>
+                      <span class="telem-val font-mono" id="telem-temp">26 °C</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Crosswind Velocity</span>
+                      <span class="telem-val font-mono" id="telem-wind">3.2 m/s</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 3: Host Terminal Subsystems & Clock -->
+                <div class="telem-card">
+                  <div class="telem-card-header">
+                    <span class="tc-title">TERMINAL & MISSION CLOCK</span>
+                    <span class="tc-tag tag-online">ONLINE</span>
+                  </div>
+                  <div class="telem-card-body">
+                    <div class="telem-item">
+                      <span class="telem-label">Mission Elapsed Time</span>
+                      <span class="telem-val font-mono font-accent" id="telem-time">00:00</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">FSM Dual-Stage Loop</span>
+                      <span class="telem-val val-green font-mono" id="telem-fsm-val">Closed-Loop Active</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Rx Aperture Clear</span>
+                      <span class="telem-val font-mono">125 mm (f/4.2)</span>
+                    </div>
+                    <div class="telem-item">
+                      <span class="telem-label">Pointing Jitter</span>
+                      <span class="telem-val font-mono val-green">&lt; 0.35 µrad RMS</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Row -->
+          <div class="grid-bottom">
+            <!-- Tracking Status Table -->
+            <div class="panel panel-tracking-status">
+              <div class="panel-header">
+                <h2>Autonomous Tracking Status</h2>
+                <span class="badge badge-green" id="stat-header-badge">● TRACKING</span>
+              </div>
+              <div class="panel-content tracking-status-body">
+                <!-- Tactical Lock Header Banner -->
+                <div class="stat-banner-card">
+                  <div class="stat-banner-left">
+                    <div class="stat-target-row">
+                      <span class="stat-beacon-dot pulse-beacon"></span>
+                      <span class="stat-target-name" id="stat-target-name">DRONE_ALPHA</span>
+                    </div>
+                    <span class="stat-target-sub">Optical Beacon Carrier (4Hz Strobe)</span>
+                  </div>
+                  <div class="stat-banner-right">
+                    <span class="badge badge-accent font-mono" id="stat-pat-state">TRACKING</span>
+                    <span class="stat-conf-val font-mono" id="stat-conf">99.8%</span>
+                  </div>
+                </div>
+
+                <!-- 2-Column Tactical Telemetry Metrics Grid -->
+                <div class="stat-metrics-grid">
+                  <div class="stat-metric-card">
+                    <span class="metric-lbl">Target Detected</span>
+                    <span class="metric-val val-green font-mono" id="stat-detected">Yes</span>
+                  </div>
+                  <div class="stat-metric-card">
+                    <span class="metric-lbl">Link Status</span>
+                    <span class="metric-val val-green font-mono" id="stat-link">Signal Locked</span>
+                  </div>
+                  <div class="stat-metric-card">
+                    <span class="metric-lbl">Slant Range</span>
+                    <span class="metric-val font-mono" id="stat-dist">5062.1 m</span>
+                  </div>
+                  <div class="stat-metric-card">
+                    <span class="metric-lbl">Simulation FPS</span>
+                    <span class="metric-val font-mono" id="stat-fps">30.0</span>
+                  </div>
+                  <div class="stat-metric-card">
+                    <span class="metric-lbl">Target Pixel (FPA)</span>
+                    <span class="metric-val font-mono" id="stat-pos-px">(320, 240)</span>
+                  </div>
+                  <div class="stat-metric-card">
+                    <span class="metric-lbl">Boresight Offset</span>
+                    <span class="metric-val font-mono" id="stat-offset-px">(0, 0)</span>
+                  </div>
+                </div>
+
+                <!-- Optical Signature Discriminator & EKF Health Card -->
+                <div class="stat-discrim-card">
+                  <div class="discrim-row">
+                    <span class="discrim-lbl">ML Temporal Signature</span>
+                    <span class="discrim-val font-mono font-accent" id="stat-ml-sig">99.8% (Verified)</span>
+                  </div>
+                  <div class="discrim-row">
+                    <span class="discrim-lbl">Kinematic Estimator</span>
+                    <span class="discrim-val font-mono val-green" id="stat-ekf-mode">Adaptive EKF (6-State CA)</span>
+                  </div>
+                  <div class="discrim-row">
+                    <span class="discrim-lbl">Decoy Discrimination</span>
+                    <span class="discrim-val font-mono val-green" id="stat-decoy-discrim">Autonomous (3 Decoys Rejected)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rolling Error Chart -->
+            <div class="panel panel-performance">
+              <div class="panel-header">
+                <h2>Real-Time Pointing Error (Last 60s)</h2>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-yaw"></span>Yaw Error (deg)</span>
+                  <span class="legend-item"><span class="legend-line line-pitch"></span>Pitch Error (deg)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="canvas-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- PAT Gimbal Remote & Analog Joystick Panel -->
+            <div class="panel panel-control">
+              <div class="panel-header">
+                <h2>PAT Gimbal Remote</h2>
+                <span class="badge badge-accent" id="remote-status-badge">AUTO TRACK</span>
+              </div>
+              <div class="panel-content remote-body">
+                <!-- Live Gimbal Angle & Jog Speed Bar -->
+                <div class="remote-telemetry-bar">
+                  <div class="remote-tel-col">
+                    <span class="remote-label">PAN (YAW)</span>
+                    <span class="remote-val font-mono" id="remote-yaw-val">0.0°</span>
+                  </div>
+                  <div class="remote-tel-col">
+                    <span class="remote-label">TILT (PITCH)</span>
+                    <span class="remote-val font-mono" id="remote-pitch-val">0.0°</span>
+                  </div>
+                  <div class="remote-tel-col">
+                    <span class="remote-label">RATE</span>
+                    <span class="remote-val font-mono" id="remote-rate-val">0.0°/s</span>
+                  </div>
+                </div>
+
+                <!-- Interactive 2D Virtual Joystick Unit -->
+                <div class="joystick-wrapper">
+                  <div class="joystick-base" id="joystick-base">
+                    <!-- Direction guides on the base -->
+                    <div class="joy-cardinal joy-n" id="btn-jog-up" title="Jog Tilt Up">▲</div>
+                    <div class="joy-cardinal joy-s" id="btn-jog-down" title="Jog Tilt Down">▼</div>
+                    <div class="joy-cardinal joy-w" id="btn-jog-left" title="Jog Pan Left">◀</div>
+                    <div class="joy-cardinal joy-e" id="btn-jog-right" title="Jog Pan Right">▶</div>
+                    
+                    <!-- Concentric Gimbal Range Rings & Crosshairs -->
+                    <div class="joy-ring ring-outer"></div>
+                    <div class="joy-ring ring-mid"></div>
+                    <div class="joy-crosshair-h"></div>
+                    <div class="joy-crosshair-v"></div>
+
+                    <!-- Draggable Analog Thumbstick Knob -->
+                    <div class="joystick-thumb" id="joystick-thumb">
+                      <div class="thumb-grip"></div>
+                      <div class="thumb-center-dot"></div>
+                    </div>
+                  </div>
+                  <div class="joystick-caption">Drag joystick to steer • Springs back on release</div>
+                </div>
+
+                <!-- Remote Handset Tactical Buttons -->
+                <div class="remote-actions-row">
+                  <button class="remote-btn" id="btn-remote-recenter" title="Recenter Gimbal to Boresight">
+                    <span class="r-icon">⌖</span> Recenter
+                  </button>
+                  <button class="remote-btn remote-btn-active" id="btn-remote-mode" title="Toggle Auto Track / Manual Jog">
+                    <span class="r-icon" id="remote-mode-icon">🎯</span> <span id="remote-mode-text">Auto Track</span>
+                  </button>
+                  <button class="remote-btn" id="btn-remote-zoom" title="Cycle Optical Zoom">
+                    <span class="r-icon">🔍</span> <span id="remote-zoom-text">1.0x</span>
+                  </button>
+                  <button class="remote-btn btn-out-of-view" id="btn-target-out-of-view" title="Force Target Out of View (Slews Gimbal Away & Engages High-Speed Omnidirectional ML Search)">
+                    <span class="r-icon">⚡</span> Target Out of View
+                  </button>
+                </div>
+
+                <!-- Hidden / Compatibility Form Elements (Preserved for bindings) -->
+                <div style="display: none;">
+                  <input type="number" id="input-yaw" value="0.0">
+                  <input type="number" id="input-pitch" value="0.0">
+                  <select id="select-zoom"><option value="1.0">1.0x</option><option value="2.0">2.0x</option><option value="4.0">4.0x</option></select>
+                  <select id="select-mode"><option value="auto_track">Auto Track</option><option value="manual">Manual</option><option value="hold">Hold</option></select>
+                  <button id="btn-recenter"></button>
+                  <button id="btn-dpad-up"></button><button id="btn-dpad-down"></button><button id="btn-dpad-left"></button><button id="btn-dpad-right"></button><button id="btn-dpad-center"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Event Log -->
+            <div class="panel panel-log">
+              <div class="panel-header">
+                <h2>System & State Log</h2>
+              </div>
+              <div class="panel-content log-container" id="log-container">
+                <div class="log-entry"><span class="log-ts">[00:00:00]</span> Simulator Started</div>
+                <div class="log-entry"><span class="log-ts">[00:00:03]</span> Initializing Camera & Gimbal...</div>
+                <div class="log-entry"><span class="log-ts">[00:00:05]</span> Searching for Target...</div>
+                <div class="log-entry"><span class="log-ts">[00:00:12]</span> <span class="log-green">Target Detected</span></div>
+                <div class="log-entry"><span class="log-ts">[00:00:12]</span> Tracking Started</div>
+                <div class="log-entry"><span class="log-ts">[00:00:58]</span> <span class="log-green">Signal Locked</span></div>
+              </div>
+              <div class="log-footer">
+                <button class="btn-secondary" id="btn-clear-log">Clear Log</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- PANE 2: CREATE ENVIRONMENT STUDIO (Dynamic Parameters & Sliders)   -->
+      <!-- =================================================================== -->
+      <section id="pane-create-env" class="pane-content">
+        <div class="studio-wrapper">
+          <!-- Studio Top Navigation Header -->
+          <div class="studio-header">
+            <div class="studio-title-block">
+              <div class="studio-badge">PARAMETRIC OPTICAL TESTBED STUDIO</div>
+              <h2>🛠️ Create Custom Virtual Optical Environment</h2>
+              <p>Configure dynamic atmospheric conditions, multi-target swarms individually, terminal platform dynamics, and optical link physics.</p>
+            </div>
+            <div class="studio-actions-top">
+              <button class="btn-secondary" id="btn-env-reset-defaults-top">↺ Reset Defaults</button>
+              <button class="btn-create-blue" id="btn-env-launch-top">
+                <span>🚀 Create & Launch Environment</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick-Fill Preset Bar -->
+          <div class="preset-quick-bar">
+            <span class="pq-label">⚡ Fast Preset Loadout:</span>
+            <div class="pq-pills" id="preset-quick-pills">
+              <button type="button" class="pq-pill active" data-preset="urban_rooftop">🏙️ Urban Rooftop Ground Station</button>
+              <button type="button" class="pq-pill" data-preset="space_isl">🌌 Deep Space ISL (Vacuum)</button>
+              <button type="button" class="pq-pill" data-preset="leo_downlink">🛰️ LEO Downlink (Slant Pass)</button>
+              <button type="button" class="pq-pill" data-preset="airborne_uav">🛩️ Airborne UAV Swarm</button>
+              <button type="button" class="pq-pill" data-preset="maritime">🚢 Maritime Vessel (Ocean Swell)</button>
+              <button type="button" class="pq-pill" data-preset="fog_storm">🌪️ Dense Fog & Optical Blackout</button>
+            </div>
+          </div>
+
+          <div class="studio-grid-detailed">
+            <!-- Card 1: Scenario Domain & Terminal Platform Profile -->
+            <div class="studio-card">
+              <div class="card-head">
+                <span class="ch-icon">🌐</span>
+                <div>
+                  <h3>Mission Scenario Domain & Terminal Base</h3>
+                  <span class="ch-sub">Operating domain, host platform dynamics & base sway</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="input-group">
+                  <label for="env-domain-select">Mission Operating Domain</label>
+                  <select id="env-domain-select" class="form-select">
+                    <option value="urban_rooftop">🏙️ Urban Rooftop Ground Station (45m Tower, Concrete Plinth)</option>
+                    <option value="space_isl">🌌 Deep Space ISL Orbit (LEO/GEO Vacuum Inter-Satellite)</option>
+                    <option value="airborne_uav">🛩️ Airborne UAV Swarm (1,500m Stratospheric Aero)</option>
+                    <option value="maritime">🚢 Maritime Naval Cutter (Sea State 4 Swell, Water Mist)</option>
+                    <option value="leo_downlink">🛰️ LEO Satellite Ground Downlink (Slant Atmospheric Pass)</option>
+                  </select>
+                </div>
+
+                <div class="input-group">
+                  <label for="env-platform-select">Host Terminal Mount Base</label>
+                  <select id="env-platform-select" class="form-select">
+                    <option value="rooftop">Concrete Ground Plinth (High Stability)</option>
+                    <option value="mast">Mobile Tactical Mast (Structural Wind Sway)</option>
+                    <option value="ship">Marine Gyro-Stabilized Deck (Ocean Swell Pitch & Roll)</option>
+                    <option value="uav">Airframe Gimbal Pod (Engine Vibration Harmonics)</option>
+                    <option value="satellite">Spacecraft Reaction Wheel Bench (Micro-Vibrations)</option>
+                  </select>
+                </div>
+
+                <!-- Platform Base Angular Sway -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-sway-slider">Base Angular Sway Jitter</label>
+                    <span class="slider-val font-mono" id="val-sway">0.02 °</span>
+                  </div>
+                  <input type="range" id="env-sway-slider" min="0" max="3" step="0.01" value="0.02" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>0.0° (Rigid)</span>
+                    <span>1.5° (Moderate)</span>
+                    <span>3.0° (Severe Maritime Swell)</span>
+                  </div>
+                </div>
+
+                <!-- Platform Sway Frequency -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-sway-freq">Base Vibration / Sway Frequency</label>
+                    <span class="slider-val font-mono" id="val-sway-freq">0.15 Hz</span>
+                  </div>
+                  <input type="range" id="env-sway-freq" min="0.05" max="2.0" step="0.05" value="0.15" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>0.05 Hz (Slow Drift)</span>
+                    <span>1.0 Hz</span>
+                    <span>2.0 Hz (Fast Harmonics)</span>
+                  </div>
+                </div>
+
+                <!-- Terminal Elevation -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-altitude-slider">Terminal Elevation Above Sea Level</label>
+                    <span class="slider-val font-mono font-accent" id="val-altitude">45 m</span>
+                  </div>
+                  <input type="range" id="env-altitude-slider" min="0" max="50000" step="25" value="45" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>0 m (Sea Level)</span>
+                    <span>2,500 m (Mountain)</span>
+                    <span>50,000 m (Stratosphere)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Atmospheric Channel, Weather & Optical Turbulence -->
+            <div class="studio-card">
+              <div class="card-head">
+                <span class="ch-icon">🌫️</span>
+                <div>
+                  <h3>Atmospheric Channel & Optical Turbulence</h3>
+                  <span class="ch-sub">Aerosols, solar bloom, thermal plume and Greenwood frequency</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="input-group">
+                  <label for="env-weather-select">Base Weather Condition</label>
+                  <select id="env-weather-select" class="form-select">
+                    <option value="Clear Sun">Clear Sun / Bright Horizon</option>
+                    <option value="Fog">Fog / Dense Haze</option>
+                    <option value="Clear">Clear Sky / Standard</option>
+                    <option value="Night Sky">Night Sky / Celestial Clutter</option>
+                    <option value="Vacuum Space">Vacuum Space (Orbit Zero Atmosphere)</option>
+                    <option value="Sea Spray & Mist">Sea Spray & Maritime Mist</option>
+                  </select>
+                </div>
+
+                <!-- Fog Severity Scale -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-fog-slider">Fog / Haze Severity Scale</label>
+                    <span class="slider-val font-accent font-mono" id="val-fog-severity">0 %</span>
+                  </div>
+                  <input type="range" id="env-fog-slider" min="0" max="100" value="0" class="range-slider range-fog">
+                  <div class="slider-ticks">
+                    <span>Clear (0%)</span>
+                    <span>Light Mist (40%)</span>
+                    <span>Dense Fog (100% Blind)</span>
+                  </div>
+                </div>
+
+                <!-- Solar Glare Toggle & Boresight Angle -->
+                <div class="checkbox-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="env-solar-glare">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <div class="toggle-label-block">
+                    <span class="toggle-title">Solar Glare & Direct Optical Bloom</span>
+                    <span class="toggle-desc">Simulates direct solar ray entry, lens bloom, and optical flare blinding sensor.</span>
+                  </div>
+                </div>
+
+                <div class="slider-group" id="group-solar-angle">
+                  <div class="slider-label-row">
+                    <label for="env-solar-angle">Solar Angle Relative to Boresight</label>
+                    <span class="slider-val font-mono" id="val-solar-angle">28 °</span>
+                  </div>
+                  <input type="range" id="env-solar-angle" min="5" max="85" value="28" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>5° (Near Boresight Blind)</span>
+                    <span>45° (Mid Offset)</span>
+                    <span>85° (Off-Axis)</span>
+                  </div>
+                </div>
+
+                <!-- Optical Turbulence Scale -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-turbulence-slider">Atmospheric Turbulence Scale (Cₙ²)</label>
+                    <span class="slider-val font-mono" id="val-turbulence">Level 1 (Weak, r₀=18cm)</span>
+                  </div>
+                  <input type="range" id="env-turbulence-slider" min="1" max="10" value="1" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>Level 1 (Calm r₀=18cm)</span>
+                    <span>Level 5 (r₀=6cm)</span>
+                    <span>Level 10 (Severe r₀=1.5cm)</span>
+                  </div>
+                </div>
+
+                <!-- Ambient Temperature & Wind -->
+                <div class="form-grid-2">
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-temp-slider">Ambient Temperature</label>
+                      <span class="slider-val" id="val-temperature">26 °C</span>
+                    </div>
+                    <input type="range" id="env-temp-slider" min="-50" max="50" value="26" class="range-slider range-temp">
+                    <div class="slider-ticks">
+                      <span>-50 °C</span>
+                      <span>0 °C</span>
+                      <span>+50 °C</span>
+                    </div>
+                  </div>
+
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-wind-slider">Crosswind Speed (f_G)</label>
+                      <span class="slider-val" id="val-wind">3.5 m/s</span>
+                    </div>
+                    <input type="range" id="env-wind-slider" min="0" max="30" step="0.5" value="3.5" class="range-slider">
+                    <div class="slider-ticks">
+                      <span>0 m/s</span>
+                      <span>15 m/s</span>
+                      <span>30 m/s</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Multi-Target Swarms & Individual Target Kinematics (FULL WIDTH SECTION) -->
+          <div class="studio-card studio-card-full">
+            <div class="card-head">
+              <span class="ch-icon">🎯</span>
+              <div>
+                <h3>Multi-Target Swarms & Individual Target Kinematics</h3>
+                <span class="ch-sub">Configure up to 6 targets individually: range, speed, trajectory, wavelength & beacon pulse pattern</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Number of Targets Swarm Slider -->
+              <div class="target-swarm-header-row">
+                <div class="slider-group flex-1">
+                  <div class="slider-label-row">
+                    <label for="env-num-targets">Active Target Swarm Count</label>
+                    <span class="slider-val font-accent font-mono" id="val-targets">1 Target (Solo Track)</span>
+                  </div>
+                  <input type="range" id="env-num-targets" min="1" max="6" value="1" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>1 (Single)</span>
+                    <span>2 (Escort)</span>
+                    <span>3 (Trio)</span>
+                    <span>4 (Diamond)</span>
+                    <span>5 (Flank)</span>
+                    <span>6 (Full Swarm)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Individual Target Selection Tabs -->
+              <div class="individual-target-selector">
+                <span class="its-label">Configure Target Individually:</span>
+                <div class="target-tab-pills" id="target-tab-pills">
+                  <button type="button" class="target-pill active" data-tidx="0">
+                    <span class="t-pill-dot dot-alpha"></span>
+                    <span class="t-pill-name">T1: Alpha</span>
+                    <span class="t-pill-role">(Primary Link)</span>
+                  </button>
+                  <button type="button" class="target-pill disabled" data-tidx="1">
+                    <span class="t-pill-dot dot-beta"></span>
+                    <span class="t-pill-name">T2: Beta</span>
+                    <span class="t-pill-role">(Escort)</span>
+                  </button>
+                  <button type="button" class="target-pill disabled" data-tidx="2">
+                    <span class="t-pill-dot dot-gamma"></span>
+                    <span class="t-pill-name">T3: Gamma</span>
+                    <span class="t-pill-role">(Flank)</span>
+                  </button>
+                  <button type="button" class="target-pill disabled" data-tidx="3">
+                    <span class="t-pill-dot dot-delta"></span>
+                    <span class="t-pill-name">T4: Delta</span>
+                    <span class="t-pill-role">(Echelon)</span>
+                  </button>
+                  <button type="button" class="target-pill disabled" data-tidx="4">
+                    <span class="t-pill-dot dot-epsilon"></span>
+                    <span class="t-pill-name">T5: Epsilon</span>
+                    <span class="t-pill-role">(Weave)</span>
+                  </button>
+                  <button type="button" class="target-pill disabled" data-tidx="5">
+                    <span class="t-pill-dot dot-zeta"></span>
+                    <span class="t-pill-name">T6: Zeta</span>
+                    <span class="t-pill-role">(Perimeter)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Dedicated Individual Target Configuration Editor Box -->
+              <div class="target-editor-box" id="target-editor-box">
+                <div class="te-badge-row">
+                  <span class="te-badge" id="te-badge-id">TARGET 1: ALPHA (PRIMARY FSOC TRANSCEIVER)</span>
+                  <span class="te-badge-type" id="te-badge-desc">Lead Optical Target</span>
+                </div>
+
+                <div class="te-grid">
+                  <!-- Col 1: Identity & Trajectory -->
+                  <div class="te-col">
+                    <div class="input-group">
+                      <label for="target-name-input">Target Call-Sign / ID</label>
+                      <input type="text" id="target-name-input" value="Drone_Alpha_Lead" class="form-input" placeholder="e.g. Drone_Alpha">
+                    </div>
+
+                    <div class="input-group">
+                      <label for="target-role-select">Tactical Swarm Role</label>
+                      <select id="target-role-select" class="form-select">
+                        <option value="primary">Primary Optical Transceiver (Locked Beam)</option>
+                        <option value="escort">Escort Wingman (Close Formation)</option>
+                        <option value="decoy">Agile Decoy / Distractor Beacon</option>
+                        <option value="relay">High-Altitude Optical Relay</option>
+                      </select>
+                    </div>
+
+                    <div class="input-group">
+                      <label for="target-traj-select">Target Flight Trajectory</label>
+                      <select id="target-traj-select" class="form-select">
+                        <option value="circular">Circular Orbit (Standard Flight)</option>
+                        <option value="sinusoidal">Sinusoidal Oscillations (Atmospheric Buffet)</option>
+                        <option value="linear">High-Speed Linear Flyby</option>
+                        <option value="evasive">Evasive Agile Maneuver (Combat UAV)</option>
+                        <option value="random">Random Brownian Walk Flight</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Col 2: Distance, Speed & Altitude -->
+                  <div class="te-col">
+                    <div class="slider-group">
+                      <div class="slider-label-row">
+                        <label for="target-range-slider">Individual Link Distance / Range</label>
+                        <span class="slider-val font-mono font-accent" id="val-target-range">180 m</span>
+                      </div>
+                      <input type="range" id="target-range-slider" min="100" max="25000" step="50" value="180" class="range-slider">
+                      <div class="slider-ticks">
+                        <span>100 m</span>
+                        <span>5,000 m</span>
+                        <span>25,000 m</span>
+                      </div>
+                    </div>
+
+                    <div class="slider-group">
+                      <div class="slider-label-row">
+                        <label for="target-speed-slider">Flight Velocity / Speed</label>
+                        <span class="slider-val font-mono" id="val-target-speed">24 m/s</span>
+                      </div>
+                      <input type="range" id="target-speed-slider" min="5" max="150" step="1" value="24" class="range-slider">
+                      <div class="slider-ticks">
+                        <span>5 m/s (Hover)</span>
+                        <span>75 m/s (Fast UAV)</span>
+                        <span>150 m/s (Jet)</span>
+                      </div>
+                    </div>
+
+                    <div class="slider-group">
+                      <div class="slider-label-row">
+                        <label for="target-alt-slider">Altitude / Elevation Offset</label>
+                        <span class="slider-val font-mono" id="val-target-alt">0 m</span>
+                      </div>
+                      <input type="range" id="target-alt-slider" min="-80" max="120" step="5" value="0" class="range-slider">
+                      <div class="slider-ticks">
+                        <span>-80 m (Low)</span>
+                        <span>0 m (Horizon)</span>
+                        <span>+120 m (High)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Col 3: Optical Beacon Characteristics -->
+                  <div class="te-col">
+                    <div class="input-group">
+                      <label for="target-wavelength-select">Beacon Wavelength</label>
+                      <select id="target-wavelength-select" class="form-select">
+                        <option value="1550">1550 nm (Telecom Infra-Red / Eye-Safe) 🟣</option>
+                        <option value="850">850 nm (Near-IR High-Gain Si APD) 🔵</option>
+                        <option value="1064">1064 nm (Nd:YAG High-Energy Laser) 🟠</option>
+                        <option value="532">532 nm (Maritime Visible Green Laser) 🟢</option>
+                      </select>
+                    </div>
+
+                    <div class="input-group">
+                      <label for="target-power-select">Beacon Optical Power (P_tx)</label>
+                      <select id="target-power-select" class="form-select">
+                        <option value="250">250 mW (Low Power / Covert)</option>
+                        <option value="500" selected>500 mW (Standard Nominal)</option>
+                        <option value="1000">1000 mW (1.0 W High Margin)</option>
+                        <option value="2000">2000 mW (2.0 W Deep Fog)</option>
+                        <option value="3000">3000 mW (3.0 W Space ISL)</option>
+                      </select>
+                    </div>
+
+                    <div class="input-group">
+                      <label for="target-mod-select">Beacon Optical Modulation</label>
+                      <select id="target-mod-select" class="form-select">
+                        <option value="cw">Continuous Wave (CW Constant Glow)</option>
+                        <option value="strobe_100hz">100 Hz Strobe Pulse</option>
+                        <option value="strobe_500hz">500 Hz High-Speed Flash</option>
+                        <option value="ml_signature">ML BeaconSignatureNet Coded Pulse</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="studio-grid-detailed">
+            <!-- Card 4: Terminal Gimbal, FSM & Optical Aperture -->
+            <div class="studio-card">
+              <div class="card-head">
+                <span class="ch-icon">🔭</span>
+                <div>
+                  <h3>Terminal Gimbal & Fast Steering Mirror (FSM)</h3>
+                  <span class="ch-sub">Actuator slew limits, servo lag and dual-stage fine offload</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid-2">
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-gimbal-rate">Gimbal Max Slew Rate</label>
+                      <span class="slider-val font-mono" id="val-gimbal-rate">45 °/s</span>
+                    </div>
+                    <input type="range" id="env-gimbal-rate" min="10" max="90" step="5" value="45" class="range-slider">
+                    <div class="slider-ticks">
+                      <span>10°/s (Heavy)</span>
+                      <span>50°/s</span>
+                      <span>90°/s (Agile)</span>
+                    </div>
+                  </div>
+
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-gimbal-lag">Actuator Lag (Time Constant τ)</label>
+                      <span class="slider-val font-mono" id="val-gimbal-lag">50 ms</span>
+                    </div>
+                    <input type="range" id="env-gimbal-lag" min="10" max="150" step="5" value="50" class="range-slider">
+                    <div class="slider-ticks">
+                      <span>10 ms (Direct Drive)</span>
+                      <span>50 ms</span>
+                      <span>150 ms (Geared)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="checkbox-group mt-2">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="env-fsm-enable" checked>
+                    <span class="switch-slider"></span>
+                  </label>
+                  <div class="toggle-label-block">
+                    <span class="toggle-title">Dual-Stage Fast Steering Mirror (FSM)</span>
+                    <span class="toggle-desc">High-bandwidth piezo mirror offloading sub-micro-radian pointing jitter.</span>
+                  </div>
+                </div>
+
+                <div class="form-grid-2 mt-2">
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-rx-aperture">Receiver Aperture Diameter (D_rx)</label>
+                      <span class="slider-val font-mono" id="val-rx-aperture">15 cm</span>
+                    </div>
+                    <input type="range" id="env-rx-aperture" min="5" max="40" step="1" value="15" class="range-slider">
+                    <div class="slider-ticks">
+                      <span>5 cm (Compact)</span>
+                      <span>20 cm</span>
+                      <span>40 cm (Heavy Ground)</span>
+                    </div>
+                  </div>
+
+                  <div class="input-group">
+                    <label for="env-filter-bw">Optical Bandpass Filter</label>
+                    <select id="env-filter-bw" class="form-select">
+                      <option value="1">1.0 nm (Ultra-Narrow Solar Rejection)</option>
+                      <option value="3" selected>3.0 nm (Standard Telecom Filter)</option>
+                      <option value="10">10.0 nm (Wide-Band APD)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 5: Cloud Occlusion & Blackout Disturbance Injection -->
+            <div class="studio-card">
+              <div class="card-head">
+                <span class="ch-icon">☁️</span>
+                <div>
+                  <h3>Cloud Occlusion & Signal Blackout Stress-Testing</h3>
+                  <span class="ch-sub">Simulate intermittent LOS blockages, smoke and PAT reacquisition</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="checkbox-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="env-occlusion-toggle">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <div class="toggle-label-block">
+                    <span class="toggle-title">Dynamic Cloud / Smoke LOS Blackout</span>
+                    <span class="toggle-desc">Injects complete optical signal blackout to stress-test PAT reacquisition state machine.</span>
+                  </div>
+                </div>
+
+                <div class="form-grid-2 mt-2" id="occlusion-config-block">
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-occlusion-start">Blackout Start Time (t_start)</label>
+                      <span class="slider-val font-mono" id="val-occlusion-start">2.0 s</span>
+                    </div>
+                    <input type="range" id="env-occlusion-start" min="1.0" max="8.0" step="0.5" value="2.0" class="range-slider">
+                    <div class="slider-ticks">
+                      <span>1.0 s</span>
+                      <span>4.0 s</span>
+                      <span>8.0 s</span>
+                    </div>
+                  </div>
+
+                  <div class="slider-group">
+                    <div class="slider-label-row">
+                      <label for="env-occlusion-duration">Blackout Duration (Δt)</label>
+                      <span class="slider-val font-mono" id="val-occlusion-duration">1.5 s</span>
+                    </div>
+                    <input type="range" id="env-occlusion-duration" min="0.5" max="4.0" step="0.25" value="1.5" class="range-slider">
+                    <div class="slider-ticks">
+                      <span>0.5 s (Brief)</span>
+                      <span>2.0 s</span>
+                      <span>4.0 s (Deep Outage)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="slider-group mt-2">
+                  <div class="slider-label-row">
+                    <label for="env-occlusion-depth">Optical Attenuation Depth</label>
+                    <span class="slider-val font-mono" id="val-occlusion-depth">35 dB</span>
+                  </div>
+                  <input type="range" id="env-occlusion-depth" min="15" max="50" step="5" value="35" class="range-slider">
+                  <div class="slider-ticks">
+                    <span>15 dB (Cirrus)</span>
+                    <span>35 dB (Thick Cumulus)</span>
+                    <span>50 dB (Dense Smoke Plume)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Real-Time Channel Physics & Link Budget Calculation -->
+          <div class="studio-card studio-card-full studio-preview-card">
+            <div class="card-head">
+              <span class="ch-icon">📡</span>
+              <div>
+                <h3>Estimated Real-Time Optical Channel Physics & Link Margin</h3>
+                <span class="ch-sub">Live computation based on distance, wavelength, fog extinction, and turbulence</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="preview-physics-grid">
+                <div class="pp-card">
+                  <span class="pp-label">Atmospheric Extinction Rate (α)</span>
+                  <span class="pp-val font-mono" id="prev-extinction">0.5 dB/km</span>
+                  <span class="pp-hint">Beer-Lambert Aerosol Loss</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">Free-Space Path Loss (FSPL)</span>
+                  <span class="pp-val font-mono" id="prev-fspl">-142.1 dB</span>
+                  <span class="pp-hint">Geometric 4πR/λ Dispersion</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">Estimated Received Power (P_rx)</span>
+                  <span class="pp-val font-mono" id="prev-prx">-21.2 dBm</span>
+                  <span class="pp-hint">Sensitivity threshold: -45.0 dBm</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">Optical Link Margin</span>
+                  <span class="pp-val font-mono font-accent font-bold" id="prev-margin">+23.8 dB</span>
+                  <span class="pp-hint">Safety margin over blackout</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">Scintillation Rytov Index (σ_R²)</span>
+                  <span class="pp-val font-mono" id="prev-rytov">0.06 (Weak)</span>
+                  <span class="pp-hint">Log-amplitude intensity variance</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">Greenwood Frequency (f_G)</span>
+                  <span class="pp-val font-mono" id="prev-greenwood">42.8 Hz</span>
+                  <span class="pp-hint">Atmospheric temporal bandwidth</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">Estimated Bit-Error Rate (BER)</span>
+                  <span class="pp-val font-mono font-green" id="prev-ber">&lt; 10⁻⁹ (Pristine)</span>
+                  <span class="pp-hint">1 Gbps NRZ-OOK link</span>
+                </div>
+                <div class="pp-card">
+                  <span class="pp-label">PAT Tracking Complexity</span>
+                  <span class="pi-badge badge-green" id="prev-difficulty">Nominal Acquisition</span>
+                  <span class="pp-hint">Gimbal + FSM stability rating</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Master Creation & Deployment Command Center Console -->
+          <div class="studio-bottom-console" id="studio-bottom-console">
+            <div class="sbc-left">
+              <div class="sbc-name-row">
+                <label for="env-name-input">Environment Name:</label>
+                <input type="text" id="env-name-input" value="Custom_Mission_Alpha" class="form-input sbc-input" placeholder="e.g. My_Combat_UAV_Swarm">
+              </div>
+              <div class="sbc-summary-chips">
+                <span class="sbc-chip" id="sbc-chip-domain">🌐 Urban Rooftop</span>
+                <span class="sbc-chip" id="sbc-chip-weather">🌫️ Clear Daylight (0% Fog)</span>
+                <span class="sbc-chip" id="sbc-chip-targets">🎯 1 Target (180m)</span>
+                <span class="sbc-chip" id="sbc-chip-laser">⚡ 1550nm @ 500mW</span>
+                <span class="sbc-chip sbc-chip-margin" id="sbc-chip-margin">📈 Link Margin: +23.8 dB</span>
+              </div>
+            </div>
+            <div class="sbc-right">
+              <button type="button" class="btn-secondary" id="btn-env-reset-defaults">↺ Reset Defaults</button>
+              <button type="button" class="btn-secondary" id="btn-env-save-preset">💾 Save Preset</button>
+              <button type="button" class="btn-create-master" id="btn-env-launch">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">CREATE & DEPLOY VIRTUAL ENVIRONMENT</span>
+                <span class="btn-arrow">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- PANE 3: RECENT ENVIRONMENTS & PRESETS                               -->
+      <!-- =================================================================== -->
+      <section id="pane-recent-envs" class="pane-content">
+        <div class="recent-wrapper">
+          <div class="recent-header">
+            <div>
+              <h2>📂 Environments & Aerospace Presets</h2>
+              <p>Quick-launch pre-configured mission scenarios or resume your saved custom optical environments.</p>
+            </div>
+            <button class="btn-secondary" id="btn-refresh-envs">↻ Refresh List</button>
+          </div>
+
+          <div class="env-cards-grid" id="recent-envs-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- =================================================================== -->
+      <!-- PANE 4: REPORTS & ANALYTICS                                        -->
+      <!-- =================================================================== -->
+      <section id="pane-reports" class="pane-content">
+        <div class="reports-wrapper">
+          <div class="reports-header">
+            <div>
+              <h2>📊 Simulation Analytics & Mission Performance Audit</h2>
+              <p>Comprehensive aerospace telemetry audit, dual-stage pointing accuracy curves, link budget dissipation, and lock retention statistics.</p>
+            </div>
+            <div class="reports-actions">
+              <button class="btn-secondary" id="btn-export-csv">📥 Export Full CSV</button>
+              <button class="btn-secondary" id="btn-export-json">📄 Export JSON Audit</button>
+              <button class="btn-secondary" id="btn-print-report">🖨️ Print / Save PDF</button>
+              <button class="btn-primary" id="btn-refresh-reports">↻ Refresh KPIs</button>
+            </div>
+          </div>
+
+          <!-- Executive KPI Grid (6 Metric Cards) -->
+          <div class="kpi-grid kpi-grid-6">
+            <div class="kpi-card">
+              <div class="kpi-title">Carrier Lock Retention</div>
+              <div class="kpi-val val-green" id="kpi-lock-pct">99.4 %</div>
+              <div class="kpi-desc">Time maintained within diffraction cone</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Mean Fine Pointing Error</div>
+              <div class="kpi-val font-accent" id="kpi-avg-err">3.8 µrad</div>
+              <div class="kpi-desc">Dual-stage Coarse + FSM Optical Lock</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Coarse Gimbal Error</div>
+              <div class="kpi-val font-blue" id="kpi-coarse-err">42.6 µrad</div>
+              <div class="kpi-desc">Gimbal LOS mechanical tracking error</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Max Peak Error</div>
+              <div class="kpi-val val-amber" id="kpi-max-err">28.2 µrad</div>
+              <div class="kpi-desc">During sudden zig-zag apex reversal</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Acquisition Time</div>
+              <div class="kpi-val val-green" id="kpi-acq-time">0.27 s</div>
+              <div class="kpi-desc">Search to fine lock transition latency</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Optical Link Margin</div>
+              <div class="kpi-val val-green" id="kpi-link-margin">+14.2 dB</div>
+              <div class="kpi-desc">Fade reserve above detector threshold</div>
+            </div>
+          </div>
+
+          <!-- 4-Panel Analytical Telemetry Charts Grid -->
+          <div class="reports-charts-grid">
+            <!-- Chart 1: Dual-Stage Pointing Accuracy -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>1. Dual-Stage Pointing Accuracy & Jitter Spectrum</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-coarse"></span>Coarse Gimbal (µrad)</span>
+                  <span class="legend-item"><span class="legend-line line-fine"></span>FSM Fine Optical (µrad)</span>
+                  <span class="legend-item"><span class="legend-line line-diffraction"></span>Diffraction Limit (25 µrad)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-pointing"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Optical Link Budget & Atmospheric Extinction -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>2. Optical Link Budget & Atmospheric Fog Attenuation</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-margin"></span>Link Margin (dB)</span>
+                  <span class="legend-item"><span class="legend-line line-rx"></span>Rx Power (dBm)</span>
+                  <span class="legend-item"><span class="legend-line line-fog"></span>Fog Loss (dB)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-link"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: PAT State Machine Mode Transitions -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>3. PAT State Machine Operational Transitions</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-badge badge-green">TRACKING</span></span>
+                  <span class="legend-item"><span class="legend-badge badge-accent">ACQUISITION</span></span>
+                  <span class="legend-item"><span class="legend-badge badge-amber">COASTING</span></span>
+                  <span class="legend-item"><span class="legend-badge badge-red">SEARCH</span></span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-states"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Scintillation & Bit-Error Rate (BER) -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>4. Scintillation Index & Bit-Error Rate (BER)</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-ber"></span>Uncoded OOK BER</span>
+                  <span class="legend-item"><span class="legend-line line-rytov"></span>Rytov Index (σ_R²)</span>
+                  <span class="legend-item"><span class="legend-line line-fec"></span>FEC Threshold (10⁻⁶)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-ber"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comprehensive Subsystem Audit & Specifications Table -->
+          <div class="panel reports-table-panel">
+            <div class="panel-header">
+              <h3>Detailed Subsystem Compliance Audit Table</h3>
+              <span class="badge badge-green">100% SPECIFICATION COMPLIANT</span>
+            </div>
+            <div class="panel-content">
+              <table class="data-table" id="table-reports">
+                <thead>
+                  <tr>
+                    <th>Subsystem Area</th>
+                    <th>Measured Operational Parameter</th>
+                    <th>Real-Time Telemetry Value</th>
+                    <th>Aerospace Spec Target</th>
+                    <th>Compliance Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-reports">
+                  <!-- Pointing Subsystem -->
+                  <tr>
+                    <td><strong>Pointing & Tracking</strong></td>
+                    <td>Fine Stage Net Optical Pointing Error (RMS)</td>
+                    <td id="rep-fine-rms" class="font-mono font-accent">3.8 µrad</td>
+                    <td>&lt; 25.0 µrad (Diffraction Limit)</td>
+                    <td><span class="badge badge-green">OPTIMAL</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pointing & Tracking</strong></td>
+                    <td>99th Percentile Peak Jitter (P99)</td>
+                    <td id="rep-p99-err" class="font-mono font-accent">14.2 µrad</td>
+                    <td>&lt; 50.0 µrad</td>
+                    <td><span class="badge badge-green">PASS</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pointing & Tracking</strong></td>
+                    <td>FSM Jitter Rejection Ratio</td>
+                    <td id="rep-fsm-rej" class="font-mono font-accent">99.7 %</td>
+                    <td>&gt; 95.0 % Attenuation</td>
+                    <td><span class="badge badge-green">EXCELLENT</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pointing & Tracking</strong></td>
+                    <td>Closed-Loop Control Processing Latency</td>
+                    <td id="rep-proc-time" class="font-mono font-accent">2.1 ms</td>
+                    <td>&lt; 10.0 ms (100 Hz Loop)</td>
+                    <td><span class="badge badge-green">EXCELLENT</span></td>
+                  </tr>
+                  <!-- Optical Transceiver -->
+                  <tr>
+                    <td><strong>Optical Transceiver</strong></td>
+                    <td>Laser Transmitter Power & Wavelength</td>
+                    <td id="rep-laser-cfg" class="font-mono font-accent">1550 nm @ 500 mW</td>
+                    <td>Eye-Safe Near-IR Payload</td>
+                    <td><span class="badge badge-accent">LOCKED</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Optical Transceiver</strong></td>
+                    <td>Optical Link Margin (Above Fade Reserve)</td>
+                    <td id="rep-link-margin" class="font-mono font-accent">+14.2 dB</td>
+                    <td>&gt; 3.0 dB (Fade Margin)</td>
+                    <td><span class="badge badge-green">PASS</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Optical Transceiver</strong></td>
+                    <td>Estimated Uncoded Bit-Error Rate (BER)</td>
+                    <td id="rep-ber-val" class="font-mono font-accent">&lt; 1.0e-12</td>
+                    <td>&lt; 1.0e-6 (Hard Decision FEC)</td>
+                    <td><span class="badge badge-green">NOMINAL</span></td>
+                  </tr>
+                  <!-- Atmosphere & Fog -->
+                  <tr>
+                    <td><strong>Atmospheric Channel</strong></td>
+                    <td>Aerosol Fog Extinction & Severity</td>
+                    <td id="rep-fog-stat" class="font-mono font-accent">Clear (0.0 dB Loss)</td>
+                    <td>0–100% Fog Severity</td>
+                    <td><span class="badge badge-green">OPTIMAL</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Atmospheric Channel</strong></td>
+                    <td>Scintillation Rytov Index (σ_R²)</td>
+                    <td id="rep-rytov-val" class="font-mono font-accent">0.038 (Weak Turbulence)</td>
+                    <td>&lt; 0.200 Weak-to-Moderate</td>
+                    <td><span class="badge badge-green">PASS</span></td>
+                  </tr>
+                  <!-- Swarm Decoy Discrimination -->
+                  <tr>
+                    <td><strong>Swarm Discrimination</strong></td>
+                    <td>Tactical Swarm Target Count & Decoys</td>
+                    <td id="rep-targets-stat" class="font-mono font-accent">1 Primary (3 Decoys Rejected)</td>
+                    <td>Multi-Target Gating Active</td>
+                    <td><span class="badge badge-green">VERIFIED</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Swarm Discrimination</strong></td>
+                    <td>Optical Beacon Signature Verification</td>
+                    <td id="rep-sig-stat" class="font-mono font-accent">[ON-OFF-ON-OFF-ON] (99.8% Match)</td>
+                    <td>Temporal Code Lock</td>
+                    <td><span class="badge badge-accent">CARRIER LOCK</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mission Event Chronicle Panel -->
+          <div class="panel reports-chronicle-panel">
+            <div class="panel-header">
+              <h3>Chronological Mission Event Log</h3>
+              <span class="badge badge-secondary" id="rep-log-count">Active Stream</span>
+            </div>
+            <div class="panel-content">
+              <div class="chronicle-list" id="rep-chronicle-list">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="status-bar">
+      <div class="status-item status-live">
+        <span class="status-dot"></span>
+        <span id="sb-status-text">OptiLign Simulator Active</span>
+      </div>
+      <div class="status-item">
+        <span class="sb-label">Active Scenario:</span>
+        <span id="sb-scenario-name" class="font-accent">Urban Rooftop</span>
+      </div>
+      <div class="status-item">
+        <span class="sb-label">Target Name:</span>
+        <span id="sb-target">Drone_01</span>
+      </div>
+      <div class="status-item">
+        <span class="sb-label">Gimbal:</span>
+        <span>Coarse + FSM Dual-Stage</span>
+      </div>
+      <div class="status-item">
+        <span class="sb-label">Build:</span>
+        <span>v2.5 Full Release</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js?v=2.8.0"></script>
+</body>
+</html>
