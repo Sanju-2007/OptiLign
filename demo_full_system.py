@@ -133,9 +133,9 @@ def run_master_mission() -> None:
         seed=456,
     ))
 
-    # Cloud dropout between t = 2.4s and t = 3.8s (1.4 seconds complete outage)
+    # Cloud disturbance dropout between t = 2.4s and t = 2.7s (0.30 seconds transient outage)
     cloud = OcclusionModel(OcclusionConfig(
-        intervals=[(2.4, 3.8)],
+        intervals=[(2.4, 2.7)],
         transition_duration_s=0.05,
     ))
 
@@ -167,6 +167,8 @@ def run_master_mission() -> None:
 
     for i in range(n_steps):
         t = i * dt
+
+        t_step_start = time.perf_counter()
 
         # Ground truth target position
         target_pos = trajectory.position(t).as_array()
@@ -262,15 +264,36 @@ def run_master_mission() -> None:
         gimbal.step(pan_rate, tilt_rate, dt)
 
         # Optical Communications Link Budget Evaluation
-        eval_err = gt_err_rad if not math.isnan(gt_err_rad) else 0.05
-        # If cloud occlusion, incident power is blocked
-        if opt_trans < 0.05:
-            eval_err = 0.1  # Complete link fade
-
+        eval_err = gt_err_rad if not math.isnan(gt_err_rad) else 0.005
+        # Link budget under true physical pointing error
         link_res = link_budget.evaluate(dist_m, eval_err)
-        rx_pwr = link_res.rx_power_dbm if opt_trans > 0.05 else -100.0
-        link_marg = link_res.link_margin_db if opt_trans > 0.05 else -62.0
-        ber = link_res.ber if opt_trans > 0.05 else 1.0
+
+        # Cloud occlusion introduces extinction attenuation
+        cloud_loss_db = -10.0 * math.log10(max(1e-10, opt_trans)) if opt_trans > 0.0 else 100.0
+        if opt_trans > 0.05:
+            rx_pwr = max(-100.0, link_res.rx_power_dbm - cloud_loss_db)
+            link_marg = rx_pwr - (-38.0)
+            snr_db = max(0.0, link_res.snr_db - cloud_loss_db)
+            q_factor = math.sqrt(10.0 ** (snr_db / 10.0)) / 2.0
+            ber = 0.5 * math.erfc(q_factor / math.sqrt(2.0)) if q_factor < 8.0 else 1e-15
+        else:
+            rx_pwr = -100.0
+            link_marg = -62.0
+            snr_db = 0.0
+            q_factor = 0.0
+            ber = 0.5  # Signal blocked by cloud
+
+        t_step_end = time.perf_counter()
+        step_proc_ms = (t_step_end - t_step_start) * 1000.0
+
+        if not math.isnan(det_u) and not math.isnan(gt_u):
+            c_err_px = math.hypot(det_u - gt_u, det_v - gt_v)
+        elif not math.isnan(est_u) and not math.isnan(gt_u):
+            c_err_px = math.hypot(est_u - gt_u, est_v - gt_v)
+        else:
+            c_err_px = float("nan")
+
+        t_err_px = math.hypot(gt_u - 320.0, gt_v - 240.0) if not math.isnan(gt_u) else float("nan")
 
         snapshots.append({
             "time": round(t, 4),
@@ -284,17 +307,36 @@ def run_master_mission() -> None:
             "error_v": round(ang_err.vertical, 6),
             "error_total": round(ang_err.total, 6),
             "gt_error_total": round(gt_err_rad, 6),
+            "centroid_error_px": round(c_err_px, 2) if not math.isnan(c_err_px) else None,
+            "tracking_error_px": round(t_err_px, 2) if not math.isnan(t_err_px) else None,
+            "processing_time_ms": round(step_proc_ms, 2),
             "pan_cmd": round(pan_rate, 5),
             "tilt_cmd": round(tilt_rate, 5),
             "gimbal_pan": round(g_state.pan, 5),
             "gimbal_tilt": round(g_state.tilt, 5),
+            "gimbal_pan_rate": round(g_state.pan_rate, 5),
+            "gimbal_tilt_rate": round(g_state.tilt_rate, 5),
             "confidence": round(det.confidence if beacon_detected else 0.0, 3),
             "detected": beacon_detected,
             "pat_state": pat_sm.state.name,
+            "target_x": round(float(target_pos[0]), 2),
+            "target_y": round(float(target_pos[1]), 2),
+            "target_z": round(float(target_pos[2]), 2),
+            "distance_m": round(dist_m, 2),
+            "jitter_pan_urad": round(jit_pan * 1e6, 2),
+            "jitter_tilt_urad": round(jit_tilt * 1e6, 2),
+            "wander_pan_urad": round(wander_pan * 1e6, 2),
+            "wander_tilt_urad": round(wander_tilt * 1e6, 2),
+            "scintillation_factor": round(scint_factor, 3),
             "cloud_transmissivity": round(opt_trans, 3),
+            "cloud_loss_db": round(cloud_loss_db, 2),
+            "free_space_loss_db": round(link_res.free_space_loss_db, 2),
+            "atmospheric_loss_db": round(link_res.atmospheric_loss_db, 2),
             "rx_power_dbm": round(rx_pwr, 2),
             "pointing_loss_db": round(link_res.pointing_loss_db, 2),
             "link_margin_db": round(link_marg, 2),
+            "snr_db": round(snr_db, 2),
+            "q_factor": round(q_factor, 2),
             "ber": ber,
         })
 

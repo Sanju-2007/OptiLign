@@ -9,7 +9,9 @@ from fsoc_pat.core.types import Acceleration3D, Position3D, Velocity3D
 from fsoc_pat.simulation.trajectories import (
     CircularTrajectory,
     ConstantAccelerationTrajectory,
+    FigureOfEightTrajectory,
     LinearTrajectory,
+    RandomTrajectory,
     SinusoidalTrajectory,
     StationaryTrajectory,
 )
@@ -182,3 +184,123 @@ class TestSinusoidalTrajectory:
         # Peak at t = π/(2ω) = π/2
         p = traj.position(math.pi / 2)
         assert p.x == pytest.approx(5.0, abs=1e-10)
+
+
+class TestFigureOfEightTrajectory:
+    def test_origin_crossing(self) -> None:
+        """At t=0, trajectory should be at center."""
+        center = Position3D(10.0, -20.0, 50.0)
+        traj = FigureOfEightTrajectory(
+            center=center, radius_x=15.0, radius_y=8.0, angular_rate=0.5,
+        )
+        p0 = traj.position(0.0)
+        assert p0.x == pytest.approx(center.x, abs=1e-10)
+        assert p0.y == pytest.approx(center.y, abs=1e-10)
+        assert p0.z == pytest.approx(center.z, abs=1e-10)
+
+    def test_bounding_box(self) -> None:
+        """Trajectory must remain within [center - radius, center + radius]."""
+        center = Position3D(0.0, 0.0, 100.0)
+        rx, ry = 25.0, 12.0
+        traj = FigureOfEightTrajectory(
+            center=center, radius_x=rx, radius_y=ry, angular_rate=1.2,
+        )
+        for t in np.linspace(0.0, 10.0, 100):
+            p = traj.position(float(t))
+            assert abs(p.x - center.x) <= rx + 1e-10
+            assert abs(p.y - center.y) <= 0.5 * ry + 1e-10
+            assert p.z == center.z
+
+    def test_derivative_consistency(self) -> None:
+        """Numerical derivative of position ≈ analytical velocity, and velocity ≈ accel."""
+        traj = FigureOfEightTrajectory(
+            center=Position3D(5.0, 10.0, 200.0),
+            radius_x=20.0, radius_y=15.0, angular_rate=0.8, phase=0.2,
+        )
+        t = 1.75
+        dt = 1e-6
+        p1 = traj.position(t)
+        p2 = traj.position(t + dt)
+        num_v = Velocity3D((p2.x - p1.x) / dt, (p2.y - p1.y) / dt, (p2.z - p1.z) / dt)
+        ana_v = traj.velocity(t)
+        assert num_v.x == pytest.approx(ana_v.x, abs=1e-4)
+        assert num_v.y == pytest.approx(ana_v.y, abs=1e-4)
+
+        v1 = traj.velocity(t)
+        v2 = traj.velocity(t + dt)
+        num_a = Acceleration3D((v2.x - v1.x) / dt, (v2.y - v1.y) / dt, (v2.z - v1.z) / dt)
+        ana_a = traj.acceleration(t)
+        assert num_a.x == pytest.approx(ana_a.x, abs=1e-3)
+        assert num_a.y == pytest.approx(ana_a.y, abs=1e-3)
+
+    def test_registry_lookup(self) -> None:
+        """Trajectory should be registered under figure_of_8 and lemniscate."""
+        from fsoc_pat.simulation.trajectories import TRAJECTORY_REGISTRY
+        assert "figure_of_8" in TRAJECTORY_REGISTRY
+        assert "lemniscate" in TRAJECTORY_REGISTRY
+        assert TRAJECTORY_REGISTRY["figure_of_8"] is FigureOfEightTrajectory
+
+
+class TestRandomTrajectory:
+    def test_origin_crossing(self) -> None:
+        """At t=0, trajectory should be at center."""
+        center = Position3D(100.0, -50.0, 25.0)
+        traj = RandomTrajectory(
+            center=center,
+            extent=Position3D(10.0, 30.0, 15.0),
+            speed=24.0,
+            seed=42,
+        )
+        p0 = traj.position(0.0)
+        assert p0.x == pytest.approx(center.x, abs=1e-10)
+        assert p0.y == pytest.approx(center.y, abs=1e-10)
+        assert p0.z == pytest.approx(center.z, abs=1e-10)
+
+    def test_bounding_box(self) -> None:
+        """Trajectory must remain strictly within [center - extent, center + extent]."""
+        center = Position3D(500.0, 20.0, -10.0)
+        extent = Position3D(20.0, 45.0, 25.0)
+        traj = RandomTrajectory(center=center, extent=extent, speed=35.0, seed=123)
+
+        for t in np.linspace(0.0, 200.0, 200):
+            p = traj.position(float(t))
+            assert abs(p.x - center.x) <= extent.x + 1e-9
+            assert abs(p.y - center.y) <= extent.y + 1e-9
+            assert abs(p.z - center.z) <= extent.z + 1e-9
+
+    def test_derivative_consistency(self) -> None:
+        """Analytical velocity and acceleration should match numerical finite differences."""
+        traj = RandomTrajectory(
+            center=Position3D(0.0, 0.0, 0.0),
+            extent=Position3D(15.0, 25.0, 18.0),
+            speed=20.0,
+            seed=99,
+        )
+        t = 4.25
+        dt = 1e-6
+        p1 = traj.position(t)
+        p2 = traj.position(t + dt)
+        num_v = Velocity3D((p2.x - p1.x) / dt, (p2.y - p1.y) / dt, (p2.z - p1.z) / dt)
+        ana_v = traj.velocity(t)
+        assert num_v.x == pytest.approx(ana_v.x, abs=1e-4)
+        assert num_v.y == pytest.approx(ana_v.y, abs=1e-4)
+        assert num_v.z == pytest.approx(ana_v.z, abs=1e-4)
+
+        v1 = traj.velocity(t)
+        v2 = traj.velocity(t + dt)
+        num_a = Acceleration3D((v2.x - v1.x) / dt, (v2.y - v1.y) / dt, (v2.z - v1.z) / dt)
+        ana_a = traj.acceleration(t)
+        assert num_a.x == pytest.approx(ana_a.x, abs=1e-3)
+        assert num_a.y == pytest.approx(ana_a.y, abs=1e-3)
+        assert num_a.z == pytest.approx(ana_a.z, abs=1e-3)
+
+    def test_registry_lookup(self) -> None:
+        """Trajectory should be registered under random, random_path, and random_walk."""
+        from fsoc_pat.simulation.trajectories import TRAJECTORY_REGISTRY
+        assert "random" in TRAJECTORY_REGISTRY
+        assert "random_path" in TRAJECTORY_REGISTRY
+        assert "random_walk" in TRAJECTORY_REGISTRY
+        assert TRAJECTORY_REGISTRY["random"] is RandomTrajectory
+        assert TRAJECTORY_REGISTRY["random_path"] is RandomTrajectory
+
+

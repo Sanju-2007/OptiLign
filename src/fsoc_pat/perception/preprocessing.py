@@ -36,6 +36,7 @@ class PreprocessConfig:
     """
 
     blur_kernel: int = 3
+    median_kernel: int = 3
     denoise_strength: float = 0.0
     threshold_method: str = "adaptive"
     threshold_value: int = 128
@@ -79,6 +80,11 @@ class Preprocessor:
         if cfg.background_subtraction:
             gray = self._subtract_background(gray)
 
+        # Median filter (removes Salt & Pepper impulse noise while preserving spot edges)
+        if cfg.median_kernel > 0:
+            ksize = cfg.median_kernel | 1  # ensure odd
+            gray = cv2.medianBlur(gray, ksize)
+
         # Gaussian blur
         if cfg.blur_kernel > 0:
             ksize = cfg.blur_kernel | 1  # ensure odd
@@ -99,6 +105,13 @@ class Preprocessor:
                 cv2.THRESH_BINARY,
                 block,
                 -cfg.adaptive_c,  # negative C → selects bright spots
+            )
+        elif cfg.threshold_method in ("snr", "adaptive_snr"):
+            mean_val = float(np.mean(gray))
+            std_val = float(np.std(gray))
+            thresh_val = max(50.0, min(235.0, mean_val + 3.2 * std_val))
+            _, binary = cv2.threshold(
+                gray, thresh_val, 255, cv2.THRESH_BINARY,
             )
         elif cfg.threshold_method == "otsu":
             _, binary = cv2.threshold(

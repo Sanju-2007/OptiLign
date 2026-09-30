@@ -43,8 +43,8 @@ class BeaconProperties:
     """
 
     intensity: float = 220.0
-    size_px: float = 5.0
-    shape: BeaconShape = BeaconShape.CIRCLE
+    size_px: float = 10.0
+    shape: BeaconShape = BeaconShape.SQUARE
     color_channel: int = 0
     blink_frequency_hz: float = 0.0
     blink_duty_cycle: float = 1.0

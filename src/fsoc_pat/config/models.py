@@ -60,6 +60,7 @@ class CameraConfig:
     tilt_rate_limit: float = 1.0      # rad/s
     angular_accel_limit: float = 10.0  # rad/s²
     actuator_time_constant: float = 0.05  # s
+    monochrome: bool = True
 
 
 @dataclass
@@ -190,6 +191,27 @@ class LinkConfig:
 
 
 @dataclass
+class ComplianceThresholds:
+    """Formal acceptance testing thresholds for PAT verification.
+
+    Attributes:
+        acquisition_time_max_s: Maximum initial acquisition time (s) [<= 2.0 s].
+        tracking_error_max_px: Maximum tracking error in image plane (px) [<= 10.0 px].
+        target_loss_max_pct: Maximum allowed target loss (%) [< 5.0 %].
+        reacquisition_time_max_s: Maximum re-acquisition time (s) [<= 1.0 s].
+        processing_fps_min: Minimum processing frame rate (Hz) [>= 20.0 FPS].
+        consecutive_misses_for_loss: Number of consecutive missed frames to flag target lost [3].
+    """
+
+    acquisition_time_max_s: float = 2.0
+    tracking_error_max_px: float = 10.0
+    target_loss_max_pct: float = 5.0
+    reacquisition_time_max_s: float = 1.0
+    processing_fps_min: float = 20.0
+    consecutive_misses_for_loss: int = 3
+
+
+@dataclass
 class ExperimentConfig:
     """Complete experiment configuration.
 
@@ -205,4 +227,5 @@ class ExperimentConfig:
     controller: ControllerConfig = field(default_factory=ControllerConfig)
     disturbances: DisturbanceConfig = field(default_factory=DisturbanceConfig)
     link: LinkConfig = field(default_factory=LinkConfig)
+    compliance: ComplianceThresholds = field(default_factory=ComplianceThresholds)
     schema_version: str = "0.1.0"

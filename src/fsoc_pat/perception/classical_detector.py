@@ -166,25 +166,20 @@ class ClassicalDetector:
 
         # Bounding box
         x, y, w, h = cv2.boundingRect(contour)
-
-        # Extract ROI for brightness analysis
-        mask = np.zeros(gray.shape, dtype=np.uint8)
-        cv2.drawContours(mask, [contour], -1, 255, -1)
-        roi_pixels = gray[mask > 0]
-
-        if len(roi_pixels) == 0:
+        roi = gray[y : y + h, x : x + w]
+        if roi.size == 0:
             return None
 
-        peak_intensity = float(np.max(roi_pixels))
-        mean_intensity = float(np.mean(roi_pixels))
-
+        peak_intensity = float(np.max(roi))
         # Brightness filter
         if peak_intensity < cfg.min_brightness:
             return None
 
+        mean_intensity = float(np.mean(roi))
+
         # Compute centroid
         if cfg.use_weighted_centroid:
-            u, v = self._weighted_centroid(contour, gray, mask)
+            u, v = self._weighted_centroid(contour, gray, (x, y, w, h))
         else:
             M = cv2.moments(contour)
             if M["m00"] > 0:
@@ -195,8 +190,8 @@ class ClassicalDetector:
                 v = float(y + h / 2)
 
         return Candidate(
-            u=u,
-            v=v,
+            u=float(u),
+            v=float(v),
             area_px=area,
             peak_intensity=peak_intensity,
             mean_intensity=mean_intensity,
@@ -208,38 +203,24 @@ class ClassicalDetector:
         self,
         contour: NDArray,
         gray: NDArray[np.uint8],
-        mask: NDArray[np.uint8],
+        bbox: tuple[int, int, int, int],
     ) -> tuple[float, float]:
-        """Compute intensity-weighted sub-pixel centroid.
-
-        Uses image moments weighted by pixel intensity for sub-pixel
-        accuracy. Falls back to geometric centroid if weights are zero.
-        """
-        # Weighted moments using the intensity image
-        moments = cv2.moments(gray, binaryImage=False)
-
-        # But we only want moments within the contour mask
-        # Use masked image for weighted moments
-        masked_gray = gray.copy()
-        masked_gray[mask == 0] = 0
-
-        M = cv2.moments(masked_gray)
-
+        """Compute intensity-weighted sub-pixel centroid using local ROI."""
+        x, y, w, h = bbox
+        roi = gray[y : y + h, x : x + w]
+        M = cv2.moments(roi, binaryImage=False)
         if M["m00"] > 0:
-            u = M["m10"] / M["m00"]
-            v = M["m01"] / M["m00"]
+            u = float(x + M["m10"] / M["m00"])
+            v = float(y + M["m01"] / M["m00"])
         else:
-            # Fallback to geometric centroid
             M_geom = cv2.moments(contour)
             if M_geom["m00"] > 0:
-                u = M_geom["m10"] / M_geom["m00"]
-                v = M_geom["m01"] / M_geom["m00"]
+                u = float(M_geom["m10"] / M_geom["m00"])
+                v = float(M_geom["m01"] / M_geom["m00"])
             else:
-                x, y, w, h = cv2.boundingRect(contour)
-                u = float(x + w / 2)
-                v = float(y + h / 2)
-
-        return float(u), float(v)
+                u = float(x + w / 2.0)
+                v = float(y + h / 2.0)
+        return u, v
 
     def _score_candidate(self, candidate: Candidate) -> float:
         """Compute composite confidence score for a candidate.

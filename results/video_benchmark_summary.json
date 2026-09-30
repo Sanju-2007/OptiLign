@@ -1,0 +1,19 @@
+{
+  "total_frames": 60,
+  "processed_frames": 60,
+  "duration_s": 2.0,
+  "video_fps": 30.0,
+  "processing_fps": 243.4,
+  "acquisition_time_s": 0.07,
+  "reacquisition_time_s": 0.0,
+  "mean_tracking_error_px": 0.78,
+  "max_tracking_error_px": 1.42,
+  "rmse_px": 0.84,
+  "tracking_jitter_px": 0.3,
+  "lock_retention_rate_pct": 100.0,
+  "target_loss_pct": 0.0,
+  "acquisition_compliant": true,
+  "tracking_error_compliant": true,
+  "retention_compliant": true,
+  "speed_compliant": true
+}

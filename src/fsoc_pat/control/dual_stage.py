@@ -175,9 +175,10 @@ class DualStageController:
         target_fsm_pan_urad = coarse_err_h_rad * 1e6 * self.fsm_p_gain
         target_fsm_tilt_urad = coarse_err_v_rad * 1e6 * self.fsm_p_gain
 
-        # Integral action for zero residual fine error
-        self._fsm_int_pan += coarse_err_h_rad * 1e6 * dt
-        self._fsm_int_tilt += coarse_err_v_rad * 1e6 * dt
+        # Integral action on residual fine error with anti-windup to prevent integral overshoot
+        int_max = 500.0  # micro-radians max integral trim
+        self._fsm_int_pan = max(-int_max, min(int_max, self._fsm_int_pan + (coarse_err_h_rad * 1e6 - self.fsm.pan_urad) * dt))
+        self._fsm_int_tilt = max(-int_max, min(int_max, self._fsm_int_tilt + (coarse_err_v_rad * 1e6 - self.fsm.tilt_urad) * dt))
         cmd_fsm_pan = target_fsm_pan_urad + self.fsm_i_gain * self._fsm_int_pan
         cmd_fsm_tilt = target_fsm_tilt_urad + self.fsm_i_gain * self._fsm_int_tilt
 
@@ -192,18 +193,30 @@ class DualStageController:
 
         # --- 2. FSM Momentum Offload to Coarse Gimbal ---
         # If FSM deflection is large, add an offload bias to the coarse gimbal
-        # so the gimbal absorbs the DC offset and centers the FSM
+        # so the gimbal absorbs the DC offset and centers the FSM.
+        # Implements progressive quadratic boost when approaching stroke limit (>50% stroke).
         offload_active = False
         offload_pan_rad_s = 0.0
         offload_tilt_rad_s = 0.0
         thresh = self.fsm.config.offload_threshold_urad
+        max_stroke = self.fsm.config.max_deflection_urad
+        warn_stroke = 0.5 * max_stroke
 
         if abs(fsm_actual_pan) > thresh:
             offload_active = True
-            offload_pan_rad_s = (fsm_actual_pan * 1e-6) * self.fsm.config.offload_gain
+            gain_pan = self.fsm.config.offload_gain
+            if abs(fsm_actual_pan) > warn_stroke:
+                norm_excess = min(1.0, (abs(fsm_actual_pan) - warn_stroke) / max(1.0, max_stroke - warn_stroke))
+                gain_pan *= (1.0 + 3.0 * (norm_excess ** 2))
+            offload_pan_rad_s = (fsm_actual_pan * 1e-6) * gain_pan
+
         if abs(fsm_actual_tilt) > thresh:
             offload_active = True
-            offload_tilt_rad_s = (fsm_actual_tilt * 1e-6) * self.fsm.config.offload_gain
+            gain_tilt = self.fsm.config.offload_gain
+            if abs(fsm_actual_tilt) > warn_stroke:
+                norm_excess = min(1.0, (abs(fsm_actual_tilt) - warn_stroke) / max(1.0, max_stroke - warn_stroke))
+                gain_tilt *= (1.0 + 3.0 * (norm_excess ** 2))
+            offload_tilt_rad_s = (fsm_actual_tilt * 1e-6) * gain_tilt
 
         # --- 3. Coarse Gimbal Command ---
         gimbal_cmd = self.gimbal_ctrl.compute(error, dt)

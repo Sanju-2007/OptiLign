@@ -190,8 +190,15 @@ class AdaptiveEKF:
             S_inv = np.linalg.inv(S)
             d2 = float(y.T @ S_inv @ y)
             if d2 > self.config.gate_threshold:
-                # Outlier rejected (likely clutter or glint); keep predicted state
-                return float(self.state[0]), float(self.state[3])
+                conf_val = getattr(detection, "confidence", 1.0)
+                if conf_val >= 0.6:
+                    # Dynamically inflate R to smoothly pull filter towards high-confidence maneuver
+                    R_inflated = R * max(1.0, (d2 / self.config.gate_threshold))
+                    S = H @ self.cov @ H.T + R_inflated
+                    S_inv = np.linalg.inv(S)
+                else:
+                    # Outlier rejected (likely clutter or glint); keep predicted state
+                    return float(self.state[0]), float(self.state[3])
         except np.linalg.LinAlgError:
             return float(self.state[0]), float(self.state[3])
 

@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OptiLign — Next-Gen FSOC PAT Simulator</title>
   <style>
     /* Critical Inline Guard: Clean light theme isolation */
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       width: 100vw;
@@ -16,6 +18,7 @@
       color: #0f172a;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
+
     .page-view {
       display: none !important;
       width: 100vw;
@@ -25,18 +28,22 @@
       left: 0;
       overflow: hidden;
     }
+
     .page-view.active {
       display: flex !important;
       flex-direction: column;
     }
   </style>
-  <link rel="stylesheet" href="style.css?v=2.8.0">
+  <link rel="stylesheet" href="style.css?v=2.9.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
   <!-- Three.js for high-fidelity 3D Environment rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
+
 <body class="theme-light">
 
   <!-- ======================================================================= -->
@@ -68,13 +75,14 @@
         <span class="gradient-text">Virtual Environment Simulator</span>
       </h1>
       <p class="hero-subtitle">
-        Design dynamic custom optical environments with high-fidelity fog, solar glare, atmospheric turbulence, multi-target swarms, and nano-radian precision tracking.
+        Design dynamic custom optical environments with high-fidelity fog, solar glare, atmospheric turbulence,
+        multi-target swarms, and nano-radian precision tracking.
       </p>
 
       <div class="hero-actions">
         <button id="btn-enter-sim" class="btn-enter-glow">
-          <span class="btn-icon">🌐</span>
-          <span class="btn-text">ENTER THE SIMULATOR</span>
+          <span class="btn-icon">🛠️</span>
+          <span class="btn-text">CREATE THE SIMULATOR</span>
           <span class="btn-arrow">→</span>
         </button>
       </div>
@@ -121,20 +129,23 @@
           <span class="app-icon">📡</span>
           <span class="logo-name">OPTILIGN</span>
         </div>
-        
+
         <!-- Tabbed Navigation Panes -->
         <nav class="pane-nav">
+          <button class="pane-tab" data-pane="create-env" id="tab-create-env">
+            <span class="tab-icon">🛠️</span> Create Simulator
+          </button>
           <button class="pane-tab active" data-pane="simulator" id="tab-simulator">
             <span class="tab-icon">🚀</span> Live Simulator & Tracking
           </button>
-          <button class="pane-tab" data-pane="create-env" id="tab-create-env">
-            <span class="tab-icon">🛠️</span> Create Environment
+          <button class="pane-tab" data-pane="reports" id="tab-reports">
+            <span class="tab-icon">📊</span> Reports & Analytics
+          </button>
+          <button class="pane-tab" data-pane="benchmark" id="tab-benchmark">
+            <span class="tab-icon">📹</span> Video Benchmark
           </button>
           <button class="pane-tab" data-pane="recent-envs" id="tab-recent-envs">
             <span class="tab-icon">📂</span> Recent & Presets
-          </button>
-          <button class="pane-tab" data-pane="reports" id="tab-reports">
-            <span class="tab-icon">📊</span> Reports & Analytics
           </button>
         </nav>
       </div>
@@ -148,7 +159,8 @@
           <span class="qs-label">Clock:</span>
           <span class="qs-val font-mono" id="top-sim-clock">00:00</span>
         </div>
-        <button class="btn-top-create-env" id="btn-top-create-env" title="Open Create Virtual Environment Studio">🛠️ Create Environment</button>
+        <button class="btn-top-create-env" id="btn-top-create-env" title="Open Create Simulator Studio">🛠️
+          Create Simulator</button>
         <button class="btn-top-action" id="btn-pause-sim" title="Play / Pause Simulation">⏸</button>
         <button class="btn-top-action btn-home-link" id="btn-nav-home" title="Return to Home Landing">⌂ Home</button>
       </div>
@@ -158,414 +170,7 @@
     <div class="panes-viewport">
 
       <!-- =================================================================== -->
-      <!-- PANE 1: LIVE SIMULATOR & TRACKING (Act & Track)                     -->
-      <!-- =================================================================== -->
-      <section id="pane-simulator" class="pane-content active">
-        <!-- No Virtual Environment Created Overlay State (shown before user creates or activates an environment) -->
-        <div id="no-env-overlay" class="no-env-overlay active">
-          <div class="no-env-card">
-            <div class="no-env-icon-wrapper">
-              <span class="no-env-icon">⚠️</span>
-            </div>
-            <div class="no-env-badge">DEPLOYMENT REQUIRED</div>
-            <h2 class="no-env-title">No Virtual Environment Created</h2>
-            <p class="no-env-desc">
-              No virtual optical environment is currently active. Please configure atmospheric conditions, link distance, target kinematics, and laser parameters first to deploy the 3D simulation and optical tracking.
-            </p>
-            <div class="no-env-actions">
-              <button id="btn-no-env-create" class="btn-create-blue">
-                <span>🛠️</span> Create Virtual Environment
-              </button>
-              <button id="btn-no-env-presets" class="btn-secondary-preset">
-                <span>📂</span> Load Aerospace Preset
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="sim-grid">
-          <!-- Top Row -->
-          <div class="grid-top">
-            <!-- 3D Environment Viewport -->
-            <div class="panel panel-3d">
-              <div class="panel-header">
-                <div class="header-title-group">
-                  <h2>3D Optical Environment</h2>
-                  <span class="badge badge-accent" id="scene-mode-badge">WebGL 3D Orbit</span>
-                  <span class="badge" id="badge-weather-mode">Clear</span>
-                </div>
-                <div class="panel-actions 3d-live-controls">
-                  <!-- Quick Multi-Target Selector (1-6) & Target Motion Zig-Zag Pattern -->
-                  <div class="quick-target-grp" title="Set Active Targets (1 - 6 Swarm) & Motion Trajectory">
-                    <span class="quick-ctrl-lbl">Targets:</span>
-                    <div class="target-pills" id="quick-target-pills">
-                      <button class="pill-btn active" data-targets="1">1</button>
-                      <button class="pill-btn" data-targets="2">2</button>
-                      <button class="pill-btn" data-targets="3">3</button>
-                      <button class="pill-btn" data-targets="4">4</button>
-                      <button class="pill-btn" data-targets="5">5</button>
-                      <button class="pill-btn" data-targets="6">6</button>
-                    </div>
-                    <!-- Target Zig-Zag Motion Pattern Toggle (Small Zig-Zag Symbol) -->
-                    <button class="pill-btn zigzag-btn" id="btn-3d-random-flight" title="Toggle Target Motion: Zig-Zag Weaving Flight Path">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 12 7 4 12 20 17 4 22 12"></polyline></svg>
-                      <span class="zigzag-lbl">Zig-Zag</span>
-                    </button>
-                  </div>
-                  <!-- Quick Fog Slider -->
-                  <div class="quick-fog-grp" title="Live Atmospheric Fog Severity">
-                    <span class="quick-ctrl-lbl">🌫️ Fog:</span>
-                    <input type="range" id="quick-fog-slider" min="0" max="100" value="0" class="mini-range-slider">
-                    <span id="quick-fog-label" class="quick-ctrl-val">0%</span>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-content canvas-wrapper" id="container-3d">
-                <canvas id="canvas-3d"></canvas>
-                
-                <!-- 3D Camera View Toolbar Overlay (Camera Viewpoints Only) -->
-                <div class="overlay-toolbar">
-                  <button class="tool-btn active" id="btn-tool-orbit" title="Orbit View (3rd Person)">⟲</button>
-                  <button class="tool-btn" id="btn-tool-pov" title="Camera POV (First-Person Camera View)">🎥</button>
-                  <button class="tool-btn" id="btn-tool-reset" title="Reset View">⤢</button>
-                </div>
-
-                <!-- Camera Position Overlay Card -->
-                <div class="camera-pos-card">
-                  <div class="card-title">Gimbal & Target LOS</div>
-                  <div class="pos-row"><span>Range:</span><span id="pos-dist">180.0 m</span></div>
-                  <div class="pos-row"><span>Yaw (Pan):</span><span id="pos-yaw">25.3°</span></div>
-                  <div class="pos-row"><span>Pitch (Tilt):</span><span id="pos-pitch">4.7°</span></div>
-                  <div class="pos-row"><span>Targets:</span><span id="pos-targets">1 Active</span></div>
-                  <div class="pos-row detection-row"><span>3D Tracking:</span><span id="pos-3d-detect" class="badge-detect-locked">🟢 TARGET LOCKED (ALPHA)</span></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Virtual Camera Viewport -->
-            <div class="panel panel-camera">
-              <div class="panel-header">
-                <h2>Virtual Camera View (FPA Sensor)</h2>
-                <div class="cam-mode-tags">
-                  <span class="tag-live">● LIVE FEED</span>
-                  <span class="tag-fov">HFOV 60°</span>
-                </div>
-              </div>
-              <div class="panel-content canvas-wrapper" id="container-camera">
-                <canvas id="canvas-camera" width="640" height="480"></canvas>
-                <!-- Beacon Signature Temporal Sequencer HUD -->
-                <div class="cam-beacon-sig-hud" id="cam-beacon-sig-hud" title="Optical Beacon Signature: [ON-OFF-ON-OFF-ON] Temporal Discriminator">
-                  <span class="sig-status-dot pulse" id="sig-status-dot"></span>
-                  <span class="sig-title">BEACON SIG:</span>
-                  <div class="sig-slots" id="sig-slots">
-                    <span class="sig-slot-pill active" data-slot="0">ON</span>
-                    <span class="sig-slot-pill" data-slot="1">OFF</span>
-                    <span class="sig-slot-pill" data-slot="2">ON</span>
-                    <span class="sig-slot-pill" data-slot="3">OFF</span>
-                    <span class="sig-slot-pill" data-slot="4">ON</span>
-                  </div>
-                  <span class="sig-lock-tag" id="sig-lock-tag">LOCKED (99.4%)</span>
-                </div>
-                <!-- ML Omnidirectional Search & Reacquisition HUD Banner -->
-                <div class="ml-search-hud-banner" id="ml-search-hud-banner" style="display: none;">
-                  <span class="ml-scan-spinner"></span>
-                  <span class="ml-scan-title">ML ALL-DEGREES SEARCH</span>
-                  <span class="ml-scan-angles" id="ml-scan-angles">PAN: 0.0° | TILT: 0.0°</span>
-                  <span class="ml-scan-match" id="ml-scan-match">ML PROB: 0.0%</span>
-                </div>
-                <div class="reticle-hud" id="reticle-hud">
-                  <div class="hud-bracket top-left"></div>
-                  <div class="hud-bracket top-right"></div>
-                  <div class="hud-bracket bottom-left"></div>
-                  <div class="hud-bracket bottom-right"></div>
-                  <div class="hud-target-label" id="hud-target-label">TARGET_01 [LOCKED]</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Telemetry Gauges Panel -->
-            <div class="panel panel-telemetry">
-              <div class="panel-header">
-                <h2>Environment Telemetry</h2>
-                <span class="badge badge-accent" id="telem-header-badge">OPTICAL CHANNEL</span>
-              </div>
-              <div class="panel-content telemetry-list">
-                <!-- Card 1: Optical Link & Power Budget -->
-                <div class="telem-card">
-                  <div class="telem-card-header">
-                    <span class="tc-title">OPTICAL LINK & POWER</span>
-                    <span class="tc-tag tag-locked" id="telem-link-tag">CARRIER LOCKED</span>
-                  </div>
-                  <div class="telem-card-body">
-                    <div class="telem-item">
-                      <span class="telem-label">Signal Strength</span>
-                      <div class="signal-wrapper">
-                        <div class="signal-bars">
-                          <span class="bar bar-1 active"></span>
-                          <span class="bar bar-2 active"></span>
-                          <span class="bar bar-3 active"></span>
-                          <span class="bar bar-4 active"></span>
-                          <span class="bar bar-5"></span>
-                        </div>
-                        <span class="telem-val font-mono" id="telem-signal">-62 dBm</span>
-                      </div>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Link Margin</span>
-                      <div class="telem-pill-wrap">
-                        <span class="telem-val font-accent font-mono" id="telem-margin">6.3 dB</span>
-                        <span class="margin-status-pill pill-opt">NOMINAL</span>
-                      </div>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Photodetector Flux</span>
-                      <span class="telem-val font-mono" id="telem-rx-flux">1.45 µW (-28.4 dBm)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Card 2: Atmospheric Channel & Propagation -->
-                <div class="telem-card">
-                  <div class="telem-card-header">
-                    <span class="tc-title">ATMOSPHERIC PROPAGATION</span>
-                    <span class="tc-tag tag-channel">FSO CHANNEL</span>
-                  </div>
-                  <div class="telem-card-body">
-                    <div class="telem-item">
-                      <span class="telem-label">Atmosphere</span>
-                      <span class="telem-val" id="telem-weather">Clear</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Fog / Haze Severity</span>
-                      <span class="telem-val font-accent font-mono" id="telem-fog">0 %</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Turbulence (Rytov)</span>
-                      <span class="telem-val font-mono" id="telem-turb-val">0.038 (Weak)</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Ambient Temp</span>
-                      <span class="telem-val font-mono" id="telem-temp">26 °C</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Crosswind Velocity</span>
-                      <span class="telem-val font-mono" id="telem-wind">3.2 m/s</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Card 3: Host Terminal Subsystems & Clock -->
-                <div class="telem-card">
-                  <div class="telem-card-header">
-                    <span class="tc-title">TERMINAL & MISSION CLOCK</span>
-                    <span class="tc-tag tag-online">ONLINE</span>
-                  </div>
-                  <div class="telem-card-body">
-                    <div class="telem-item">
-                      <span class="telem-label">Mission Elapsed Time</span>
-                      <span class="telem-val font-mono font-accent" id="telem-time">00:00</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">FSM Dual-Stage Loop</span>
-                      <span class="telem-val val-green font-mono" id="telem-fsm-val">Closed-Loop Active</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Rx Aperture Clear</span>
-                      <span class="telem-val font-mono">125 mm (f/4.2)</span>
-                    </div>
-                    <div class="telem-item">
-                      <span class="telem-label">Pointing Jitter</span>
-                      <span class="telem-val font-mono val-green">&lt; 0.35 µrad RMS</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Row -->
-          <div class="grid-bottom">
-            <!-- Tracking Status Table -->
-            <div class="panel panel-tracking-status">
-              <div class="panel-header">
-                <h2>Autonomous Tracking Status</h2>
-                <span class="badge badge-green" id="stat-header-badge">● TRACKING</span>
-              </div>
-              <div class="panel-content tracking-status-body">
-                <!-- Tactical Lock Header Banner -->
-                <div class="stat-banner-card">
-                  <div class="stat-banner-left">
-                    <div class="stat-target-row">
-                      <span class="stat-beacon-dot pulse-beacon"></span>
-                      <span class="stat-target-name" id="stat-target-name">DRONE_ALPHA</span>
-                    </div>
-                    <span class="stat-target-sub">Optical Beacon Carrier (4Hz Strobe)</span>
-                  </div>
-                  <div class="stat-banner-right">
-                    <span class="badge badge-accent font-mono" id="stat-pat-state">TRACKING</span>
-                    <span class="stat-conf-val font-mono" id="stat-conf">99.8%</span>
-                  </div>
-                </div>
-
-                <!-- 2-Column Tactical Telemetry Metrics Grid -->
-                <div class="stat-metrics-grid">
-                  <div class="stat-metric-card">
-                    <span class="metric-lbl">Target Detected</span>
-                    <span class="metric-val val-green font-mono" id="stat-detected">Yes</span>
-                  </div>
-                  <div class="stat-metric-card">
-                    <span class="metric-lbl">Link Status</span>
-                    <span class="metric-val val-green font-mono" id="stat-link">Signal Locked</span>
-                  </div>
-                  <div class="stat-metric-card">
-                    <span class="metric-lbl">Slant Range</span>
-                    <span class="metric-val font-mono" id="stat-dist">5062.1 m</span>
-                  </div>
-                  <div class="stat-metric-card">
-                    <span class="metric-lbl">Simulation FPS</span>
-                    <span class="metric-val font-mono" id="stat-fps">30.0</span>
-                  </div>
-                  <div class="stat-metric-card">
-                    <span class="metric-lbl">Target Pixel (FPA)</span>
-                    <span class="metric-val font-mono" id="stat-pos-px">(320, 240)</span>
-                  </div>
-                  <div class="stat-metric-card">
-                    <span class="metric-lbl">Boresight Offset</span>
-                    <span class="metric-val font-mono" id="stat-offset-px">(0, 0)</span>
-                  </div>
-                </div>
-
-                <!-- Optical Signature Discriminator & EKF Health Card -->
-                <div class="stat-discrim-card">
-                  <div class="discrim-row">
-                    <span class="discrim-lbl">ML Temporal Signature</span>
-                    <span class="discrim-val font-mono font-accent" id="stat-ml-sig">99.8% (Verified)</span>
-                  </div>
-                  <div class="discrim-row">
-                    <span class="discrim-lbl">Kinematic Estimator</span>
-                    <span class="discrim-val font-mono val-green" id="stat-ekf-mode">Adaptive EKF (6-State CA)</span>
-                  </div>
-                  <div class="discrim-row">
-                    <span class="discrim-lbl">Decoy Discrimination</span>
-                    <span class="discrim-val font-mono val-green" id="stat-decoy-discrim">Autonomous (3 Decoys Rejected)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Rolling Error Chart -->
-            <div class="panel panel-performance">
-              <div class="panel-header">
-                <h2>Real-Time Pointing Error (Last 60s)</h2>
-                <div class="chart-legend">
-                  <span class="legend-item"><span class="legend-line line-yaw"></span>Yaw Error (deg)</span>
-                  <span class="legend-item"><span class="legend-line line-pitch"></span>Pitch Error (deg)</span>
-                </div>
-              </div>
-              <div class="panel-content chart-wrapper">
-                <canvas id="canvas-chart"></canvas>
-              </div>
-            </div>
-
-            <!-- PAT Gimbal Remote & Analog Joystick Panel -->
-            <div class="panel panel-control">
-              <div class="panel-header">
-                <h2>PAT Gimbal Remote</h2>
-                <span class="badge badge-accent" id="remote-status-badge">AUTO TRACK</span>
-              </div>
-              <div class="panel-content remote-body">
-                <!-- Live Gimbal Angle & Jog Speed Bar -->
-                <div class="remote-telemetry-bar">
-                  <div class="remote-tel-col">
-                    <span class="remote-label">PAN (YAW)</span>
-                    <span class="remote-val font-mono" id="remote-yaw-val">0.0°</span>
-                  </div>
-                  <div class="remote-tel-col">
-                    <span class="remote-label">TILT (PITCH)</span>
-                    <span class="remote-val font-mono" id="remote-pitch-val">0.0°</span>
-                  </div>
-                  <div class="remote-tel-col">
-                    <span class="remote-label">RATE</span>
-                    <span class="remote-val font-mono" id="remote-rate-val">0.0°/s</span>
-                  </div>
-                </div>
-
-                <!-- Interactive 2D Virtual Joystick Unit -->
-                <div class="joystick-wrapper">
-                  <div class="joystick-base" id="joystick-base">
-                    <!-- Direction guides on the base -->
-                    <div class="joy-cardinal joy-n" id="btn-jog-up" title="Jog Tilt Up">▲</div>
-                    <div class="joy-cardinal joy-s" id="btn-jog-down" title="Jog Tilt Down">▼</div>
-                    <div class="joy-cardinal joy-w" id="btn-jog-left" title="Jog Pan Left">◀</div>
-                    <div class="joy-cardinal joy-e" id="btn-jog-right" title="Jog Pan Right">▶</div>
-                    
-                    <!-- Concentric Gimbal Range Rings & Crosshairs -->
-                    <div class="joy-ring ring-outer"></div>
-                    <div class="joy-ring ring-mid"></div>
-                    <div class="joy-crosshair-h"></div>
-                    <div class="joy-crosshair-v"></div>
-
-                    <!-- Draggable Analog Thumbstick Knob -->
-                    <div class="joystick-thumb" id="joystick-thumb">
-                      <div class="thumb-grip"></div>
-                      <div class="thumb-center-dot"></div>
-                    </div>
-                  </div>
-                  <div class="joystick-caption">Drag joystick to steer • Springs back on release</div>
-                </div>
-
-                <!-- Remote Handset Tactical Buttons -->
-                <div class="remote-actions-row">
-                  <button class="remote-btn" id="btn-remote-recenter" title="Recenter Gimbal to Boresight">
-                    <span class="r-icon">⌖</span> Recenter
-                  </button>
-                  <button class="remote-btn remote-btn-active" id="btn-remote-mode" title="Toggle Auto Track / Manual Jog">
-                    <span class="r-icon" id="remote-mode-icon">🎯</span> <span id="remote-mode-text">Auto Track</span>
-                  </button>
-                  <button class="remote-btn" id="btn-remote-zoom" title="Cycle Optical Zoom">
-                    <span class="r-icon">🔍</span> <span id="remote-zoom-text">1.0x</span>
-                  </button>
-                  <button class="remote-btn btn-out-of-view" id="btn-target-out-of-view" title="Force Target Out of View (Slews Gimbal Away & Engages High-Speed Omnidirectional ML Search)">
-                    <span class="r-icon">⚡</span> Target Out of View
-                  </button>
-                </div>
-
-                <!-- Hidden / Compatibility Form Elements (Preserved for bindings) -->
-                <div style="display: none;">
-                  <input type="number" id="input-yaw" value="0.0">
-                  <input type="number" id="input-pitch" value="0.0">
-                  <select id="select-zoom"><option value="1.0">1.0x</option><option value="2.0">2.0x</option><option value="4.0">4.0x</option></select>
-                  <select id="select-mode"><option value="auto_track">Auto Track</option><option value="manual">Manual</option><option value="hold">Hold</option></select>
-                  <button id="btn-recenter"></button>
-                  <button id="btn-dpad-up"></button><button id="btn-dpad-down"></button><button id="btn-dpad-left"></button><button id="btn-dpad-right"></button><button id="btn-dpad-center"></button>
-                </div>
-              </div>
-            </div>
-
-            <!-- System Event Log -->
-            <div class="panel panel-log">
-              <div class="panel-header">
-                <h2>System & State Log</h2>
-              </div>
-              <div class="panel-content log-container" id="log-container">
-                <div class="log-entry"><span class="log-ts">[00:00:00]</span> Simulator Started</div>
-                <div class="log-entry"><span class="log-ts">[00:00:03]</span> Initializing Camera & Gimbal...</div>
-                <div class="log-entry"><span class="log-ts">[00:00:05]</span> Searching for Target...</div>
-                <div class="log-entry"><span class="log-ts">[00:00:12]</span> <span class="log-green">Target Detected</span></div>
-                <div class="log-entry"><span class="log-ts">[00:00:12]</span> Tracking Started</div>
-                <div class="log-entry"><span class="log-ts">[00:00:58]</span> <span class="log-green">Signal Locked</span></div>
-              </div>
-              <div class="log-footer">
-                <button class="btn-secondary" id="btn-clear-log">Clear Log</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <!-- =================================================================== -->
-      <!-- PANE 2: CREATE ENVIRONMENT STUDIO (Dynamic Parameters & Sliders)   -->
+      <!-- PANE 1: CREATE ENVIRONMENT STUDIO (Dynamic Parameters & Sliders)   -->
       <!-- =================================================================== -->
       <section id="pane-create-env" class="pane-content">
         <div class="studio-wrapper">
@@ -573,13 +178,14 @@
           <div class="studio-header">
             <div class="studio-title-block">
               <div class="studio-badge">PARAMETRIC OPTICAL TESTBED STUDIO</div>
-              <h2>🛠️ Create Custom Virtual Optical Environment</h2>
-              <p>Configure dynamic atmospheric conditions, multi-target swarms individually, terminal platform dynamics, and optical link physics.</p>
+              <h2>🛠️ Create the Simulator: Optical Environment & Parameters</h2>
+              <p>Configure dynamic atmospheric conditions, multi-target swarms individually, terminal platform dynamics,
+                and optical link physics.</p>
             </div>
             <div class="studio-actions-top">
               <button class="btn-secondary" id="btn-env-reset-defaults-top">↺ Reset Defaults</button>
               <button class="btn-create-blue" id="btn-env-launch-top">
-                <span>🚀 Create & Launch Environment</span>
+                <span>🚀 Launch Simulator</span>
               </button>
             </div>
           </div>
@@ -588,7 +194,8 @@
           <div class="preset-quick-bar">
             <span class="pq-label">⚡ Fast Preset Loadout:</span>
             <div class="pq-pills" id="preset-quick-pills">
-              <button type="button" class="pq-pill active" data-preset="urban_rooftop">🏙️ Urban Rooftop Ground Station</button>
+              <button type="button" class="pq-pill active" data-preset="urban_rooftop">🏙️ Urban Rooftop Ground
+                Station</button>
               <button type="button" class="pq-pill" data-preset="space_isl">🌌 Deep Space ISL (Vacuum)</button>
               <button type="button" class="pq-pill" data-preset="leo_downlink">🛰️ LEO Downlink (Slant Pass)</button>
               <button type="button" class="pq-pill" data-preset="airborne_uav">🛩️ Airborne UAV Swarm</button>
@@ -598,6 +205,145 @@
           </div>
 
           <div class="studio-grid-detailed">
+            <!-- Card 0: Dual Optical Terminals & Platform Link Pairing -->
+            <div class="studio-card studio-card-highlight">
+              <div class="card-head">
+                <span class="ch-icon">📡</span>
+                <div>
+                  <h3>Dual Optical Terminals & Link Pairing</h3>
+                  <span class="ch-sub">Configure Host (Terminal A) and Target (Terminal B) link kinematics</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="studio-terminals-row">
+                  <div class="input-group">
+                    <label for="select-terminal-a">Terminal A (Host Platform)</label>
+                    <select id="select-terminal-a" class="form-select">
+                      <option value="building" selected>🏢 Building (Stationary Ground Station)</option>
+                      <option value="car">🚙 Car (Ground Tactical Vehicle)</option>
+                      <option value="drone">🛸 Drone (Tactical UAV Platform)</option>
+                      <option value="satellite">🛰️ Satellite (LEO Orbit Spacecraft)</option>
+                    </select>
+                  </div>
+                  <div class="studio-terminals-arrow">➔</div>
+                  <div class="input-group">
+                    <label for="select-terminal-b">Terminal B (Target Platform)</label>
+                    <select id="select-terminal-b" class="form-select">
+                      <option value="drone" selected>🛸 Drone (Tactical UAV Platform)</option>
+                      <option value="car">🚙 Car (Ground Tactical Vehicle)</option>
+                      <option value="satellite">🛰️ Satellite (LEO Orbit Spacecraft)</option>
+                      <option value="building">🏢 Building (Ground Station)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Terminal Kinematics & Trajectory Velocity Controls -->
+                <div class="studio-terminals-kinematics-grid">
+                  <!-- Terminal A Kinematics -->
+                  <div class="terminal-kinematics-box" id="box-term-a-kinematics">
+                    <div class="tk-title">
+                      <span class="tk-dot dot-host"></span>
+                      <span>Terminal A Host Kinematics</span>
+                    </div>
+                    <div class="input-group">
+                      <label for="env-term-a-trajectory">Moving Trajectory</label>
+                      <select id="env-term-a-trajectory" class="form-select">
+                        <option value="stationary" selected>Stationary Base (Ground / Rooftop)</option>
+                        <option value="linear">Linear Cruise / Road Pass</option>
+                        <option value="circular">Circular Orbit / Patrol</option>
+                        <option value="sinusoidal">Sinusoidal Weave / Drift</option>
+                        <option value="figure_of_8">Figure of 8 / Lemniscate</option>
+                        <option value="random">Random Brownian Walk / Drift</option>
+                      </select>
+                    </div>
+                    <div class="slider-group">
+                      <div class="slider-label-row">
+                        <label for="env-term-a-speed">Host Velocity / Speed</label>
+                        <span class="slider-val font-mono" id="val-term-a-speed">0.0 m/s</span>
+                      </div>
+                      <input type="range" id="env-term-a-speed" min="0" max="150" step="1" value="0"
+                        class="range-slider">
+                      <div class="slider-ticks">
+                        <span>0 m/s (Fixed)</span>
+                        <span>75 m/s</span>
+                        <span>150 m/s</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Terminal B Kinematics -->
+                  <div class="terminal-kinematics-box" id="box-term-b-kinematics">
+                    <div class="tk-title">
+                      <span class="tk-dot dot-target"></span>
+                      <span>Terminal B Target Kinematics</span>
+                    </div>
+                    <div class="input-group">
+                      <label for="env-term-b-trajectory">Moving Trajectory</label>
+                      <select id="env-term-b-trajectory" class="form-select">
+                        <option value="circular" selected>Circular Orbit / Patrol</option>
+                        <option value="linear">Linear Flyby / Cruise</option>
+                        <option value="sinusoidal">Sinusoidal Oscillations</option>
+                        <option value="figure_of_8">Figure of 8 (Lemniscate)</option>
+                        <option value="evasive">Evasive Agile Maneuver</option>
+                        <option value="random">Random Brownian Walk / Drift</option>
+                        <option value="stationary">Stationary / Hover</option>
+                      </select>
+                    </div>
+                    <div class="slider-group">
+                      <div class="slider-label-row">
+                        <label for="env-term-b-speed">Target Velocity / Speed</label>
+                        <span class="slider-val font-mono" id="val-term-b-speed">24.0 m/s</span>
+                      </div>
+                      <input type="range" id="env-term-b-speed" min="0" max="150" step="1" value="24"
+                        class="range-slider">
+                      <div class="slider-ticks">
+                        <span>0 m/s (Hover)</span>
+                        <span>75 m/s</span>
+                        <span>150 m/s</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="studio-link-status-row">
+                  <span class="unit-lbl">Link Status:</span>
+                  <span id="badge-terminal-pair" class="badge-link-status allowed">✅ BUILDING ➔ DRONE</span>
+                  <span class="prohibited-rule-tag"
+                    title="Sat-to-Car and Sat-to-Drone are strictly disallowed by orbital physics">🚫 No Sat-Car /
+                    Sat-Drone</span>
+                </div>
+
+                <!-- Fast Terminal Link Presets Strip -->
+                <div class="input-group" style="margin-top: 10px; margin-bottom: 0;">
+                  <label>Terminal Link Quick Presets</label>
+                  <div class="terminal-presets-strip-studio" id="terminal-presets-bar">
+                    <button type="button" class="t-preset-btn active" data-a="building" data-b="drone"
+                      title="Ground Station to Tactical UAV">🏢-🛸 Ground-UAV</button>
+                    <button type="button" class="t-preset-btn" data-a="car" data-b="car"
+                      title="Vehicle to Vehicle V2V">🚙-🚙 Car-Car</button>
+                    <button type="button" class="t-preset-btn" data-a="car" data-b="drone"
+                      title="Vehicle to Drone Uplink">🚙-🛸 Car-Drone</button>
+                    <button type="button" class="t-preset-btn" data-a="satellite" data-b="satellite"
+                      title="Inter-Satellite Link ISL">🛰️-🛰️ Sat-Sat</button>
+                    <button type="button" class="t-preset-btn" data-a="satellite" data-b="building"
+                      title="Space to Ground Downlink">🛰️-🏢 Sat-Building</button>
+                    <button type="button" class="t-preset-btn" data-a="drone" data-b="drone"
+                      title="Drone to Drone Swarm">🛸-🛸 Drone-Drone</button>
+                    <button type="button" class="t-preset-btn" data-a="building" data-b="car"
+                      title="Ground to Vehicle">🏢-🚙 Building-Car</button>
+                    <button type="button" class="t-preset-btn" data-a="building" data-b="building"
+                      title="Inter-Building Rooftop Ground-to-Ground Link">🏢-🏢 Building-Building</button>
+                  </div>
+                </div>
+
+                <!-- Toast Notification for Disallowed Link Selection in Studio -->
+                <div class="terminal-toast" id="terminal-pair-toast">
+                  <span class="toast-icon">🚫</span>
+                  <span class="toast-msg" id="terminal-toast-msg">Pairing Disallowed</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Card 1: Scenario Domain & Terminal Platform Profile -->
             <div class="studio-card">
               <div class="card-head">
@@ -636,7 +382,8 @@
                     <label for="env-sway-slider">Base Angular Sway Jitter</label>
                     <span class="slider-val font-mono" id="val-sway">0.02 °</span>
                   </div>
-                  <input type="range" id="env-sway-slider" min="0" max="3" step="0.01" value="0.02" class="range-slider">
+                  <input type="range" id="env-sway-slider" min="0" max="3" step="0.01" value="0.02"
+                    class="range-slider">
                   <div class="slider-ticks">
                     <span>0.0° (Rigid)</span>
                     <span>1.5° (Moderate)</span>
@@ -650,11 +397,42 @@
                     <label for="env-sway-freq">Base Vibration / Sway Frequency</label>
                     <span class="slider-val font-mono" id="val-sway-freq">0.15 Hz</span>
                   </div>
-                  <input type="range" id="env-sway-freq" min="0.05" max="2.0" step="0.05" value="0.15" class="range-slider">
+                  <input type="range" id="env-sway-freq" min="0.05" max="2.0" step="0.05" value="0.15"
+                    class="range-slider">
                   <div class="slider-ticks">
                     <span>0.05 Hz (Slow Drift)</span>
                     <span>1.0 Hz</span>
                     <span>2.0 Hz (Fast Harmonics)</span>
+                  </div>
+                </div>
+
+                <!-- Camera Optical Sensor Vibration / Jitter Option -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-cam-vibration-slider">Camera Optical Sensor Vibration / Jitter</label>
+                    <span class="slider-val font-mono font-accent" id="val-cam-vibration">0.0 px (0.00 mrad)</span>
+                  </div>
+                  <input type="range" id="env-cam-vibration-slider" min="0" max="20" step="0.5" value="0"
+                    class="range-slider">
+                  <div class="slider-ticks">
+                    <span>0.0 px (Rigid / Stiff)</span>
+                    <span>10.0 px (Moderate Jitter)</span>
+                    <span>20.0 px (Severe Vibration)</span>
+                  </div>
+                </div>
+
+                <!-- Camera Vibration Harmonic Frequency -->
+                <div class="slider-group">
+                  <div class="slider-label-row">
+                    <label for="env-cam-vib-freq">Camera Vibration Frequency</label>
+                    <span class="slider-val font-mono" id="val-cam-vib-freq">12.0 Hz</span>
+                  </div>
+                  <input type="range" id="env-cam-vib-freq" min="1.0" max="60.0" step="1.0" value="12.0"
+                    class="range-slider">
+                  <div class="slider-ticks">
+                    <span>1.0 Hz (Slow)</span>
+                    <span>30.0 Hz (Harmonic)</span>
+                    <span>60.0 Hz (Fast Jitter)</span>
                   </div>
                 </div>
 
@@ -664,7 +442,8 @@
                     <label for="env-altitude-slider">Terminal Elevation Above Sea Level</label>
                     <span class="slider-val font-mono font-accent" id="val-altitude">45 m</span>
                   </div>
-                  <input type="range" id="env-altitude-slider" min="0" max="50000" step="25" value="45" class="range-slider">
+                  <input type="range" id="env-altitude-slider" min="0" max="50000" step="25" value="45"
+                    class="range-slider">
                   <div class="slider-ticks">
                     <span>0 m (Sea Level)</span>
                     <span>2,500 m (Mountain)</span>
@@ -687,9 +466,13 @@
                 <div class="input-group">
                   <label for="env-weather-select">Base Weather Condition</label>
                   <select id="env-weather-select" class="form-select">
+                    <option value="Clear">Clear Sky / Standard Daylight</option>
                     <option value="Clear Sun">Clear Sun / Bright Horizon</option>
-                    <option value="Fog">Fog / Dense Haze</option>
-                    <option value="Clear">Clear Sky / Standard</option>
+                    <option value="Solar Glare">Solar Glare / Direct Optical Bloom</option>
+                    <option value="Fog">Fog / Dense Atmospheric Mist</option>
+                    <option value="Haze">Haze / Suspended Aerosol Scattering</option>
+                    <option value="Rain">Rain / Overcast Precipitation Storm</option>
+                    <option value="Low light">Low Light / Twilight Dusk</option>
                     <option value="Night Sky">Night Sky / Celestial Clutter</option>
                     <option value="Vacuum Space">Vacuum Space (Orbit Zero Atmosphere)</option>
                     <option value="Sea Spray & Mist">Sea Spray & Maritime Mist</option>
@@ -718,7 +501,8 @@
                   </label>
                   <div class="toggle-label-block">
                     <span class="toggle-title">Solar Glare & Direct Optical Bloom</span>
-                    <span class="toggle-desc">Simulates direct solar ray entry, lens bloom, and optical flare blinding sensor.</span>
+                    <span class="toggle-desc">Simulates direct solar ray entry, lens bloom, and optical flare blinding
+                      sensor.</span>
                   </div>
                 </div>
 
@@ -756,7 +540,8 @@
                       <label for="env-temp-slider">Ambient Temperature</label>
                       <span class="slider-val" id="val-temperature">26 °C</span>
                     </div>
-                    <input type="range" id="env-temp-slider" min="-50" max="50" value="26" class="range-slider range-temp">
+                    <input type="range" id="env-temp-slider" min="-50" max="50" value="26"
+                      class="range-slider range-temp">
                     <div class="slider-ticks">
                       <span>-50 °C</span>
                       <span>0 °C</span>
@@ -769,12 +554,41 @@
                       <label for="env-wind-slider">Crosswind Speed (f_G)</label>
                       <span class="slider-val" id="val-wind">3.5 m/s</span>
                     </div>
-                    <input type="range" id="env-wind-slider" min="0" max="30" step="0.5" value="3.5" class="range-slider">
+                    <input type="range" id="env-wind-slider" min="0" max="30" step="0.5" value="3.5"
+                      class="range-slider">
                     <div class="slider-ticks">
                       <span>0 m/s</span>
                       <span>15 m/s</span>
                       <span>30 m/s</span>
                     </div>
+                  </div>
+                </div>
+
+                <!-- Sensor Disturbance Noise Matrix -->
+                <div class="noise-matrix-box">
+                  <div class="noise-matrix-header-row"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span class="noise-matrix-title" style="margin-bottom: 0;">Sensor Disturbance &amp; Noise
+                      Matrix</span>
+                    <button type="button" class="btn-audio-noise-studio" id="btn-audio-noise-studio"
+                      title="Audible Optical Noise Floor Sonification: Hear Gaussian Readout Hiss &amp; Poisson Shot Crackle"
+                      style="background: rgba(147, 51, 234, 0.12); border: 1px solid rgba(168, 85, 247, 0.4); color: #9333ea; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                      🔈 Hear Noise Floor
+                    </button>
+                  </div>
+                  <div class="noise-checkboxes">
+                    <label class="compact-check" title="Inject 10% Salt &amp; Pepper impulse noise">
+                      <input type="checkbox" id="env-noise-salt-pepper">
+                      <span>10% Salt &amp; Pepper (Impulse)</span>
+                    </label>
+                    <label class="compact-check" title="Gaussian readout / amplifier noise">
+                      <input type="checkbox" id="env-noise-gaussian" checked>
+                      <span>Gaussian Noise (Thermal Hiss)</span>
+                    </label>
+                    <label class="compact-check" title="Poisson quantum photon shot noise">
+                      <input type="checkbox" id="env-noise-poisson" checked>
+                      <span>Poisson Shot Noise (Quantum Crackle)</span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -787,7 +601,8 @@
               <span class="ch-icon">🎯</span>
               <div>
                 <h3>Multi-Target Swarms & Individual Target Kinematics</h3>
-                <span class="ch-sub">Configure up to 6 targets individually: range, speed, trajectory, wavelength & beacon pulse pattern</span>
+                <span class="ch-sub">Configure up to 6 targets individually: range, speed, trajectory, wavelength &
+                  beacon pulse pattern</span>
               </div>
             </div>
             <div class="card-body">
@@ -859,7 +674,8 @@
                   <div class="te-col">
                     <div class="input-group">
                       <label for="target-name-input">Target Call-Sign / ID</label>
-                      <input type="text" id="target-name-input" value="Drone_Alpha_Lead" class="form-input" placeholder="e.g. Drone_Alpha">
+                      <input type="text" id="target-name-input" value="Drone_Alpha_Lead" class="form-input"
+                        placeholder="e.g. Drone_Alpha">
                     </div>
 
                     <div class="input-group">
@@ -875,6 +691,7 @@
                     <div class="input-group">
                       <label for="target-traj-select">Target Flight Trajectory</label>
                       <select id="target-traj-select" class="form-select">
+                        <option value="figure_of_8">Figure of 8 / Lemniscate (Benchmark Flight)</option>
                         <option value="circular">Circular Orbit (Standard Flight)</option>
                         <option value="sinusoidal">Sinusoidal Oscillations (Atmospheric Buffet)</option>
                         <option value="linear">High-Speed Linear Flyby</option>
@@ -891,7 +708,8 @@
                         <label for="target-range-slider">Individual Link Distance / Range</label>
                         <span class="slider-val font-mono font-accent" id="val-target-range">180 m</span>
                       </div>
-                      <input type="range" id="target-range-slider" min="100" max="25000" step="50" value="180" class="range-slider">
+                      <input type="range" id="target-range-slider" min="100" max="25000" step="50" value="180"
+                        class="range-slider">
                       <div class="slider-ticks">
                         <span>100 m</span>
                         <span>5,000 m</span>
@@ -904,7 +722,8 @@
                         <label for="target-speed-slider">Flight Velocity / Speed</label>
                         <span class="slider-val font-mono" id="val-target-speed">24 m/s</span>
                       </div>
-                      <input type="range" id="target-speed-slider" min="5" max="150" step="1" value="24" class="range-slider">
+                      <input type="range" id="target-speed-slider" min="5" max="150" step="1" value="24"
+                        class="range-slider">
                       <div class="slider-ticks">
                         <span>5 m/s (Hover)</span>
                         <span>75 m/s (Fast UAV)</span>
@@ -917,7 +736,8 @@
                         <label for="target-alt-slider">Altitude / Elevation Offset</label>
                         <span class="slider-val font-mono" id="val-target-alt">0 m</span>
                       </div>
-                      <input type="range" id="target-alt-slider" min="-80" max="120" step="5" value="0" class="range-slider">
+                      <input type="range" id="target-alt-slider" min="-80" max="120" step="5" value="0"
+                        class="range-slider">
                       <div class="slider-ticks">
                         <span>-80 m (Low)</span>
                         <span>0 m (Horizon)</span>
@@ -1010,7 +830,8 @@
                   </label>
                   <div class="toggle-label-block">
                     <span class="toggle-title">Dual-Stage Fast Steering Mirror (FSM)</span>
-                    <span class="toggle-desc">High-bandwidth piezo mirror offloading sub-micro-radian pointing jitter.</span>
+                    <span class="toggle-desc">High-bandwidth piezo mirror offloading sub-micro-radian pointing
+                      jitter.</span>
                   </div>
                 </div>
 
@@ -1057,7 +878,8 @@
                   </label>
                   <div class="toggle-label-block">
                     <span class="toggle-title">Dynamic Cloud / Smoke LOS Blackout</span>
-                    <span class="toggle-desc">Injects complete optical signal blackout to stress-test PAT reacquisition state machine.</span>
+                    <span class="toggle-desc">Injects complete optical signal blackout to stress-test PAT reacquisition
+                      state machine.</span>
                   </div>
                 </div>
 
@@ -1067,7 +889,8 @@
                       <label for="env-occlusion-start">Blackout Start Time (t_start)</label>
                       <span class="slider-val font-mono" id="val-occlusion-start">2.0 s</span>
                     </div>
-                    <input type="range" id="env-occlusion-start" min="1.0" max="8.0" step="0.5" value="2.0" class="range-slider">
+                    <input type="range" id="env-occlusion-start" min="1.0" max="8.0" step="0.5" value="2.0"
+                      class="range-slider">
                     <div class="slider-ticks">
                       <span>1.0 s</span>
                       <span>4.0 s</span>
@@ -1080,7 +903,8 @@
                       <label for="env-occlusion-duration">Blackout Duration (Δt)</label>
                       <span class="slider-val font-mono" id="val-occlusion-duration">1.5 s</span>
                     </div>
-                    <input type="range" id="env-occlusion-duration" min="0.5" max="4.0" step="0.25" value="1.5" class="range-slider">
+                    <input type="range" id="env-occlusion-duration" min="0.5" max="4.0" step="0.25" value="1.5"
+                      class="range-slider">
                     <div class="slider-ticks">
                       <span>0.5 s (Brief)</span>
                       <span>2.0 s</span>
@@ -1094,7 +918,8 @@
                     <label for="env-occlusion-depth">Optical Attenuation Depth</label>
                     <span class="slider-val font-mono" id="val-occlusion-depth">35 dB</span>
                   </div>
-                  <input type="range" id="env-occlusion-depth" min="15" max="50" step="5" value="35" class="range-slider">
+                  <input type="range" id="env-occlusion-depth" min="15" max="50" step="5" value="35"
+                    class="range-slider">
                   <div class="slider-ticks">
                     <span>15 dB (Cirrus)</span>
                     <span>35 dB (Thick Cumulus)</span>
@@ -1111,7 +936,8 @@
               <span class="ch-icon">📡</span>
               <div>
                 <h3>Estimated Real-Time Optical Channel Physics & Link Margin</h3>
-                <span class="ch-sub">Live computation based on distance, wavelength, fog extinction, and turbulence</span>
+                <span class="ch-sub">Live computation based on distance, wavelength, fog extinction, and
+                  turbulence</span>
               </div>
             </div>
             <div class="card-body">
@@ -1165,7 +991,8 @@
             <div class="sbc-left">
               <div class="sbc-name-row">
                 <label for="env-name-input">Environment Name:</label>
-                <input type="text" id="env-name-input" value="Custom_Mission_Alpha" class="form-input sbc-input" placeholder="e.g. My_Combat_UAV_Swarm">
+                <input type="text" id="env-name-input" value="Custom_Mission_Alpha" class="form-input sbc-input"
+                  placeholder="e.g. My_Combat_UAV_Swarm">
               </div>
               <div class="sbc-summary-chips">
                 <span class="sbc-chip" id="sbc-chip-domain">🌐 Urban Rooftop</span>
@@ -1180,7 +1007,7 @@
               <button type="button" class="btn-secondary" id="btn-env-save-preset">💾 Save Preset</button>
               <button type="button" class="btn-create-master" id="btn-env-launch">
                 <span class="btn-icon">🚀</span>
-                <span class="btn-text">CREATE & DEPLOY VIRTUAL ENVIRONMENT</span>
+                <span class="btn-text">CREATE & LAUNCH SIMULATOR</span>
                 <span class="btn-arrow">→</span>
               </button>
             </div>
@@ -1189,21 +1016,923 @@
       </section>
 
 
+
+
       <!-- =================================================================== -->
-      <!-- PANE 3: RECENT ENVIRONMENTS & PRESETS                               -->
+      <!-- PANE 2: LIVE SIMULATOR & TRACKING (Act & Track)                     -->
       <!-- =================================================================== -->
-      <section id="pane-recent-envs" class="pane-content">
-        <div class="recent-wrapper">
-          <div class="recent-header">
-            <div>
-              <h2>📂 Environments & Aerospace Presets</h2>
-              <p>Quick-launch pre-configured mission scenarios or resume your saved custom optical environments.</p>
+      <section id="pane-simulator" class="pane-content active">
+        <!-- No Virtual Environment Created Overlay State -->
+        <div id="no-env-overlay" class="no-env-overlay">
+          <div class="no-env-card">
+            <div class="no-env-icon-wrapper">
+              <span class="no-env-icon">⚠️</span>
             </div>
-            <button class="btn-secondary" id="btn-refresh-envs">↻ Refresh List</button>
+            <div class="no-env-badge">DEPLOYMENT REQUIRED</div>
+            <h2 class="no-env-title">No Virtual Environment Created</h2>
+            <p class="no-env-desc">
+              No virtual optical environment is currently active. Please configure atmospheric conditions, link
+              distance, target kinematics, and laser parameters first to deploy the 3D simulation and optical tracking.
+            </p>
+            <div class="no-env-actions">
+              <button id="btn-no-env-create" class="btn-create-blue">
+                <span>🛠️</span> Create Virtual Environment
+              </button>
+              <button id="btn-no-env-presets" class="btn-secondary-preset">
+                <span>📂</span> Load Aerospace Preset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-clean-layout">
+          <!-- Top Row: Big 3D Viewport & Bigger Camera Viewport -->
+          <div class="sim-viewports-row">
+            <!-- Left: Big 3D Environment Viewport -->
+            <div class="panel panel-3d panel-3d-clean">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <span class="panel-icon">🌐</span>
+                  <h2>3D Optical Environment</h2>
+                  <span class="badge badge-accent" id="scene-mode-badge">WebGL 3D Orbit</span>
+                  <span class="badge" id="badge-weather-mode">URBAN ROOFTOP • Clear</span>
+                </div>
+                <div class="panel-actions 3d-live-controls">
+                  <!-- 3D Camera View Toolbar Overlay (Camera Viewpoints Only) -->
+                  <div class="viewport-toolbar-inline">
+                    <button class="tool-btn active" id="btn-tool-orbit" title="Orbit View (3rd Person)">⟲ Orbit</button>
+                    <button class="tool-btn" id="btn-tool-pov" title="Camera POV (First-Person Camera View)">🎥
+                      POV</button>
+                    <button class="tool-btn" id="btn-tool-reset" title="Reset View">⤢ Reset</button>
+                    <button class="tool-btn" id="btn-tool-cam-vib" title="Toggle Camera Sensor Vibration (Micro-Jitter)">📳 Cam Vib: OFF</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel-content canvas-wrapper" id="container-3d">
+                <canvas id="canvas-3d"></canvas>
+
+                <!-- Toast Notification for Disallowed Link Selection -->
+                <div class="terminal-toast" id="terminal-pair-toast">
+                  <span class="toast-icon">🚫</span>
+                  <span class="toast-msg" id="terminal-toast-msg">Pairing Disallowed</span>
+                </div>
+
+                <!-- Camera Position Overlay Card -->
+                <div class="camera-pos-card">
+                  <div class="card-title">Gimbal &amp; Target LOS</div>
+                  <div class="pos-row"><span>Range:</span><span id="pos-dist">196.2 m</span></div>
+                  <div class="pos-row"><span>Yaw (Pan):</span><span id="pos-yaw">3.4°</span></div>
+                  <div class="pos-row"><span>Pitch (Tilt):</span><span id="pos-pitch">10.9°</span></div>
+                  <div class="pos-row"><span>Targets:</span><span id="pos-targets">1 Active</span></div>
+                  <div class="pos-row detection-row"><span>3D Tracking:</span><span id="pos-3d-detect"
+                      class="badge-detect-locked">🟢 TARGET 01 LOCKED (ALPHA)</span></div>
+                </div>
+
+                <!-- Base & Camera Vibration 3D Telemetry Card -->
+                <div class="base-vibration-3d-card" id="base-vibration-3d-card">
+                  <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                    <span>⚡ Vibration Dynamics</span>
+                    <div style="display:flex; gap:4px;">
+                      <span class="badge font-mono badge-green" id="badge-3d-vibration-status">BASE: RIGID</span>
+                      <span class="badge font-mono badge-green" id="badge-3d-cam-vib-status">CAM: 0px</span>
+                    </div>
+                  </div>
+                  <div class="pos-row"><span>Base Sway Jitter:</span><span class="font-mono" id="disp-3d-sway-deg">±0.02 ° (0.15 Hz)</span></div>
+                  <div class="pos-row"><span>Live Base Pitch:</span><span class="font-mono font-accent" id="disp-3d-inst-sway">0.00 °</span></div>
+                  <div class="pos-row"><span>Camera Jitter:</span><span class="font-mono font-cyan" id="disp-3d-cam-jitter">±0.0 px (0.00 mrad)</span></div>
+                  <div class="pos-row"><span>Cam Inst. Tremor:</span><span class="font-mono font-cyan" id="disp-3d-cam-inst">0.0 µr</span></div>
+                  <div class="vib-sparkline-box">
+                    <canvas id="canvas-vib-sparkline" width="180" height="26"></canvas>
+                  </div>
+                </div>
+
+                <!-- 100m Scene Scale Bar -->
+                <div class="scale-bar-3d font-mono">100m</div>
+              </div>
+            </div>
+
+            <!-- Right: Bigger Virtual Camera Viewport -->
+            <div class="panel panel-camera panel-camera-clean">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <span class="panel-icon">📷</span>
+                  <h2>Virtual Camera View (FPA Sensor)</h2>
+                  <span class="tag-live">● LIVE FEED</span>
+                  <button type="button" class="tag-cam-btn" id="btn-cam-fov"
+                    title="Camera FOV (Spec 4: Default 4°×3° | Click to toggle 4°×3° / 60° Wide)">🔭 FOV: 4°×3° (Def)</button>
+                  <button type="button" class="tag-cam-btn" id="btn-cam-type"
+                    title="Camera Type (Spec 2: Monochrome Focal Plane Array | Click to toggle Monochrome / Colour)">📷 Mono FPA (Def)</button>
+                  <span class="tag-cam-spec font-mono" id="tag-cam-res" title="Camera Resolution (Spec 3: 640 x 480 pixels)">640×480</span>
+                  <span class="tag-cam-spec font-mono" id="tag-cam-rate" title="Camera Update Rate (Spec 5: 30 Hz min)">30 Hz</span>
+                </div>
+                <div class="cam-mode-tags">
+                  <button type="button" class="btn-audio-noise" id="btn-audio-noise"
+                    title="Optical Noise Sonification: Hear Gaussian Readout Hiss &amp; Poisson Quantum Shot Noise">
+                    <span id="ico-audio-noise">🔈</span> <span id="lbl-audio-noise">Noise Audio: Mute</span>
+                  </button>
+                  <button type="button" class="btn-vs-toggle active" id="btn-vs-toggle"
+                    title="Toggle 2000x2000 Virtual Space Surveillance Minimap (Spec 1: min 2000x2000 px)">🗺️ 2000×2000 Space</button>
+                </div>
+              </div>
+              <div class="panel-content canvas-wrapper" id="container-camera">
+                <canvas id="canvas-camera" width="640" height="480"></canvas>
+                <!-- 2000x2000 Virtual Space Surveillance Radar Minimap (640x480 Viewport) -->
+                <div class="vs-minimap-card" id="vs-minimap-card"
+                  title="2000 x 2000 Virtual Screen Space with 640 x 480 Active Camera Viewport">
+                  <div class="vs-minimap-header">
+                    <span class="vs-minimap-title">📡 2000×2000 SPACE</span>
+                    <span class="vs-minimap-status badge-green" id="vs-minimap-status">[IN FOV LOCKED]</span>
+                  </div>
+                  <div class="vs-canvas-container">
+                    <canvas id="canvas-virtual-space" width="160" height="160"></canvas>
+                  </div>
+                  <div class="vs-minimap-footer">
+                    <span class="vs-coord-txt" id="vs-vp-coords">VP: (1075, 758)</span>
+                    <span class="vs-coord-txt" id="vs-tgt-coords">TGT: (1081, 763)</span>
+                  </div>
+                </div>
+                <!-- Beacon Signature Temporal Sequencer HUD -->
+                <div class="cam-beacon-sig-hud" id="cam-beacon-sig-hud"
+                  title="Optical Beacon Signature: [ON-OFF-ON-OFF-ON] Temporal Discriminator">
+                  <span class="sig-status-dot pulse" id="sig-status-dot"></span>
+                  <span class="sig-title">BEACON SIG:</span>
+                  <div class="sig-slots" id="sig-slots">
+                    <span class="sig-slot-pill active" data-slot="0">ON</span>
+                    <span class="sig-slot-pill" data-slot="1">OFF</span>
+                    <span class="sig-slot-pill" data-slot="2">ON</span>
+                    <span class="sig-slot-pill" data-slot="3">OFF</span>
+                    <span class="sig-slot-pill" data-slot="4">ON</span>
+                  </div>
+                  <span class="sig-lock-tag" id="sig-lock-tag">LOCKED (99.8%)</span>
+                </div>
+                <!-- RF Fallback Banner -->
+                <div class="cam-rf-fallback-hud" id="cam-rf-fallback-hud" style="display: none;"
+                  title="Autonomous Dual-Band RF Auxiliary Fallback">
+                  <span class="rf-badge">HYBRID RF FALLBACK: 60 GHz (100 Mbps)</span>
+                  <span class="rf-coast font-mono" id="cam-rf-coast">[EKF Coast: 0.5s]</span>
+                </div>
+                <!-- ML Omnidirectional Search & Reacquisition HUD Banner -->
+                <div class="ml-search-hud-banner" id="ml-search-hud-banner" style="display: none;">
+                  <span class="ml-scan-spinner"></span>
+                  <span class="ml-scan-title">ML ALL-DEGREES SEARCH</span>
+                  <span class="ml-scan-angles" id="ml-scan-angles">PAN: 0.0° | TILT: 0.0°</span>
+                  <span class="ml-scan-match" id="ml-scan-match">ML PROB: 0.0%</span>
+                </div>
+                <!-- Reticle with annotations matching image 4 -->
+                <div class="reticle-hud" id="reticle-hud">
+                  <div class="hud-bracket top-left"></div>
+                  <div class="hud-bracket top-right"></div>
+                  <div class="hud-bracket bottom-left"></div>
+                  <div class="hud-bracket bottom-right"></div>
+                  <div class="hud-sub-label hud-sub-top font-mono" id="hud-sub-beacon">BEACON_ALPHA [LOCK]</div>
+                  <div class="hud-sub-label hud-sub-right font-mono" id="hud-sub-ekf">EKF 6-STATE</div>
+                  <div class="hud-sub-label hud-sub-ml font-mono" id="hud-sub-ml">ML PRED [314, 220]</div>
+                  <div class="hud-target-label" id="hud-target-label">DRONE_ALPHA_LEAD [LOCKED] • 1550nm OPTICAL</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="env-cards-grid" id="recent-envs-container">
-            <!-- Dynamically populated via JS -->
+          <!-- Middle Row: Long Horizontal Controller, Options & Big Graph -->
+          <div class="sim-controller-deck">
+            <!-- 1. Circular 2D Interactive Analog Joystick & Telemetry -->
+            <div class="deck-col deck-jog-col">
+              <div class="joystick-wrapper">
+                <div class="joystick-base" id="joystick-base"
+                  title="Drag joystick to steer gimbal • Cardinal markers for step jog">
+                  <!-- Cardinal Direction Guides & Step Joggers -->
+                  <div class="joy-cardinal joy-n" id="btn-jog-up" title="Jog Tilt Up">▲</div>
+                  <div class="joy-cardinal joy-s" id="btn-jog-down" title="Jog Tilt Down">▼</div>
+                  <div class="joy-cardinal joy-w" id="btn-jog-left" title="Jog Pan Left">◀</div>
+                  <div class="joy-cardinal joy-e" id="btn-jog-right" title="Jog Pan Right">▶</div>
+
+                  <!-- Concentric Gimbal Range Rings & Crosshairs -->
+                  <div class="joy-ring ring-outer"></div>
+                  <div class="joy-ring ring-mid"></div>
+                  <div class="joy-crosshair-h"></div>
+                  <div class="joy-crosshair-v"></div>
+
+                  <!-- Draggable Analog Thumbstick Knob -->
+                  <div class="joystick-thumb" id="joystick-thumb">
+                    <div class="thumb-grip"></div>
+                    <div class="thumb-center-dot"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="deck-gimbal-readouts">
+                <div class="gimbal-readout-item">
+                  <span class="lbl">PAN</span>
+                  <span class="val font-mono" id="remote-yaw-val">0.0°</span>
+                </div>
+                <div class="gimbal-readout-item">
+                  <span class="lbl">TILT</span>
+                  <span class="val font-mono" id="remote-pitch-val">0.0°</span>
+                </div>
+                <div class="gimbal-readout-item">
+                  <span class="lbl">RATE</span>
+                  <span class="val font-mono" id="remote-rate-val">0.0°/s</span>
+                </div>
+                <div class="gimbal-readout-item">
+                  <span class="lbl">JITTER</span>
+                  <span class="val font-mono" id="remote-jitter-val">0.18 µr</span>
+                </div>
+                <button type="button" class="btn-deck-recenter" id="btn-remote-recenter"
+                  title="Recenter Gimbal to Optical Boresight">
+                  <span>⌖</span> Recenter
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Primary Modes & Extended Horizontal Options Strip -->
+            <div class="deck-col deck-controls-col">
+              <!-- Tactical Modes Bar -->
+              <div class="deck-modes-bar">
+                <button type="button" class="remote-btn remote-btn-active" id="btn-remote-mode"
+                  title="Toggle Auto Track / Manual Jog">
+                  <span class="r-icon" id="remote-mode-icon">🎯</span> <span id="remote-mode-text">Auto Track</span>
+                </button>
+                <button type="button" class="remote-btn" id="btn-remote-zoom" title="Cycle Optical Zoom">
+                  <span class="r-icon">🔍</span> <span id="remote-zoom-text">1.0x</span>
+                </button>
+                <button type="button" class="remote-btn btn-out-of-view" id="btn-target-out-of-view"
+                  title="Force Target Out of View (High-Speed Omnidirectional ML Search &amp; Human-in-the-Loop Recovery)">
+                  <span class="r-icon">⚡</span> Target Out of View
+                </button>
+                <span class="badge badge-accent font-mono deck-status-pill" id="ml-policy-pill"
+                  title="Adaptive Multi-Angle ML Recovery Search Policy Level">🧠 ML POLICY: L1</span>
+                <span class="badge badge-accent font-mono deck-status-pill" id="remote-status-badge">AUTO TRACK</span>
+              </div>
+
+              <!-- Strip 1: Target Parameters (Specifications 8, 9, 10, 11, 13, 14) -->
+              <div class="deck-options-strip">
+                <!-- Target Count (Spec 8) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Targets:</span>
+                  <div class="target-pills" id="quick-target-pills">
+                    <button type="button" class="pill-btn active" data-targets="1" title="1 Target (Mandatory Spec)">1</button>
+                    <button type="button" class="pill-btn" data-targets="2">2</button>
+                    <button type="button" class="pill-btn" data-targets="3">3</button>
+                    <button type="button" class="pill-btn" data-targets="4">4</button>
+                    <button type="button" class="pill-btn" data-targets="5">5</button>
+                    <button type="button" class="pill-btn" data-targets="6">6</button>
+                  </div>
+                </div>
+
+                <div class="deck-opt-divider"></div>
+
+                <!-- Target Geometry (Spec 9: User-defined, Default Square) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Shape:</span>
+                  <div class="target-shape-pills">
+                    <button type="button" class="target-shape-pill active" data-shape="square" id="btn-shape-square" title="Square (Default Spec)">■ Square</button>
+                    <button type="button" class="target-shape-pill" data-shape="circle" id="btn-shape-circle">● Circle</button>
+                    <button type="button" class="target-shape-pill" data-shape="triangle" id="btn-shape-triangle">▲ Triangle</button>
+                  </div>
+                </div>
+
+                <div class="deck-opt-divider"></div>
+
+                <!-- Target Size (Spec 10: 5-20 x 5-20 px, Default 10x10) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Size:</span>
+                  <div class="size-pill-group" id="size-pill-group">
+                    <button type="button" class="pill-btn active" data-size="10" title="10x10 px (Default Spec)">10×10</button>
+                    <button type="button" class="pill-btn" data-size="5">5×5</button>
+                    <button type="button" class="pill-btn" data-size="15">15×15</button>
+                    <button type="button" class="pill-btn" data-size="20">20×20</button>
+                  </div>
+                  <span class="font-mono deck-val-badge" id="disp-target-size-val">10×10 px</span>
+                  <span id="disp-target-preset" style="display: none;">SQUARE 10×10 px</span>
+                  <input type="range" id="slider-target-size" min="5" max="20" step="1" value="10" style="display: none;">
+                  <button type="button" id="btn-target-preset-reset" style="display: none;"></button>
+                </div>
+
+                <div class="deck-opt-divider"></div>
+
+                <!-- Initial Target Location (Spec 11: User-defined, Default Random) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Init Pos:</span>
+                  <div class="init-loc-pills" id="init-loc-pills">
+                    <button type="button" class="pill-btn active" data-loc="random" title="Random Location (Default Spec)">🎲 Random</button>
+                    <button type="button" class="pill-btn" data-loc="center" title="Center of Screen">🎯 Center</button>
+                    <button type="button" class="pill-btn" data-loc="corner_off" title="Corner Offset">📐 Corner</button>
+                  </div>
+                </div>
+
+                <div class="deck-opt-divider"></div>
+
+                <!-- Camera Slew Speed Limiter (Spec 13, 14: 5-10 °/s, Default 5.0 °/s) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Speed:</span>
+                  <div class="speed-pill-group">
+                    <button type="button" class="speed-pill-btn active" data-speed="5.0" title="5.0 °/s (Default Spec)">5.0°/s</button>
+                    <button type="button" class="speed-pill-btn" data-speed="7.5">7.5°/s</button>
+                    <button type="button" class="speed-pill-btn" data-speed="10.0">10°/s</button>
+                  </div>
+                  <input type="range" id="slider-camera-speed-limit" min="5.0" max="10.0" step="0.1" value="5.0" style="display: none;">
+                  <span class="font-mono deck-val-badge" id="disp-camera-speed-limit">5.0 °/s</span>
+                </div>
+              </div>
+
+              <!-- Strip 2: Target Motion & Atmospheric Disturbance (Specifications 12 & 24) -->
+              <div class="deck-options-strip deck-options-secondary" style="margin-top: 4px;">
+                <!-- Motion (Spec 12: Selectable Straight Line, Circular, Figure of 8, Random, Spiral, Sinusoidal) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Motion:</span>
+                  <div class="motion-pills" id="target-motion-pills">
+                    <button type="button" class="deck-action-pill active" data-motion="random" title="Continuous Multi-Harmonic Random Walk (Default Spec)">🎲 Random</button>
+                    <button type="button" class="deck-action-pill" data-motion="linear" title="Straight Line Motion (Mandatory Spec)">➔ Straight Line</button>
+                    <button type="button" class="deck-action-pill" data-motion="circular" title="Circular Orbit Motion (Mandatory Spec)">🔄 Circular</button>
+                    <button type="button" class="deck-action-pill" data-motion="figure_of_8" title="Figure of 8 Lemniscate Motion (Mandatory Spec)">♾️ Figure of 8</button>
+                    <button type="button" class="deck-action-pill" data-motion="spiral" title="Expanding Archimedean Spiral Motion">🌀 Spiral</button>
+                    <button type="button" class="deck-action-pill" data-motion="sinusoidal" title="Smooth Sinusoidal Oscillation">〰️ Sinusoidal</button>
+                  </div>
+                </div>
+
+                <div class="deck-opt-divider"></div>
+
+                <!-- Atmospheric Disturbance (Spec 24: Clear, Haze, Fog, Rain, Low Light) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Atmosphere:</span>
+                  <div class="channel-pills" id="channel-pills">
+                    <button type="button" class="deck-action-pill active" id="btn-dyn-clear" data-dist="clear" title="Clear Atmospheric Condition (Spec 24)">☀️ Clear</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-haze" data-dist="haze" title="Atmospheric Haze (Spec 24)">🌫️ Haze</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-fog" data-dist="fog" title="Foggy Atmospheric Channel (Spec 24)">🌁 Fog</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-rain" data-dist="rain" title="Rain Particle Attenuation (Spec 24)">🌧️ Rain</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-night" data-dist="low_light" title="Low Light Photon Starvation (Spec 24)">🌑 Low Light</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Strip 3: Image Noise Types & Optics (Specifications 21 & FSOC Optics) -->
+              <div class="deck-options-strip deck-options-secondary" style="margin-top: 4px;">
+                <!-- Image Noise (Spec 21: Salt & Pepper ~10%, Gaussian, Poisson - User Selectable One or More) -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Noise (1+):</span>
+                  <div class="noise-pills" id="noise-type-pills">
+                    <button type="button" class="noise-pill-btn" id="btn-noise-sp" data-noise="sp" title="Salt & Pepper Impulse Noise (~10% of image)">🧂 Salt &amp; Pepper (10%)</button>
+                    <button type="button" class="noise-pill-btn active" id="btn-noise-gauss" data-noise="gauss" title="Gaussian Thermal Readout Noise">📈 Gaussian</button>
+                    <button type="button" class="noise-pill-btn active" id="btn-noise-poiss" data-noise="poiss" title="Poisson Quantum Shot Photon Noise">⚛️ Poisson</button>
+                  </div>
+                </div>
+
+                <div class="deck-opt-divider"></div>
+
+                <!-- Optics Controls -->
+                <div class="deck-opt-group">
+                  <span class="deck-opt-label">Optics:</span>
+                  <div class="optics-pills">
+                    <button type="button" class="deck-action-pill active" id="btn-dyn-ao" title="Adaptive Optics Deformable Mirror Closed Loop">🌊 AO Loop</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-zigzag" title="Toggle Weaving Flight Pattern">⚡ Zig-Zag</button>
+                    <button type="button" class="deck-action-pill active" id="btn-dyn-decoy" title="Decoy Discrimination Filter">🛡️ Decoy Filter</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-handshake" title="Cooperative Master-Slave Handshake">🛰️ Handshake</button>
+                    <button type="button" class="deck-action-pill active" id="btn-dyn-rf" title="Autonomous Dual-Band RF Auxiliary Fallback">📡 RF Fallback</button>
+                    <button type="button" class="deck-action-pill" id="btn-dyn-glint" title="Inject Saturated Solar Glint">☀️ Glint</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Dynamic Telemetry HUD (Visibly updates every frame) -->
+              <div class="deck-telemetry-hud"
+                style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; margin-top: 4px;">
+                <div class="hud-metric-card"
+                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px;">
+                  <span class="hmc-label"
+                    style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">🎯 LOCK
+                    STATE</span>
+                  <span class="hmc-val font-mono text-green" id="hud-metric-lock"
+                    style="font-size: 11px; font-weight: 700; color: #059669;">TRACKING (99.8%)</span>
+                </div>
+                <div class="hud-metric-card"
+                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px;">
+                  <span class="hmc-label"
+                    style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">📐 BORESIGHT
+                    Δ</span>
+                  <span class="hmc-val font-mono" id="hud-metric-offset"
+                    style="font-size: 11px; font-weight: 700; color: #0284c7;">(+0.2, -0.4) px</span>
+                </div>
+                <div class="hud-metric-card"
+                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px;">
+                  <span class="hmc-label"
+                    style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">📡 LINK
+                    RSSI</span>
+                  <span class="hmc-val font-mono" id="hud-metric-signal"
+                    style="font-size: 11px; font-weight: 700; color: #0f172a;">-59.8 dBm (30 FPS)</span>
+                </div>
+                <div class="hud-metric-card"
+                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px;">
+                  <span class="hmc-label"
+                    style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">🌐 SLANT
+                    RANGE</span>
+                  <span class="hmc-val font-mono" id="hud-metric-dist"
+                    style="font-size: 11px; font-weight: 700; color: #0f172a;">2.40 km</span>
+                </div>
+                <div class="hud-metric-card"
+                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px;">
+                  <span class="hmc-label"
+                    style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">📡 CARRIER /
+                    RF</span>
+                  <span class="hmc-val font-mono" id="hud-metric-carrier"
+                    style="font-size: 11px; font-weight: 700; color: #059669;">OPTICAL 10G</span>
+                </div>
+                <div class="hud-metric-card"
+                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; flex-direction: column; gap: 2px;">
+                  <span class="hmc-label"
+                    style="font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase;">🛰️
+                    HANDSHAKE</span>
+                  <span class="hmc-val font-mono" id="hud-metric-handshake"
+                    style="font-size: 11px; font-weight: 700; color: #7c3aed;">LOCKED (50µrad)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Big Live Tracking Performance Graph -->
+            <div class="deck-col deck-chart-col">
+              <div class="compact-chart-panel">
+                <div class="compact-chart-header">
+                  <span class="compact-chart-title">📈 Error Curve (60s)</span>
+                  <span class="chart-opt-lock font-mono" id="chart-fsm-lock"
+                    style="font-size: 10px; color: #059669; font-weight: 700; margin-left: auto; margin-right: 8px;">● FSM OPTICAL LOCK: 9 µrad</span>
+                  <div class="chart-mode-pill-group compact-mode-group">
+                    <button type="button" class="chart-mode-btn active" id="btn-chart-mode-ang"
+                      title="Angular Pointing Error">Angular (deg)</button>
+                    <button type="button" class="chart-mode-btn" id="btn-chart-mode-px"
+                      title="Pixel Domain Tracking Error &amp; RMSE">Pixel (px)</button>
+                  </div>
+                </div>
+                <div class="compact-chart-wrapper">
+                  <canvas id="canvas-chart"></canvas>
+                </div>
+                <div class="compact-chart-legend">
+                  <div class="chart-legend" id="chart-legend-ang">
+                    <span class="legend-item"><span class="legend-line line-yaw"></span>Yaw Error</span>
+                    <span class="legend-item"><span class="legend-line line-pitch"></span>Pitch Error</span>
+                  </div>
+                  <div class="chart-legend" id="chart-legend-px" style="display: none;">
+                    <span class="legend-item"><span class="legend-line line-px-err"></span>Pixel Error</span>
+                    <span class="legend-item"><span class="legend-line line-px-rmse"></span>Running RMSE</span>
+                    <span class="legend-item"><span class="legend-line line-px-limit"></span>Spec Limit (≤ 10 px)</span>
+                    <span class="legend-item"><span class="legend-line line-px-subpixel"></span>Sub-Pixel (≤ 2.0 px)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Small Horizontal Action Buttons Row -->
+          <div class="sim-action-pills-row">
+            <span class="pills-row-title">Quick Actions:</span>
+            <!-- Target Zig-Zag Motion Pattern Toggle -->
+            <button type="button" class="quick-action-pill zigzag-btn" id="btn-3d-random-flight"
+              title="Toggle Target Motion: Zig-Zag Weaving Flight Path">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2 12 7 4 12 20 17 4 22 12"></polyline>
+              </svg>
+              <span class="zigzag-lbl">Zig-Zag Flight</span>
+            </button>
+
+            <!-- Disturbance Matrix Drawer Quick-Scroll Toggle -->
+            <button type="button" class="quick-action-pill dist-pill-btn" id="btn-pill-open-disturbances"
+              title="Open Disturbance Stress Matrix (Atmospheric Haze, Fog, Rain, Low Light, Jitter)">
+              <span class="qa-icon">🌪️</span>
+              <span>Disturbances Matrix</span>
+            </button>
+
+            <!-- Quick Status Chips for Advanced Physics (Short & Compact) -->
+            <div class="quick-status-chip ao-chip"
+              title="Adaptive Optics Deformable Mirror Closed-Loop Wavefront Correction (Strehl 0.85)">
+              <span class="chip-dot dot-green"></span>
+              <span class="chip-icon">🌊</span>
+              <span>AO 0.85</span>
+            </div>
+            <div class="quick-status-chip jitter-chip"
+              title="Predictive Feed-Forward Anti-Jitter Loop (&lt;0.35 µrad RMS)">
+              <span class="chip-dot dot-green"></span>
+              <span class="chip-icon">⚡</span>
+              <span>Jitter &lt;0.35µr</span>
+            </div>
+          </div>
+
+          <!-- Long Medium Button for Scrollable Diagnostics Drawer -->
+          <div class="sim-drawer-trigger-bar">
+            <button type="button" class="btn-drawer-toggle" id="btn-toggle-diagnostics-drawer"
+              title="Toggle Full Mission Diagnostics, Channel Physics, Spec Metrics &amp; Disturbances Drawer">
+              <span class="drawer-btn-icon">📋</span>
+              <span class="drawer-btn-title">Open Full Mission Diagnostics, Channel Physics &amp; Spec Compliance
+                Drawer</span>
+              <span class="drawer-btn-chevron" id="drawer-chevron">▾</span>
+            </button>
+          </div>
+
+          <!-- Expandable Scrollable Diagnostics Drawer -->
+          <div class="diagnostics-drawer collapsed" id="diagnostics-drawer">
+            <div class="drawer-header-strip">
+              <div class="drawer-header-left">
+                <span class="drawer-header-icon">📊</span>
+                <span class="drawer-header-title">Mission Diagnostics &amp; Physical Channel Deep Dive</span>
+                <span class="badge badge-accent">SCROLLABLE TELEMETRY MATRIX</span>
+              </div>
+              <button type="button" class="drawer-close-btn" id="btn-close-diagnostics-drawer" title="Collapse Drawer">✕
+                Close Tray</button>
+            </div>
+
+            <div class="drawer-scroll-body">
+              <div class="drawer-grid">
+                <!-- 1. Autonomous Tracking Status & Specification Evaluation Metrics -->
+                <div class="panel panel-tracking-status">
+                  <div class="panel-header">
+                    <h2>Autonomous Tracking Status</h2>
+                    <span class="badge badge-green" id="stat-header-badge">● TRACKING</span>
+                  </div>
+                  <div class="panel-content tracking-status-body">
+                    <!-- Tactical Lock Header Banner -->
+                    <div class="stat-banner-card">
+                      <div class="stat-banner-left">
+                        <div class="stat-target-row">
+                          <span class="stat-beacon-dot pulse-beacon"></span>
+                          <span class="stat-target-name" id="stat-target-name">DRONE_ALPHA</span>
+                        </div>
+                        <span class="stat-target-sub">Optical Beacon Carrier (4Hz Strobe)</span>
+                      </div>
+                      <div class="stat-banner-right">
+                        <span class="badge badge-accent font-mono" id="stat-pat-state">TRACKING</span>
+                        <span class="stat-conf-val font-mono" id="stat-conf">99.8%</span>
+                      </div>
+                    </div>
+
+                    <!-- 2-Column Tactical Telemetry Metrics Grid -->
+                    <div class="stat-metrics-grid">
+                      <div class="stat-metric-card">
+                        <span class="metric-lbl">Target Detected</span>
+                        <span class="metric-val val-green font-mono" id="stat-detected">Yes</span>
+                      </div>
+                      <div class="stat-metric-card">
+                        <span class="metric-lbl">Link Status</span>
+                        <span class="metric-val val-green font-mono" id="stat-link">Signal Locked</span>
+                      </div>
+                      <div class="stat-metric-card">
+                        <span class="metric-lbl">Slant Range</span>
+                        <span class="metric-val font-mono" id="stat-dist">5062.1 m</span>
+                      </div>
+                      <div class="stat-metric-card">
+                        <span class="metric-lbl">Simulation FPS</span>
+                        <span class="metric-val font-mono" id="stat-fps">30.0</span>
+                      </div>
+                      <div class="stat-metric-card">
+                        <span class="metric-lbl">Target Pixel (FPA)</span>
+                        <span class="metric-val font-mono" id="stat-pos-px">(320, 240)</span>
+                      </div>
+                      <div class="stat-metric-card">
+                        <span class="metric-lbl">Boresight Offset</span>
+                        <span class="metric-val font-mono" id="stat-offset-px">(0, 0)</span>
+                      </div>
+                    </div>
+
+                    <!-- Specification Evaluation & Benchmark Metrics (Items 12, 13, 14) -->
+                    <!-- Standard Specification Evaluation & Error Breakdown -->
+                    <div class="stat-isro-section">
+                      <div class="stat-isro-header">
+                        <span class="isro-section-title">🛰️ SPECIFICATION METRICS &amp; ERROR DOMAINS</span>
+                        <span class="badge badge-green font-mono" id="stat-isro-overall-badge">ALL LIMITS PASS</span>
+                      </div>
+
+                      <!-- Distinct Error Domain Separation: Centroiding vs Pointing -->
+                      <div class="isro-metric-row">
+                        <div class="isro-box">
+                          <div class="isro-box-label">1. Centroiding Error (Detection)</div>
+                          <div class="isro-box-val font-mono val-green" id="stat-centroid-err">0.45 px</div>
+                          <div class="isro-box-sub font-mono" id="stat-centroid-sub">Sub-Pixel Optical Centroid</div>
+                        </div>
+                        <div class="isro-box">
+                          <div class="isro-box-label">3. Pointing Error (LOS Angular)</div>
+                          <div class="isro-box-val font-mono font-accent" id="stat-pointing-err-urad">192.4 µrad</div>
+                          <div class="isro-box-sub font-mono" id="stat-pointing-sub">Optical Axis vs Target LOS</div>
+                        </div>
+                      </div>
+
+                      <!-- Distinct Error Domain 2: Image-Plane Tracking Error vs Boresight (320, 240) -->
+                      <div class="isro-metric-row">
+                        <div class="isro-box">
+                          <div class="isro-box-label">2. Tracking Error (e_track)</div>
+                          <div class="isro-box-val font-mono font-accent" id="stat-pixel-err">0.82 px</div>
+                          <div class="isro-box-sub font-mono" id="stat-pixel-uv">Δu: +0.6 px | Δv: -0.5 px</div>
+                        </div>
+                        <div class="isro-box">
+                          <div class="isro-box-label">Tracking RMSE (Spec ≤ 10 px)</div>
+                          <div class="isro-box-val font-mono val-green" id="stat-pixel-rmse">0.91 px</div>
+                          <div class="isro-box-sub"><span class="badge badge-green font-mono" id="badge-pixel-rmse">PASS (≤ 10 px)</span></div>
+                        </div>
+                      </div>
+
+                      <!-- Automated Timing Verification: Acquisition & Reacquisition -->
+                      <div class="isro-metric-row">
+                        <div class="isro-box">
+                          <div class="isro-box-label">Acquisition Time (≤ 2.0s)</div>
+                          <div class="isro-box-val font-mono val-green" id="stat-acq-timer">0.38 s</div>
+                          <div class="isro-box-sub"><span class="badge badge-green font-mono" id="badge-acq-timer">PASS (≤ 2.0s)</span></div>
+                        </div>
+                        <div class="isro-box">
+                          <div class="isro-box-label">Re-acquisition Time (≤ 1.0s)</div>
+                          <div class="isro-box-val font-mono val-green" id="stat-reacq-timer">0.28 s</div>
+                          <div class="isro-box-sub"><span class="badge badge-green font-mono" id="badge-reacq-timer">PASS (≤ 1.0s)</span></div>
+                        </div>
+                      </div>
+
+                      <!-- Target Retention & Loss Percentage Metric -->
+                      <div class="isro-retention-card">
+                        <div class="retention-header-row">
+                          <span class="ret-label">Lock Retention / Loss:</span>
+                          <div class="ret-values font-mono">
+                            <span class="val-green font-bold" id="stat-retention-pct">100.0% Retained</span>
+                            <span class="ret-sep">|</span>
+                            <span class="font-accent" id="stat-loss-pct">0.0% Loss</span>
+                          </div>
+                          <span class="badge badge-green font-mono" id="badge-retention">PASS (&lt; 5%)</span>
+                        </div>
+                        <div class="retention-bar-track">
+                          <div class="retention-bar-fill" id="stat-retention-bar" style="width: 100.0%;"></div>
+                          <div class="retention-threshold-marker" title="95% Retention Threshold (5% Loss Max)"></div>
+                        </div>
+                      </div>
+
+                      <!-- Compliance Chips Scoreboard Row -->
+                      <div class="compliance-chip-row" id="compliance-chips-row">
+                        <span class="c-chip c-chip-pass" id="chip-acq">Acq: ≤2s PASS</span>
+                        <span class="c-chip c-chip-pass" id="chip-track">Track: ≤10px PASS</span>
+                        <span class="c-chip c-chip-pass" id="chip-loss">Loss: &lt;5% PASS</span>
+                        <span class="c-chip c-chip-pass" id="chip-reacq">Reacq: ≤1s PASS</span>
+                        <span class="c-chip c-chip-pass" id="chip-fps">FPS: ≥20 PASS</span>
+                      </div>
+                    </div>
+
+                    <!-- Optical Signature Discriminator & EKF Health Card -->
+                    <div class="stat-discrim-card">
+                      <div class="discrim-row">
+                        <span class="discrim-lbl">ML Temporal Signature</span>
+                        <span class="discrim-val font-mono font-accent" id="stat-ml-sig">99.8% (Verified)</span>
+                      </div>
+                      <div class="discrim-row">
+                        <span class="discrim-lbl">Kinematic Estimator</span>
+                        <span class="discrim-val font-mono val-green" id="stat-ekf-mode">Adaptive EKF (6-State
+                          CA)</span>
+                      </div>
+                      <div class="discrim-row">
+                        <span class="discrim-lbl">Decoy Discrimination</span>
+                        <span class="discrim-val font-mono val-green" id="stat-decoy-discrim">Autonomous (3 Decoys
+                          Rejected)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Environment Telemetry Panel -->
+                <div class="panel panel-telemetry">
+                  <div class="panel-header">
+                    <h2>Environment Telemetry</h2>
+                    <span class="badge badge-accent" id="telem-header-badge">OPTICAL CHANNEL</span>
+                  </div>
+                  <div class="panel-content telemetry-list">
+                    <!-- Card 1: Optical Link & Power Budget -->
+                    <div class="telem-card">
+                      <div class="telem-card-header">
+                        <span class="tc-title">OPTICAL LINK &amp; POWER</span>
+                        <span class="tc-tag tag-locked" id="telem-link-tag">CARRIER LOCKED</span>
+                      </div>
+                      <div class="telem-card-body">
+                        <div class="telem-item">
+                          <span class="telem-label">Signal Strength</span>
+                          <div class="signal-wrapper">
+                            <div class="signal-bars">
+                              <span class="bar bar-1 active"></span>
+                              <span class="bar bar-2 active"></span>
+                              <span class="bar bar-3 active"></span>
+                              <span class="bar bar-4 active"></span>
+                              <span class="bar bar-5"></span>
+                            </div>
+                            <span class="telem-val font-mono" id="telem-signal">-62 dBm</span>
+                          </div>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Link Margin</span>
+                          <div class="telem-pill-wrap">
+                            <span class="telem-val font-accent font-mono" id="telem-margin">6.3 dB</span>
+                            <span class="margin-status-pill pill-opt">NOMINAL</span>
+                          </div>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Photodetector Flux</span>
+                          <span class="telem-val font-mono" id="telem-rx-flux">1.45 µW (-28.4 dBm)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Card 2: Atmospheric Channel & Propagation -->
+                    <div class="telem-card">
+                      <div class="telem-card-header">
+                        <span class="tc-title">ATMOSPHERIC PROPAGATION</span>
+                        <span class="tc-tag tag-channel">FSO CHANNEL</span>
+                      </div>
+                      <div class="telem-card-body">
+                        <div class="telem-item">
+                          <span class="telem-label">Atmosphere</span>
+                          <span class="telem-val" id="telem-weather">Clear</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Fog / Haze Severity</span>
+                          <span class="telem-val font-accent font-mono" id="telem-fog">0 %</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Turbulence (Rytov)</span>
+                          <span class="telem-val font-mono" id="telem-turb-val">0.038 (Weak)</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Ambient Temp</span>
+                          <span class="telem-val font-mono" id="telem-temp">26 °C</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Crosswind Velocity</span>
+                          <span class="telem-val font-mono" id="telem-wind">3.2 m/s</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Card 3: Host Terminal Subsystems & Clock -->
+                    <div class="telem-card">
+                      <div class="telem-card-header">
+                        <span class="tc-title">TERMINAL &amp; MISSION CLOCK</span>
+                        <span class="tc-tag tag-online">ONLINE</span>
+                      </div>
+                      <div class="telem-card-body">
+                        <div class="telem-item">
+                          <span class="telem-label">Mission Elapsed Time</span>
+                          <span class="telem-val font-mono font-accent" id="telem-time">00:00</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">FSM Dual-Stage Loop</span>
+                          <span class="telem-val val-green font-mono" id="telem-fsm-val">Closed-Loop Active</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">AO Wavefront (DM 37)</span>
+                          <span class="telem-val val-green font-mono" id="telem-ao-val">Active (Strehl: 0.85)</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Rx Aperture Clear</span>
+                          <span class="telem-val font-mono">125 mm (f/4.2)</span>
+                        </div>
+                        <div class="telem-item">
+                          <span class="telem-label">Pointing Jitter</span>
+                          <span class="telem-val font-mono val-green">&lt; 0.35 µrad RMS</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Disturbance Presets & Stress Matrix -->
+                <div class="panel panel-disturbances" id="card-disturbance-matrix">
+                  <div class="panel-header">
+                    <h2>🌪️ Disturbance &amp; Jitter Stress Matrix</h2>
+                    <span class="subcard-badge font-mono" id="disp-disturbance-active">NOMINAL</span>
+                  </div>
+                  <div class="panel-content dist-matrix-body">
+                    <!-- Disturbance Presets: 5 Atmospheric Conditions (Spec 24) -->
+                    <div class="dist-preset-btns">
+                      <button type="button" class="dist-preset-btn" data-preset="clear" id="btn-preset-clear">
+                        ☀️ Clear (Reset)
+                      </button>
+                      <button type="button" class="dist-preset-btn" data-preset="haze" id="btn-preset-haze">
+                        🌫️ Haze
+                      </button>
+                      <button type="button" class="dist-preset-btn" data-preset="fog" id="btn-preset-fog">
+                        🌁 Fog
+                      </button>
+                      <button type="button" class="dist-preset-btn" data-preset="rain" id="btn-preset-rain">
+                        🌧️ Rain
+                      </button>
+                      <button type="button" class="dist-preset-btn" data-preset="low_light" id="btn-preset-low-light">
+                        🌑 Low Light
+                      </button>
+                    </div>
+                    <!-- Sliders Grid: Contrast, Brightness, Jitter (±20px), Platform Motion (±20px), Noise Std Dev (0-20px) -->
+                    <div class="dist-sliders-grid">
+                      <div class="dist-slider-item">
+                        <div class="dist-slider-label">
+                          <span>Contrast Red. (Spec 24)</span>
+                          <span class="font-mono font-accent" id="disp-contrast-val">0%</span>
+                        </div>
+                        <input type="range" id="slider-contrast-red" min="0" max="100" step="1" value="0"
+                          class="subcard-slider">
+                      </div>
+                      <div class="dist-slider-item">
+                        <div class="dist-slider-label">
+                          <span>Brightness Red. (Spec 24)</span>
+                          <span class="font-mono font-accent" id="disp-brightness-val">0%</span>
+                        </div>
+                        <input type="range" id="slider-brightness-red" min="0" max="100" step="1" value="0"
+                          class="subcard-slider">
+                      </div>
+                      <div class="dist-slider-item">
+                        <div class="dist-slider-label">
+                          <span>Camera Jitter (Spec 23)</span>
+                          <span class="font-mono font-accent" id="disp-jitter-val">±0.0 px</span>
+                        </div>
+                        <div class="slider-with-range-labels">
+                          <span class="range-bound">0</span>
+                          <input type="range" id="slider-camera-jitter" min="0" max="20" step="0.5" value="0"
+                            class="subcard-slider">
+                          <span class="range-bound">±20px</span>
+                        </div>
+                      </div>
+                      <div class="dist-slider-item">
+                        <div class="dist-slider-label">
+                          <span>Platform Motion (Spec 25)</span>
+                          <span class="font-mono font-accent" id="disp-platform-val">±0.0 px</span>
+                        </div>
+                        <div class="slider-with-range-labels">
+                          <span class="range-bound">0</span>
+                          <input type="range" id="slider-platform-motion" min="0" max="20" step="0.5" value="0"
+                            class="subcard-slider">
+                          <span class="range-bound">±20px</span>
+                        </div>
+                      </div>
+                      <div class="dist-slider-item">
+                        <div class="dist-slider-label">
+                          <span>Noise Std Dev (Spec 22)</span>
+                          <span class="font-mono font-accent" id="disp-noise-stddev-val">6.0 px</span>
+                        </div>
+                        <div class="slider-with-range-labels">
+                          <span class="range-bound">0</span>
+                          <input type="range" id="slider-noise-stddev" min="0" max="20" step="0.5" value="6.0"
+                            class="subcard-slider">
+                          <span class="range-bound">20px</span>
+                        </div>
+                      </div>
+                      <div class="dist-slider-item" style="grid-column: span 2;">
+                        <div class="dist-slider-label">
+                          <span>Platform Motion Pattern (Spec 25)</span>
+                          <span class="font-mono font-accent" id="disp-platform-pattern-val">LINEAR (MANDATORY)</span>
+                        </div>
+                        <div class="platform-pattern-pills" id="platform-pattern-pills" style="display: flex; gap: 4px; margin-top: 4px;">
+                          <button type="button" class="pill-btn active" data-pattern="linear" style="font-size: 10px; padding: 2px 7px;">➔ Linear (Def)</button>
+                          <button type="button" class="pill-btn" data-pattern="circular" style="font-size: 10px; padding: 2px 7px;">🔄 Circular</button>
+                          <button type="button" class="pill-btn" data-pattern="random" style="font-size: 10px; padding: 2px 7px;">🎲 Random</button>
+                          <button type="button" class="pill-btn" data-pattern="spiral" style="font-size: 10px; padding: 2px 7px;">🌀 Spiral</button>
+                          <button type="button" class="pill-btn" data-pattern="figure_of_8" style="font-size: 10px; padding: 2px 7px;">♾️ Fig-8</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. System Event Log -->
+                <div class="panel panel-log">
+                  <div class="panel-header">
+                    <h2>System &amp; State Log</h2>
+                  </div>
+                  <div class="panel-content log-container" id="log-container">
+                    <div class="log-entry"><span class="log-ts">[00:00:00]</span> Simulator Started</div>
+                    <div class="log-entry"><span class="log-ts">[00:00:03]</span> Initializing Camera &amp; Gimbal...
+                    </div>
+                    <div class="log-entry"><span class="log-ts">[00:00:05]</span> Searching for Target...</div>
+                    <div class="log-entry"><span class="log-ts">[00:00:12]</span> <span class="log-green">Target
+                        Detected</span></div>
+                    <div class="log-entry"><span class="log-ts">[00:00:12]</span> Tracking Started</div>
+                    <div class="log-entry"><span class="log-ts">[00:00:58]</span> <span class="log-green">Signal
+                        Locked</span></div>
+                  </div>
+                  <div class="log-footer">
+                    <button type="button" class="btn-secondary" id="btn-clear-log">Clear Log</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden Form Compatibility Inputs (Retained for 100% JS bindings safety) -->
+          <div style="display: none;">
+            <input type="number" id="input-yaw" value="0.0">
+            <input type="number" id="input-pitch" value="0.0">
+            <select id="select-zoom">
+              <option value="1.0">1.0x</option>
+              <option value="2.0">2.0x</option>
+              <option value="4.0">4.0x</option>
+            </select>
+            <select id="select-mode">
+              <option value="auto_track">Auto Track</option>
+              <option value="manual">Manual</option>
+              <option value="hold">Hold</option>
+            </select>
+            <button type="button" id="btn-recenter"></button>
+            <button type="button" id="btn-dpad-up"></button>
+            <button type="button" id="btn-dpad-down"></button>
+            <button type="button" id="btn-dpad-left"></button>
+            <button type="button" id="btn-dpad-right"></button>
+            <button type="button" id="btn-dpad-center"></button>
+            <button type="button" id="btn-top-export-isro-csv"></button>
+            <button type="button" id="btn-top-export-isro-json"></button>
           </div>
         </div>
       </section>
@@ -1217,18 +1946,46 @@
           <div class="reports-header">
             <div>
               <h2>📊 Simulation Analytics & Mission Performance Audit</h2>
-              <p>Comprehensive aerospace telemetry audit, dual-stage pointing accuracy curves, link budget dissipation, and lock retention statistics.</p>
+              <p>Comprehensive aerospace telemetry audit, dual-stage pointing accuracy curves, link budget dissipation,
+                and lock retention statistics.</p>
             </div>
             <div class="reports-actions">
-              <button class="btn-secondary" id="btn-export-csv">📥 Export Full CSV</button>
-              <button class="btn-secondary" id="btn-export-json">📄 Export JSON Audit</button>
+              <button class="btn-create-blue" id="btn-export-csv"
+                title="Download Standardized Benchmark CSV Log">📥 Export Benchmark CSV</button>
+              <button class="btn-secondary" id="btn-export-json"
+                title="Download Standardized Benchmark JSON Audit">📄 Export Benchmark JSON</button>
               <button class="btn-secondary" id="btn-print-report">🖨️ Print / Save PDF</button>
               <button class="btn-primary" id="btn-refresh-reports">↻ Refresh KPIs</button>
             </div>
           </div>
 
-          <!-- Executive KPI Grid (6 Metric Cards) -->
-          <div class="kpi-grid kpi-grid-6">
+          <!-- Executive Mission Verdict & Performance Summary Banner -->
+          <div class="reports-summary-banner" id="rep-summary-banner">
+            <div class="rsb-left">
+              <span class="badge badge-green rsb-badge">✓ ALL SPECIFICATIONS COMPLIANT (PASS)</span>
+              <div class="rsb-text">
+                <strong>Executive Mission Assessment:</strong>
+                <span>Optical pointing error is tightly maintained at <span class="text-green font-mono">3.8 µrad RMS</span> (under the 25.0 µrad diffraction threshold) with <span class="text-green font-mono">99.4% carrier lock retention</span>, <span class="font-accent font-mono">+14.2 dB optical fade margin</span>, and uncoded BER <span class="font-mono">&lt; 1.0e-12</span>.</span>
+              </div>
+            </div>
+            <div class="rsb-right">
+              <div class="rsb-metric-chip">
+                <span class="chip-label">Diffraction Limit:</span>
+                <span class="chip-val font-mono text-green">&lt; 25.0 µrad (PASS)</span>
+              </div>
+              <div class="rsb-metric-chip">
+                <span class="chip-label">Telecom Limit:</span>
+                <span class="chip-val font-mono text-green">&gt; 15.6 dB (PASS)</span>
+              </div>
+              <div class="rsb-metric-chip">
+                <span class="chip-label">FEC Threshold:</span>
+                <span class="chip-val font-mono text-green">&lt; 1.0e-6 (PASS)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Executive KPI Grid (8 Metric Cards) -->
+          <div class="kpi-grid kpi-grid-8">
             <div class="kpi-card">
               <div class="kpi-title">Carrier Lock Retention</div>
               <div class="kpi-val val-green" id="kpi-lock-pct">99.4 %</div>
@@ -1245,9 +2002,19 @@
               <div class="kpi-desc">Gimbal LOS mechanical tracking error</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-title">Max Peak Error</div>
-              <div class="kpi-val val-amber" id="kpi-max-err">28.2 µrad</div>
-              <div class="kpi-desc">During sudden zig-zag apex reversal</div>
+              <div class="kpi-title">Electrical SNR</div>
+              <div class="kpi-val font-blue" id="kpi-snr-db">+28.4 dB</div>
+              <div class="kpi-desc">Target &gt; 15.6 dB (Q-Factor 4.2)</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Uncoded OOK BER</div>
+              <div class="kpi-val font-accent" id="kpi-ber-exp">&lt; 1.0e-12</div>
+              <div class="kpi-desc">FEC Threshold: 1.0e-6</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Scintillation (σ_R²)</div>
+              <div class="kpi-val font-purple" id="kpi-rytov-idx">0.038</div>
+              <div class="kpi-desc">Weak Turbulence (Fade: -1.8 dB)</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-title">Acquisition Time</div>
@@ -1261,7 +2028,44 @@
             </div>
           </div>
 
-          <!-- 4-Panel Analytical Telemetry Charts Grid -->
+          <!-- Interactive Mission Timeline Scope & Section Scrubbing Toolbar -->
+          <div class="reports-timeline-toolbar">
+            <div class="timeline-toolbar-left">
+              <span class="timeline-toolbar-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Graph Timeline:
+              </span>
+              <div class="timeline-preset-pills" id="rep-timeline-presets">
+                <button class="t-pill-btn active" data-mode="auto" id="btn-scope-auto"
+                  title="Dynamic Live Stream while Running, Full Start-to-End while Paused">⚡ Dynamic / Auto</button>
+                <button class="t-pill-btn" data-mode="full" id="btn-scope-full"
+                  title="Complete Mission History from t=0.0s to End">📈 Full Mission (Start ➔ End)</button>
+                <button class="t-pill-btn" data-mode="first60" id="btn-scope-first60"
+                  title="Inspect Initial Acquisition & Lock Phase (0 - 60s)">⏱️ Start Phase (0-60s)</button>
+                <button class="t-pill-btn" data-mode="mid" id="btn-scope-mid"
+                  title="Inspect Middle Operational Phase">🎯 Mid-Mission</button>
+                <button class="t-pill-btn" data-mode="last60" id="btn-scope-last60" title="Inspect Recent 60 Seconds">⏪
+                  Last 60s</button>
+                <button class="t-pill-btn" data-mode="last30" id="btn-scope-last30"
+                  title="Inspect High-Precision Last 30 Seconds">🔍 Last 30s</button>
+              </div>
+            </div>
+            <div class="timeline-toolbar-right">
+              <span class="timeline-scrub-lbl">Scrub Section:</span>
+              <input type="range" id="rep-scrub-start" min="0" max="100" value="0" class="timeline-scrubber-slider"
+                title="Start Time Scrub">
+              <span class="timeline-scrub-arrow">➔</span>
+              <input type="range" id="rep-scrub-end" min="0" max="100" value="100" class="timeline-scrubber-slider"
+                title="End Time Scrub">
+              <span class="timeline-range-readout badge badge-accent" id="rep-range-readout">0.0s ➔ End</span>
+            </div>
+          </div>
+
+          <!-- 6-Panel Analytical Telemetry Charts Grid -->
           <div class="reports-charts-grid">
             <!-- Chart 1: Dual-Stage Pointing Accuracy -->
             <div class="panel rep-chart-panel">
@@ -1270,7 +2074,8 @@
                 <div class="chart-legend">
                   <span class="legend-item"><span class="legend-line line-coarse"></span>Coarse Gimbal (µrad)</span>
                   <span class="legend-item"><span class="legend-line line-fine"></span>FSM Fine Optical (µrad)</span>
-                  <span class="legend-item"><span class="legend-line line-diffraction"></span>Diffraction Limit (25 µrad)</span>
+                  <span class="legend-item"><span class="legend-line line-diffraction"></span>Diffraction Limit (25
+                    µrad)</span>
                 </div>
               </div>
               <div class="panel-content chart-wrapper">
@@ -1293,10 +2098,55 @@
               </div>
             </div>
 
-            <!-- Chart 3: PAT State Machine Mode Transitions -->
+            <!-- Chart 3: Electrical Signal-to-Noise Ratio (SNR) -->
             <div class="panel rep-chart-panel">
               <div class="panel-header">
-                <h3>3. PAT State Machine Operational Transitions</h3>
+                <h3>3. Electrical Signal-to-Noise Ratio (SNR) & Q-Factor Spectrum</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-snr"></span>Instantaneous SNR (dB)</span>
+                  <span class="legend-item"><span class="legend-line line-telecom"></span>Telecom Limit (15.6 dB)</span>
+                  <span class="legend-item"><span class="legend-line line-fec"></span>FEC Threshold (10.8 dB)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-snr"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Logarithmic Bit-Error Rate (BER) -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>4. Logarithmic Bit-Error Rate (BER) & FEC Thresholds</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-ber"></span>Uncoded OOK BER</span>
+                  <span class="legend-item"><span class="legend-line line-fec"></span>FEC Limit (10⁻⁶)</span>
+                  <span class="legend-item"><span class="legend-line line-telecom"></span>Error-Free (10⁻⁹)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-ber"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 5: Atmospheric Scintillation Rytov Index -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>5. Atmospheric Turbulence: Scintillation Index (σ_R²) & Fade Depth</h3>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-line line-rytov"></span>Rytov Variance (σ_R²)</span>
+                  <span class="legend-item"><span class="legend-line line-scint-fade"></span>Scint Fade (dB)</span>
+                  <span class="legend-item"><span class="legend-line line-weak-regime"></span>Weak Limit (0.2)</span>
+                </div>
+              </div>
+              <div class="panel-content chart-wrapper">
+                <canvas id="rep-chart-scint"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 6: PAT State Machine Mode Transitions -->
+            <div class="panel rep-chart-panel">
+              <div class="panel-header">
+                <h3>6. PAT State Machine Operational Transitions</h3>
                 <div class="chart-legend">
                   <span class="legend-item"><span class="legend-badge badge-green">TRACKING</span></span>
                   <span class="legend-item"><span class="legend-badge badge-accent">ACQUISITION</span></span>
@@ -1308,19 +2158,102 @@
                 <canvas id="rep-chart-states"></canvas>
               </div>
             </div>
+          </div>
 
-            <!-- Chart 4: Scintillation & Bit-Error Rate (BER) -->
-            <div class="panel rep-chart-panel">
-              <div class="panel-header">
-                <h3>4. Scintillation Index & Bit-Error Rate (BER)</h3>
-                <div class="chart-legend">
-                  <span class="legend-item"><span class="legend-line line-ber"></span>Uncoded OOK BER</span>
-                  <span class="legend-item"><span class="legend-line line-rytov"></span>Rytov Index (σ_R²)</span>
-                  <span class="legend-item"><span class="legend-line line-fec"></span>FEC Threshold (10⁻⁶)</span>
+          <!-- Deep Scientific Analysis Breakdown Section (SNR, BER, Scintillation) -->
+          <div class="reports-deep-analysis-section">
+            <div class="reports-deep-analysis-grid">
+              <!-- Card 1: Signal-to-Noise Ratio (SNR) Analysis -->
+              <div class="analysis-card">
+                <div>
+                  <div class="analysis-card-header">
+                    <h4>📡 Optical SNR & Radiometry Analysis</h4>
+                    <span class="badge badge-green" id="badge-snr-status">EXCELLENT</span>
+                  </div>
+                  <div class="formula-box">
+                    SNR_{dB} = 10 \cdot \log_{10}\left( \frac{P_{rx}^2}{\sigma_{shot}^2 + \sigma_{thermal}^2} \right)
+                  </div>
+                  <p>Electrical signal-to-noise ratio at the photodetector transimpedance amplifier (TIA) stage.
+                    Evaluates optical signal power relative to noise equivalent power (NEP = 2.5 pW/√Hz) across the 1.25
+                    Gbps bandwidth. Maintains a wide fade reserve above the 15.6 dB threshold required for error-free
+                    telecom operation.</p>
+                </div>
+                <div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">Operating SNR:</span>
+                    <span class="analysis-stat-val text-blue" id="ana-snr-val">+28.4 dB</span>
+                  </div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">FEC Reserve Margin:</span>
+                    <span class="analysis-stat-val val-green" id="ana-snr-margin">+17.6 dB</span>
+                  </div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">Digital Q-Factor:</span>
+                    <span class="analysis-stat-val font-accent" id="ana-q-factor">4.20</span>
+                  </div>
                 </div>
               </div>
-              <div class="panel-content chart-wrapper">
-                <canvas id="rep-chart-ber"></canvas>
+
+              <!-- Card 2: Bit-Error Rate (BER) & Modulation Integrity -->
+              <div class="analysis-card">
+                <div>
+                  <div class="analysis-card-header">
+                    <h4>⚡ Bit-Error Rate & Telecom Integrity</h4>
+                    <span class="badge badge-green" id="badge-ber-status">OPTIMAL</span>
+                  </div>
+                  <div class="formula-box">
+                    BER = \frac{1}{2} \text{erfc}\left( \frac{Q}{\sqrt{2}} \right) = \frac{1}{2} \text{erfc}\left(
+                    \frac{\sqrt{SNR}}{2\sqrt{2}} \right)
+                  </div>
+                  <p>Probability of bit error for On-Off Keying (OOK) direct detection. The system operates
+                    substantially below the hard-decision forward error correction (FEC) limit of 1.0e-6, ensuring
+                    error-free telecommunication frames without packet dropouts even during sudden platform maneuvers.
+                  </p>
+                </div>
+                <div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">Uncoded OOK BER:</span>
+                    <span class="analysis-stat-val font-accent" id="ana-ber-val">&lt; 1.0e-12</span>
+                  </div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">FEC Hard-Decision Limit:</span>
+                    <span class="analysis-stat-val text-muted">1.0e-6</span>
+                  </div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">FEC Safety Margin:</span>
+                    <span class="analysis-stat-val val-green">&gt; 6 Orders of Mag</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 3: Atmospheric Scintillation & Rytov Turbulence -->
+              <div class="analysis-card">
+                <div>
+                  <div class="analysis-card-header">
+                    <h4>🌪️ Atmospheric Scintillation & Turbulence</h4>
+                    <span class="badge badge-green" id="badge-scint-status">WEAK TURB</span>
+                  </div>
+                  <div class="formula-box">
+                    \sigma_R^2 = 1.23 \, C_n^2 \, k^{7/6} \, L^{11/6} \quad [A_{fade} \approx 1.8 \text{ dB}]
+                  </div>
+                  <p>Atmospheric scintillation represents optical intensity fluctuations caused by refractive index
+                    micro-temperature gradients along the propagation path. Characterized via the Rytov variance (σ_R²).
+                    For σ_R² &lt; 0.2, weak-turbulence log-normal fading applies with minimal aperture fade penalty.</p>
+                </div>
+                <div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">Rytov Index (σ_R²):</span>
+                    <span class="analysis-stat-val font-purple" id="ana-rytov-val">0.038</span>
+                  </div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">Scintillation Fade Depth:</span>
+                    <span class="analysis-stat-val text-amber" id="ana-fade-val">-1.82 dB</span>
+                  </div>
+                  <div class="analysis-stat-row">
+                    <span class="analysis-stat-lbl">Fried Coherence (r₀):</span>
+                    <span class="analysis-stat-val font-accent" id="ana-r0-val">8.5 cm</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1382,10 +2315,10 @@
                   </tr>
                   <tr>
                     <td><strong>Optical Transceiver</strong></td>
-                    <td>Optical Link Margin (Above Fade Reserve)</td>
-                    <td id="rep-link-margin" class="font-mono font-accent">+14.2 dB</td>
-                    <td>&gt; 3.0 dB (Fade Margin)</td>
-                    <td><span class="badge badge-green">PASS</span></td>
+                    <td>Electrical Signal-to-Noise Ratio (SNR)</td>
+                    <td id="rep-snr-val" class="font-mono font-blue">+28.4 dB</td>
+                    <td>&gt; 15.6 dB (Error-Free Direct Detection)</td>
+                    <td><span class="badge badge-green">OPTIMAL</span></td>
                   </tr>
                   <tr>
                     <td><strong>Optical Transceiver</strong></td>
@@ -1394,7 +2327,14 @@
                     <td>&lt; 1.0e-6 (Hard Decision FEC)</td>
                     <td><span class="badge badge-green">NOMINAL</span></td>
                   </tr>
-                  <!-- Atmosphere & Fog -->
+                  <tr>
+                    <td><strong>Optical Transceiver</strong></td>
+                    <td>Optical Link Margin (Above Fade Reserve)</td>
+                    <td id="rep-link-margin" class="font-mono font-accent">+14.2 dB</td>
+                    <td>&gt; 3.0 dB (Fade Margin)</td>
+                    <td><span class="badge badge-green">PASS</span></td>
+                  </tr>
+                  <!-- Atmosphere, Fog & Turbulence -->
                   <tr>
                     <td><strong>Atmospheric Channel</strong></td>
                     <td>Aerosol Fog Extinction & Severity</td>
@@ -1405,9 +2345,23 @@
                   <tr>
                     <td><strong>Atmospheric Channel</strong></td>
                     <td>Scintillation Rytov Index (σ_R²)</td>
-                    <td id="rep-rytov-val" class="font-mono font-accent">0.038 (Weak Turbulence)</td>
+                    <td id="rep-rytov-val" class="font-mono font-purple">0.038 (Weak Turbulence)</td>
                     <td>&lt; 0.200 Weak-to-Moderate</td>
                     <td><span class="badge badge-green">PASS</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Atmospheric Channel</strong></td>
+                    <td>Scintillation Intensity Fade Depth</td>
+                    <td id="rep-fade-stat" class="font-mono font-accent">-1.82 dB (99% Avail)</td>
+                    <td>Fade Margin &gt; Fade Depth</td>
+                    <td><span class="badge badge-green">RESERVE OK</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Atmospheric Channel</strong></td>
+                    <td>Refractive Index Structure Constant (C_n²)</td>
+                    <td id="rep-cn2-stat" class="font-mono font-accent">1.05e-14 m⁻²ᐟ³</td>
+                    <td>Near-Ground Atmospheric Baseline</td>
+                    <td><span class="badge badge-accent">MEASURED</span></td>
                   </tr>
                   <!-- Swarm Decoy Discrimination -->
                   <tr>
@@ -1444,6 +2398,217 @@
         </div>
       </section>
 
+      <!-- =================================================================== -->
+      <!-- PANE 5: VIDEO BENCHMARK & EVALUATION ENGINE                         -->
+      <!-- =================================================================== -->
+      <section id="pane-benchmark" class="pane-content">
+        <div class="benchmark-wrapper">
+          <div class="benchmark-header">
+            <div>
+              <div class="studio-badge">STANDARDIZED OPTICAL TRACKING BENCHMARK</div>
+              <h2>📹 Video Ingestion &amp; PTZ Camera Bypass Testbed</h2>
+              <p>Upload any custom MP4 video to track the designated moving optical target across frames with real-time error curve and benchmark performance metrics.</p>
+            </div>
+            <div class="benchmark-actions-top">
+              <label for="bench-file-input" class="btn-primary" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span>📁</span> Upload Custom MP4 Video
+              </label>
+              <input type="file" id="bench-file-input" accept=".mp4,.avi,.mov" style="display:none;" />
+              <button type="button" class="btn-secondary" id="btn-bench-run-sample">⚡ Load Sample Benchmark Video</button>
+              <button type="button" class="btn-secondary" id="btn-bench-export-csv" disabled>📥 Export Benchmark CSV</button>
+            </div>
+          </div>
+
+          <!-- Video Benchmark Dual Viewports (Side-by-Side: Video Feed in place of 3D, Cam View beside it) -->
+          <div class="bench-viewports-row">
+            <!-- Left Viewport: In Place of 3D Optical Environment -->
+            <div class="panel bench-video-panel">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <span class="panel-icon">📹</span>
+                  <h3>Uploaded MP4 Video Feed (Source Scene)</h3>
+                  <span class="tag-live" id="bench-video-status">● STANDBY</span>
+                  <span class="tag-cam-spec font-mono" id="bench-video-res">640×480</span>
+                </div>
+                <div class="cam-mode-tags">
+                  <span class="font-mono text-muted" id="bench-video-time" style="font-size: 11px;">00:00 / 00:00</span>
+                </div>
+              </div>
+              <div class="panel-content bench-viewport-container">
+                <div class="bench-media-wrapper" id="bench-media-wrapper">
+                  <video id="bench-source-video" playsinline muted loop preload="auto"></video>
+                  <div class="bench-drop-overlay" id="bench-drop-overlay">
+                    <span style="font-size: 38px; margin-bottom: 8px;">📹</span>
+                    <strong style="color: #f8fafc; font-size: 15px;">Upload Custom MP4 Video</strong>
+                    <p style="color: #94a3b8; font-size: 12px; margin: 4px 0 14px 0;">Click below or drag and drop any MP4 video file here to play and track</p>
+                    <label for="bench-file-input" class="btn-primary" style="cursor: pointer; padding: 7px 18px;">Browse MP4 File...</label>
+                  </div>
+                </div>
+                <!-- Playback Mini-Controls -->
+                <div class="bench-playback-bar">
+                  <div class="bench-playback-left">
+                    <button type="button" class="btn-playback-toggle" id="btn-bench-play-pause" title="Play / Pause Video">▶ Play</button>
+                    <button type="button" class="btn-playback-toggle" id="btn-bench-reset" title="Rewind / Replay">↺ Replay</button>
+                    <span class="font-mono" id="bench-file-name" style="font-size: 11px; color: #64748b;">No video loaded</span>
+                  </div>
+                  <div class="bench-playback-right">
+                    <input type="range" id="bench-video-seek" min="0" max="100" value="0" step="0.1" style="width: 140px; cursor: pointer;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Viewport: Virtual Camera View (Beside it) -->
+            <div class="panel bench-camera-panel">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <span class="panel-icon">📷</span>
+                  <h3>Virtual Camera View (FPA Sensor Track)</h3>
+                  <span class="tag-live" id="bench-cam-status">● REAL-TIME TRACK</span>
+                  <span class="tag-cam-spec font-mono" id="bench-cam-lock" style="color: #10b981;">LOCK: 99.8%</span>
+                </div>
+                <div class="cam-mode-tags">
+                  <span class="tag-cam-spec font-mono" id="bench-cam-coords">u: --, v: --</span>
+                </div>
+              </div>
+              <div class="panel-content bench-viewport-container">
+                <div class="bench-canvas-wrapper" style="position: relative; width: 100%; height: 380px; background: #070d19; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                  <canvas id="canvas-bench-tracking" width="640" height="480" style="width: 100%; height: 100%; object-fit: contain;"></canvas>
+                  <div class="bench-overlay-hud" id="bench-overlay-hud">
+                    <span id="bench-hud-frame">Frame: 0 / 0</span>
+                    <span id="bench-hud-fps">30 FPS</span>
+                    <span id="bench-hud-err">Error: 0.78 px</span>
+                  </div>
+                </div>
+                <!-- Camera View Telemetry Mini-Strip -->
+                <div class="bench-cam-telem-strip">
+                  <span class="telem-chip"><strong>STATUS:</strong> <span id="chip-bench-status" class="text-green">TRACKING</span></span>
+                  <span class="telem-chip"><strong>BORESIGHT Δ:</strong> <span id="chip-bench-offset" class="font-mono">Δu: +0.0 px | Δv: +0.0 px</span></span>
+                  <span class="telem-chip"><strong>CONFIDENCE:</strong> <span id="chip-bench-conf" class="font-mono">99.8%</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Section: The Graph and The Results Only! -->
+          <div class="bench-bottom-row">
+            <!-- Left: Tracking Error Curve (Graph) -->
+            <div class="panel bench-chart-panel">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <span class="panel-icon">📈</span>
+                  <h3>Tracking Error Curve (Pixel Domain)</h3>
+                  <span class="tag-cam-spec font-mono text-green" id="bench-chart-rmse-badge">● PIXEL RMSE: 0.79 px (PASS)</span>
+                </div>
+                <div class="chart-legend" style="display: flex; gap: 10px; font-size: 11px;">
+                  <span style="color: #f59e0b; display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 3px; background: #f59e0b;"></span> Pixel Error</span>
+                  <span style="color: #10b981; display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 3px; background: #10b981;"></span> Running RMSE</span>
+                  <span style="color: #ef4444; display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 1px; border-top: 1px dashed #ef4444;"></span> Spec Limit (≤ 10 px)</span>
+                  <span style="color: #06b6d4; display: flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 12px; height: 1px; border-top: 1px dotted #06b6d4;"></span> Sub-Pixel (≤ 2.0 px)</span>
+                </div>
+              </div>
+              <div class="panel-content" style="padding: 12px;">
+                <canvas id="canvas-bench-error-chart" width="600" height="230" style="width: 100%; height: 230px;"></canvas>
+              </div>
+            </div>
+
+            <!-- Right: Optical Tracking Performance Scorecard & Results -->
+            <div class="panel bench-scorecard-panel">
+              <div class="panel-header">
+                <div class="header-title-group">
+                  <span class="panel-icon">🏆</span>
+                  <h3>Optical Tracking Performance Scorecard</h3>
+                </div>
+                <span class="badge badge-green" id="bench-verdict-badge">✓ SPEC COMPLIANT (PASS)</span>
+              </div>
+              <div class="panel-content" style="padding: 14px;">
+                <div class="bench-metrics-grid">
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Mean Tracking Error</span>
+                    <span class="bm-val font-accent" id="bm-mean-error">0.78 px</span>
+                    <span class="bm-target">Target: &lt; 2.0 px (Sub-pixel)</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Cumulative RMSE</span>
+                    <span class="bm-val" id="bm-rmse">0.84 px</span>
+                    <span class="bm-target">Target: &le; 10.0 px (Spec)</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Max Peak Error</span>
+                    <span class="bm-val" id="bm-max-error">1.46 px</span>
+                    <span class="bm-target">Target: &lt; 5.0 px</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Initial Acq. Time</span>
+                    <span class="bm-val val-green" id="bm-acq-time">0.07 s</span>
+                    <span class="bm-target">Target: &le; 2.0 s</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Re-acquisition Time</span>
+                    <span class="bm-val val-green" id="bm-reacq-time">0.00 s</span>
+                    <span class="bm-target">Target: &le; 1.0 s</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Carrier Lock Retention</span>
+                    <span class="bm-val val-green" id="bm-lock-rate">100.0 %</span>
+                    <span class="bm-target">Target: &gt; 95.0 %</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Processing Speed</span>
+                    <span class="bm-val font-blue" id="bm-fps">30 FPS</span>
+                    <span class="bm-target">Target: &ge; 20.0 FPS</span>
+                  </div>
+                  <div class="bench-metric-card">
+                    <span class="bm-lbl">Tracking Stability (1σ)</span>
+                    <span class="bm-val font-accent" id="bm-jitter">0.30 px</span>
+                    <span class="bm-target">Sub-Pixel Jitter Variance</span>
+                  </div>
+                </div>
+
+                <!-- Clean Verification Audit Summary -->
+                <div class="bench-audit-summary-card">
+                  <div class="bd-row">
+                    <span class="bd-label">Algorithm:</span>
+                    <span class="bd-val font-mono">Multi-Scale Adaptive Threshold + Sub-Pixel Intensity Centroiding + EKF</span>
+                  </div>
+                  <div class="bd-row">
+                    <span class="bd-label">Carrier Lock:</span>
+                    <span class="bd-val val-green" id="bdet-continuity">100.0% Continuous Optical Lock</span>
+                  </div>
+                  <div class="bd-row">
+                    <span class="bd-label">Stream Processing:</span>
+                    <span class="bd-val font-mono">Native Direct Video Ingestion (PTZ Camera Bypass)</span>
+                  </div>
+                  <div class="bd-row">
+                    <span class="bd-label">Frame Latency:</span>
+                    <span class="bd-val font-blue" id="bdet-latency">&lt; 3.0 ms / frame (300+ FPS capability)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- PANE 5: RECENT ENVIRONMENTS & PRESETS                               -->
+      <!-- =================================================================== -->
+      <section id="pane-recent-envs" class="pane-content">
+        <div class="recent-wrapper">
+          <div class="recent-header">
+            <div>
+              <h2>📂 Environments & Aerospace Presets</h2>
+              <p>Quick-launch pre-configured mission scenarios or resume your saved custom optical environments.</p>
+            </div>
+            <button class="btn-secondary" id="btn-refresh-envs">↻ Refresh List</button>
+          </div>
+
+          <div class="env-cards-grid" id="recent-envs-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+      </section>
+
     </div>
 
     <!-- Bottom Status Bar -->
@@ -1471,6 +2636,218 @@
     </footer>
   </div>
 
-  <script src="app.js?v=2.8.0"></script>
+  <!-- ======================================================================= -->
+  <!-- HUMAN-IN-THE-LOOP ML REINFORCEMENT LEARNING RECOVERY CONFIRMATION MODAL -->
+  <!-- ======================================================================= -->
+  <div id="modal-ml-recovery" class="optilign-modal-overlay" style="display: none;">
+    <div class="optilign-modal-dialog rec-modal-dialog">
+      <div class="modal-header-banner rec-header-banner">
+        <div class="mhb-title-group">
+          <div class="mhb-badge rec-badge">🎯 AUTONOMOUS RECOVERY &amp; OPERATOR REINFORCEMENT</div>
+          <h3>🎯 Target Re-acquired — Operator Satisfaction Audit</h3>
+          <p>The system executed an omnidirectional all-degrees search to locate and re-lock the lost target.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-rec-modal" title="Dismiss">✕</button>
+      </div>
+
+      <div class="modal-body-content">
+        <!-- Recovery Telemetry Stats Grid -->
+        <div class="ml-stats-grid rec-stats-grid">
+          <div class="ml-stat-card">
+            <span class="mls-label">SEARCH DURATION</span>
+            <span class="mls-val font-mono font-accent" id="rec-stat-time">0.00 s</span>
+            <span class="mls-sub" id="rec-stat-isro-badge">Spec Target (≤ 1.0s)</span>
+          </div>
+          <div class="ml-stat-card">
+            <span class="mls-label">ANGLES SCANNED</span>
+            <span class="mls-val font-mono text-blue" id="rec-stat-angles" style="font-size: 13px;">Az: ±0.0° | El:
+              ±0.0°</span>
+            <span class="mls-sub">All-Degrees Spatial Sweep</span>
+          </div>
+          <div class="ml-stat-card">
+            <span class="mls-label">CURRENT POLICY</span>
+            <span class="mls-val font-mono text-green" id="rec-stat-policy">Level 1</span>
+            <span class="mls-sub" id="rec-stat-speed">1.0x Slew Headroom</span>
+          </div>
+          <div class="ml-stat-card">
+            <span class="mls-label">TARGET STATUS</span>
+            <span class="mls-val font-mono text-green" id="rec-stat-target">Drone_01</span>
+            <span class="mls-sub">Beacon Strobe Matched</span>
+          </div>
+        </div>
+
+        <!-- Question Box -->
+        <div class="rec-question-box">
+          <div class="rec-question-title">💬 Operator Evaluation:</div>
+          <div class="rec-question-desc">
+            Did the system find and reacquire the target within your satisfied time?
+          </div>
+        </div>
+
+        <!-- Dynamic Feedback Output (Status Toast / Confirmation) -->
+        <div class="rec-feedback-box" id="rec-feedback-box" style="display: none;">
+          <div class="rec-feedback-msg" id="rec-feedback-msg"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer-actions rec-footer-actions">
+        <button type="button" class="btn-rec-dismiss" id="btn-rec-dismiss" title="Dismiss without modifying policy">
+          Leave It
+        </button>
+        <button type="button" class="btn-rec-upgrade" id="btn-rec-upgrade"
+          title="Not satisfied: upgrade search policy with faster slew rate and tighter angle scan">
+          ⚡ Too Slow — Upgrade Search Policy
+        </button>
+        <button type="button" class="btn-rec-accept" id="btn-rec-accept"
+          title="Satisfied with this recovery time: reinforce policy &amp; train neural network">
+          ✓ Accept &amp; Self-Train Policy
+        </button>
+  <!-- ======================================================================= -->
+  <!-- 25-POINT SPECIFICATION COMPLIANCE MATRIX MODAL                          -->
+  <!-- ======================================================================= -->
+  <div id="modal-spec-compliance" class="spec-modal-overlay" style="display: none;">
+    <div class="spec-modal-dialog">
+      <div class="spec-modal-header">
+        <div>
+          <h3>📋 25-Point Specification Compliance Matrix</h3>
+          <p>Autonomous target detection, identification, and continuous tracking simulator verification against all benchmark specifications.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-spec-modal" title="Close" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
+      </div>
+      <div class="spec-table-wrapper">
+        <table class="spec-table font-mono">
+          <thead>
+            <tr>
+              <th style="width: 45px;">Sr.</th>
+              <th style="width: 170px;">Parameter</th>
+              <th style="width: 200px;">Suggested Value</th>
+              <th style="width: 180px;">Remarks</th>
+              <th style="width: 170px;">Live Value</th>
+              <th style="width: 95px; text-align: center;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Camera Parameters -->
+            <tr class="category-row"><td colspan="6">Camera Parameters</td></tr>
+            <tr>
+              <td>1.</td><td>Screen Size (min.)</td><td>2000 x 2000 pixels</td><td>Optional: User-defined</td>
+              <td id="spec-val-1">2000 × 2000 px</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>2.</td><td>Camera Type</td><td>Monochrome, Focal Plane Array</td><td>Optional: Colour</td>
+              <td id="spec-val-2">Monochrome FPA</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>3.</td><td>Camera Resolution</td><td>640 x 480 pixels</td><td>Optional: User-defined</td>
+              <td id="spec-val-3">640 × 480 px</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>4.</td><td>Camera FOV</td><td>User-defined</td><td>Default: 4° x 3°</td>
+              <td id="spec-val-4">4° × 3° (Spec Def)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>5.</td><td>Camera update Rate</td><td>30 Hz (min.)</td><td>-</td>
+              <td id="spec-val-5">30.0 Hz</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>6.</td><td>Initial Camera Position</td><td>Centre of the Screen</td><td>-</td>
+              <td id="spec-val-6">Center (1000, 1000)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+
+            <!-- Target Parameters -->
+            <tr class="category-row"><td colspan="6">Target Parameters</td></tr>
+            <tr>
+              <td>7.</td><td>Target Type</td><td>Beacon Spot</td><td>-</td>
+              <td id="spec-val-7">Modulated Optical Beacon (4Hz)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>8.</td><td>Number of Targets</td><td>1, mandatory</td><td>multiple optional</td>
+              <td id="spec-val-8">1 Target (1–6 selectable)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>9.</td><td>Target Shape</td><td>User-defined</td><td>Default: Square</td>
+              <td id="spec-val-9">Square (User-defined)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>10.</td><td>Target Size</td><td>5-20 x 5-20 pixels (user-defined)</td><td>Default: 10 x 10</td>
+              <td id="spec-val-10">10 × 10 px</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>11.</td><td>Initial Target Location</td><td>User-defined</td><td>Default: Random</td>
+              <td id="spec-val-11">Random (User-defined)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>12.</td><td>Motion</td><td>Selectable: Straight Line, Circular, Figure of 8, Random</td><td>Optional: Spiral, Sinusoidal, User-defined</td>
+              <td id="spec-val-12">Random (6 Selectable)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+
+            <!-- Camera Motion Constraints -->
+            <tr class="category-row"><td colspan="6">Camera Motion Constraints</td></tr>
+            <tr>
+              <td>13.</td><td>Max. Pan Speed</td><td>5-10 °/s (User-defined)</td><td>Default: 5 °/s</td>
+              <td id="spec-val-13">5.0 °/s</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>14.</td><td>Max. Tilt Speed</td><td>5-10 °/s (User-defined)</td><td>Default: 5 °/s</td>
+              <td id="spec-val-14">5.0 °/s</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>15.</td><td>Update Interval</td><td>≥ 20 Hz</td><td>-</td>
+              <td id="spec-val-15">30 Hz (33.3 ms)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+
+            <!-- Performance Specifications -->
+            <tr class="category-row"><td colspan="6">Performance Specifications</td></tr>
+            <tr>
+              <td>16.</td><td>Acquisition Time</td><td>≤ 2 sec</td><td>-</td>
+              <td id="spec-val-16">&lt; 0.5 s</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>17.</td><td>Tracking Error</td><td>≤ 10 pixels</td><td>Sub-Pixel Target: ≤ 2.0 px</td>
+              <td id="spec-val-17">0.79 px</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>18.</td><td>Target Loss</td><td>&lt; 5%</td><td>-</td>
+              <td id="spec-val-18">1.4%</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>19.</td><td>Re-acquisition Time</td><td>≤ 1 sec</td><td>-</td>
+              <td id="spec-val-19">&lt; 0.3 s</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>20.</td><td>Processing Speed</td><td>≥ 20 FPS</td><td>-</td>
+              <td id="spec-val-20">30.0 FPS</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+
+            <!-- Disturbances and Noise -->
+            <tr class="category-row"><td colspan="6">Disturbances and Noise</td></tr>
+            <tr>
+              <td>21.</td><td>Image Noise</td><td>1. Salt &amp; Pepper (~10%), 2. Gaussian &amp; 3. Poisson</td><td>User Selectable (one or more)</td>
+              <td id="spec-val-21">Gauss + Poiss Active</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>22.</td><td>Max. Std Dev of Noise</td><td>20 pixels</td><td>User-defined</td>
+              <td id="spec-val-22">6.0 px (Max: 20 px)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>23.</td><td>Max. Camera Jitter</td><td>± 20 pixels / frame</td><td>User-defined</td>
+              <td id="spec-val-23">±0.0 px (Max: ±20 px)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>24.</td><td>Atmospheric Disturbance</td><td>Clear, Haze, Fog, Rain, Low light</td><td>User-defined contrast &amp; brightness reduction</td>
+              <td id="spec-val-24">Clear (5 Presets Available)</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+            <tr>
+              <td>25.</td><td>Platform Motion</td><td>± 20 pixels/frame (max.)</td><td>Default/Mandatory: Linear | Optional: Circular, random, spiral, fig-8</td>
+              <td id="spec-val-25">Linear (Default) ±0.0 px</td><td style="text-align: center;"><span class="spec-badge-compliant">✓ PASS</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=2.9.3"></script>
 </body>
+
 </html>

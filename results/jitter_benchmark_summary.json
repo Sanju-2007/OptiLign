@@ -1,0 +1,21 @@
+{
+  "config": {
+    "duration_s": 1.0,
+    "dt": 0.002,
+    "latency_horizon_s": 0.015
+  },
+  "metrics": {
+    "raw_jitter_rms_urad": 26.98,
+    "reactive_feedback_rms_urad": 33.97,
+    "predictive_feedforward_rms_urad": 3.59,
+    "feedback_rejection_db": -2.0,
+    "feedforward_rejection_db": 17.53,
+    "net_improvement_over_feedback_db": 19.53,
+    "tracked_harmonics_hz": [
+      19.9,
+      60.1,
+      120.3
+    ],
+    "average_phase_lead_deg": 167.7
+  }
+}

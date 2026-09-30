@@ -50,8 +50,12 @@ class RenderConfig:
 
     background_mean: float = 15.0
     background_std: float = 5.0
+    enable_gaussian_noise: bool = True
     noise_std: float = 10.0
+    enable_poisson_noise: bool = True
     shot_noise: bool = True
+    enable_salt_pepper_noise: bool = False
+    salt_pepper_ratio: float = 0.10
     num_stars: int = 20
     star_intensity_range: tuple[float, float] = (40.0, 120.0)
     star_size_range: tuple[float, float] = (1.0, 2.0)
@@ -281,23 +285,34 @@ class SyntheticRenderer:
     def _apply_noise(self, frame: NDArray[np.float64]) -> NDArray[np.uint8]:
         """Apply sensor noise and convert to uint8.
 
-        Adds:
-          - Gaussian read noise
-          - Poisson shot noise (if enabled)
+        Implements disturbance noise matrix:
+          1. Salt & Pepper (impulse noise, 10% default)
+          2. Gaussian read noise (std dev up to 20 px)
+          3. Poisson shot noise
         """
         cfg = self._config
 
-        # Gaussian read noise
-        if cfg.noise_std > 0:
+        # 1. Gaussian read noise
+        if cfg.enable_gaussian_noise and cfg.noise_std > 0:
             noise = self._rng.normal(0, cfg.noise_std, frame.shape)
             frame = frame + noise
 
-        # Poisson shot noise
-        if cfg.shot_noise:
+        # 2. Poisson shot noise
+        if cfg.enable_poisson_noise and cfg.shot_noise:
             frame_clipped = np.clip(frame, 0, 255)
             # Scale to reasonable photon counts
             photons = frame_clipped * 0.5
             noisy = self._rng.poisson(np.maximum(photons, 0))
             frame = frame_clipped + (noisy - photons) * 0.5
+
+        # 3. Salt & Pepper impulse noise (Tracking Spec: around 10% of image)
+        if cfg.enable_salt_pepper_noise and cfg.salt_pepper_ratio > 0:
+            prob = min(max(cfg.salt_pepper_ratio, 0.0), 1.0)
+            rand_matrix = self._rng.uniform(0.0, 1.0, frame.shape)
+            # 50% pepper (black = 0), 50% salt (white = 255)
+            pepper_mask = rand_matrix < (prob / 2.0)
+            salt_mask = (rand_matrix >= (prob / 2.0)) & (rand_matrix < prob)
+            frame[pepper_mask] = 0.0
+            frame[salt_mask] = 255.0
 
         return np.clip(frame, 0, 255).astype(np.uint8)

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OptiLign — Standard Benchmark Compliance Report</title>
+<style>
+  :root {
+    --bg: #070d18;
+    --card: #0e1726;
+    --accent: #00d2ff;
+    --pass: #10b981;
+    --fail: #ef4444;
+    --text: #e2e8f0;
+    --subtext: #94a3b8;
+  }
+  body {
+    margin: 0; padding: 32px; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 24px; margin-bottom: 32px;
+  }
+  h1 { margin: 0; font-size: 26px; color: #fff; letter-spacing: -0.5px; }
+  .subtitle { color: var(--subtext); font-size: 14px; margin-top: 6px; }
+  .scorecard {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;
+  }
+  .card {
+    background: var(--card); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px;
+  }
+  .card-label { font-size: 12px; text-transform: uppercase; color: var(--subtext); letter-spacing: 0.5px; }
+  .card-val { font-size: 28px; font-weight: bold; margin: 8px 0; color: #fff; }
+  .card-sub { font-size: 13px; color: var(--accent); }
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  }
+  .badge.pass { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+  .badge.fail { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+  table {
+    width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08); margin-bottom: 32px;
+  }
+  th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  th { background: rgba(255,255,255,0.02); color: var(--subtext); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+  code { font-family: monospace; color: var(--accent); }
+  .verdict-banner {
+    padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10b981;
+  }
+  .verdict-text { font-size: 20px; font-weight: bold; color: #34d399; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>OptiLign — PAT Benchmark Compliance Report</h1>
+      <div class="subtitle">Standard Specification Verification Suite | Timestamp: 2026-09-29 16:42:18</div>
+    </div>
+    <div>
+      <span class="badge pass" style="font-size: 16px; padding: 8px 16px;">
+        OVERALL: PASS (100.0%)
+      </span>
+    </div>
+  </div>
+
+  <div class="verdict-banner">
+    <div class="verdict-text">
+      36 of 36 Test Scenarios Passed (Score: 100.0%)
+    </div>
+    <div>
+      All Primary Specifications Verified Against Official PAT Thresholds
+    </div>
+  </div>
+
+  <div class="scorecard">
+    <div class="card">
+      <div class="card-label">Acquisition Time</div>
+      <div class="card-val">0.03s</div>
+      <div class="card-sub">Limit: &le; 2.0 s (Status: PASS)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Mean Tracking Error</div>
+      <div class="card-val">3.14 px</div>
+      <div class="card-sub">Limit: &le; 10.0 px (Status: PASS)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Centroiding Error (RMSE)</div>
+      <div class="card-val">0.56 px</div>
+      <div class="card-sub">P95: 0.73 px</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Target Loss Rate</div>
+      <div class="card-val">0.0%</div>
+      <div class="card-sub">Limit: &lt; 5.0 % (Status: PASS)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Processing Speed</div>
+      <div class="card-val">172.5 FPS</div>
+      <div class="card-sub">Limit: &ge; 20.0 FPS (Status: PASS)</div>
+    </div>
+  </div>
+
+  <h2>Detailed Scenario Matrix &amp; Error Breakdown</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Trajectory</th>
+        <th>Disturbance</th>
+        <th>Centroid Err</th>
+        <th>Tracking Err</th>
+        <th>Pointing Err</th>
+        <th>Acq Time</th>
+        <th>Re-acq</th>
+        <th>Loss Rate</th>
+        <th>FPS</th>
+        <th>Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr>
+              <td><code>straight_nominal</code></td>
+              <td>Straight</td>
+              <td>Nominal</td>
+              <td><strong>0.73 px</strong></td>
+              <td><strong>2.67 px</strong></td>
+              <td>290.0 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>194.9</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_noise_salt_pepper</code></td>
+              <td>Straight</td>
+              <td>Noise salt pepper</td>
+              <td><strong>0.69 px</strong></td>
+              <td><strong>2.70 px</strong></td>
+              <td>292.6 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>150.0</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_noise_gaussian</code></td>
+              <td>Straight</td>
+              <td>Noise gaussian</td>
+              <td><strong>0.75 px</strong></td>
+              <td><strong>2.68 px</strong></td>
+              <td>290.2 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>169.8</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_noise_poisson</code></td>
+              <td>Straight</td>
+              <td>Noise poisson</td>
+              <td><strong>0.72 px</strong></td>
+              <td><strong>2.67 px</strong></td>
+              <td>290.1 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>40.0</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_jitter_optical</code></td>
+              <td>Straight</td>
+              <td>Jitter optical</td>
+              <td><strong>0.56 px</strong></td>
+              <td><strong>7.36 px</strong></td>
+              <td>821.0 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>222.7</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_platform_motion</code></td>
+              <td>Straight</td>
+              <td>Platform motion</td>
+              <td><strong>0.49 px</strong></td>
+              <td><strong>5.95 px</strong></td>
+              <td>681.6 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>222.8</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_atmosphere_haze</code></td>
+              <td>Straight</td>
+              <td>Atmosphere haze</td>
+              <td><strong>0.60 px</strong></td>
+              <td><strong>2.71 px</strong></td>
+              <td>294.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>166.9</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_atmosphere_fog</code></td>
+              <td>Straight</td>
+              <td>Atmosphere fog</td>
+              <td><strong>0.75 px</strong></td>
+              <td><strong>2.66 px</strong></td>
+              <td>292.9 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>230.2</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>straight_worst_case_combined</code></td>
+              <td>Straight</td>
+              <td>Worst case combined</td>
+              <td><strong>0.61 px</strong></td>
+              <td><strong>6.85 px</strong></td>
+              <td>778.5 µrad</td>
+              <td>0.03s</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>123.2</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_nominal</code></td>
+              <td>Circular</td>
+              <td>Nominal</td>
+              <td><strong>0.47 px</strong></td>
+              <td><strong>1.55 px</strong></td>
+              <td>177.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>230.8</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_noise_salt_pepper</code></td>
+              <td>Circular</td>
+              <td>Noise salt pepper</td>
+              <td><strong>0.46 px</strong></td>
+              <td><strong>1.57 px</strong></td>
+              <td>179.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>153.9</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_noise_gaussian</code></td>
+              <td>Circular</td>
+              <td>Noise gaussian</td>
+              <td><strong>0.49 px</strong></td>
+              <td><strong>1.56 px</strong></td>
+              <td>178.4 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>166.0</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_noise_poisson</code></td>
+              <td>Circular</td>
+              <td>Noise poisson</td>
+              <td><strong>0.48 px</strong></td>
+              <td><strong>1.54 px</strong></td>
+              <td>177.1 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>40.0</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_jitter_optical</code></td>
+              <td>Circular</td>
+              <td>Jitter optical</td>
+              <td><strong>0.55 px</strong></td>
+              <td><strong>7.25 px</strong></td>
+              <td>810.0 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>222.6</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_platform_motion</code></td>
+              <td>Circular</td>
+              <td>Platform motion</td>
+              <td><strong>0.59 px</strong></td>
+              <td><strong>5.73 px</strong></td>
+              <td>663.1 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>223.2</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_atmosphere_haze</code></td>
+              <td>Circular</td>
+              <td>Atmosphere haze</td>
+              <td><strong>0.57 px</strong></td>
+              <td><strong>1.63 px</strong></td>
+              <td>185.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>170.6</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_atmosphere_fog</code></td>
+              <td>Circular</td>
+              <td>Atmosphere fog</td>
+              <td><strong>0.44 px</strong></td>
+              <td><strong>1.56 px</strong></td>
+              <td>180.9 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>230.3</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>circular_worst_case_combined</code></td>
+              <td>Circular</td>
+              <td>Worst case combined</td>
+              <td><strong>0.59 px</strong></td>
+              <td><strong>6.53 px</strong></td>
+              <td>747.2 µrad</td>
+              <td>0.03s</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>123.6</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_nominal</code></td>
+              <td>Figure_8</td>
+              <td>Nominal</td>
+              <td><strong>0.54 px</strong></td>
+              <td><strong>0.96 px</strong></td>
+              <td>113.6 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>230.7</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_noise_salt_pepper</code></td>
+              <td>Figure_8</td>
+              <td>Noise salt pepper</td>
+              <td><strong>0.50 px</strong></td>
+              <td><strong>1.05 px</strong></td>
+              <td>123.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>154.4</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_noise_gaussian</code></td>
+              <td>Figure_8</td>
+              <td>Noise gaussian</td>
+              <td><strong>0.54 px</strong></td>
+              <td><strong>1.01 px</strong></td>
+              <td>118.1 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>170.4</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_noise_poisson</code></td>
+              <td>Figure_8</td>
+              <td>Noise poisson</td>
+              <td><strong>0.54 px</strong></td>
+              <td><strong>0.99 px</strong></td>
+              <td>115.9 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>40.7</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_jitter_optical</code></td>
+              <td>Figure_8</td>
+              <td>Jitter optical</td>
+              <td><strong>0.54 px</strong></td>
+              <td><strong>7.21 px</strong></td>
+              <td>806.4 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>222.8</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_platform_motion</code></td>
+              <td>Figure_8</td>
+              <td>Platform motion</td>
+              <td><strong>0.60 px</strong></td>
+              <td><strong>5.71 px</strong></td>
+              <td>658.6 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>223.9</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_atmosphere_haze</code></td>
+              <td>Figure_8</td>
+              <td>Atmosphere haze</td>
+              <td><strong>0.56 px</strong></td>
+              <td><strong>1.11 px</strong></td>
+              <td>128.3 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>169.8</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_atmosphere_fog</code></td>
+              <td>Figure_8</td>
+              <td>Atmosphere fog</td>
+              <td><strong>0.46 px</strong></td>
+              <td><strong>0.95 px</strong></td>
+              <td>116.2 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>230.6</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>figure_8_worst_case_combined</code></td>
+              <td>Figure_8</td>
+              <td>Worst case combined</td>
+              <td><strong>0.59 px</strong></td>
+              <td><strong>6.43 px</strong></td>
+              <td>730.0 µrad</td>
+              <td>0.03s</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>123.6</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_nominal</code></td>
+              <td>Random</td>
+              <td>Nominal</td>
+              <td><strong>0.61 px</strong></td>
+              <td><strong>0.50 px</strong></td>
+              <td>53.4 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>227.7</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_noise_salt_pepper</code></td>
+              <td>Random</td>
+              <td>Noise salt pepper</td>
+              <td><strong>0.46 px</strong></td>
+              <td><strong>0.62 px</strong></td>
+              <td>67.1 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>152.5</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_noise_gaussian</code></td>
+              <td>Random</td>
+              <td>Noise gaussian</td>
+              <td><strong>0.63 px</strong></td>
+              <td><strong>0.52 px</strong></td>
+              <td>55.5 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>169.9</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_noise_poisson</code></td>
+              <td>Random</td>
+              <td>Noise poisson</td>
+              <td><strong>0.60 px</strong></td>
+              <td><strong>0.50 px</strong></td>
+              <td>53.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>40.8</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_jitter_optical</code></td>
+              <td>Random</td>
+              <td>Jitter optical</td>
+              <td><strong>0.59 px</strong></td>
+              <td><strong>7.04 px</strong></td>
+              <td>789.6 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>212.3</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_platform_motion</code></td>
+              <td>Random</td>
+              <td>Platform motion</td>
+              <td><strong>0.63 px</strong></td>
+              <td><strong>5.70 px</strong></td>
+              <td>652.3 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>224.5</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_atmosphere_haze</code></td>
+              <td>Random</td>
+              <td>Atmosphere haze</td>
+              <td><strong>0.50 px</strong></td>
+              <td><strong>0.77 px</strong></td>
+              <td>82.3 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>172.2</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_atmosphere_fog</code></td>
+              <td>Random</td>
+              <td>Atmosphere fog</td>
+              <td><strong>0.32 px</strong></td>
+              <td><strong>0.37 px</strong></td>
+              <td>43.8 µrad</td>
+              <td>N/A</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>235.0</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+            <tr>
+              <td><code>random_worst_case_combined</code></td>
+              <td>Random</td>
+              <td>Worst case combined</td>
+              <td><strong>0.56 px</strong></td>
+              <td><strong>6.53 px</strong></td>
+              <td>727.9 µrad</td>
+              <td>0.03s</td>
+              <td>0.00s</td>
+              <td>0.0%</td>
+              <td>125.4</td>
+              <td><span class="badge pass">PASS</span></td>
+            </tr>
+            
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

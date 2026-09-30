@@ -1,0 +1,66 @@
+# OptiLign — Dedicated Virtual Camera PAT Standard Benchmark Preset
+# Aligned strictly with Mobile FSOC Coarse Alignment Tracking Specifications
+# Standard: FSOC-PAT-2026 Specification Matrix
+
+scenario:
+  name: "fsoc_pat_benchmark"
+  duration_s: 10.0
+  timestep_s: 0.0333333333  # 30 Hz update rate (dt = 1/30 s)
+  seed: 42
+
+camera:
+  width: 640                # 640 x 480 FPA monochrome viewport
+  height: 480
+  hfov_deg: 4.0             # 4° x 3° Narrow Field of View
+  vfov_deg: 3.0
+  fps: 30.0                 # 30 Hz frame rate
+  latency_s: 0.0
+  position: [0.0, 0.0, 0.0]
+  pan_rate_limit: 0.087266  # 5.0 °/s pan speed limit (Range: 5–10 °/s)
+  tilt_rate_limit: 0.087266 # 5.0 °/s tilt speed limit (Range: 5–10 °/s)
+  angular_accel_limit: 25.0
+  actuator_time_constant: 0.02
+
+virtual_space:
+  width: 2000               # 2000 x 2000 virtual space
+  height: 2000
+  initial_camera_center: [1000, 1000]
+
+target:
+  num_targets: 1            # 1 to 6 targets supported
+  shape: "circle"           # Circle (Gaussian Spot) or Square
+  size_px: 9.0              # 9x9 px target size (slider: 5 to 20 px)
+  initial_location: "random" # "random", "center", or "corner_off"
+  trajectory_type: "figure_of_8" # Figure of 8 / Lemniscate
+  beacon_carrier_freq_hz: 4.0 # 4.0 Hz square carrier modulation (50% duty cycle)
+  beacon_intensity: 240.0
+  distance_m: 250.0
+
+detector:
+  mode: "classical"
+  confidence_threshold: 0.5
+  brightness_threshold: 100.0
+
+estimator:
+  estimator_type: "ekf"     # Adaptive Extended Kalman Filter
+
+controller:
+  controller_type: "dual_stage" # Coarse Gimbal + Fine Piezo FSM
+  kp: 12.0
+  ki: 0.8
+  kd: 0.18
+  fsm_bandwidth_hz: 250.0
+
+disturbances:
+  measurement_noise_std_px: 6.0 # Max std dev up to 20 px
+  noise_type: "gaussian"        # "gaussian", "poisson", "salt_and_pepper"
+  camera_jitter_px: 0.0         # +/- 20 px optical sensor vibration
+  camera_jitter_freq_hz: 12.0   # Optical camera vibration frequency (1-60 Hz)
+  platform_motion_px: 0.0       # +/- 20 px
+  weather_preset: "Clear"       # "Clear", "Haze", "Fog", "Rain", "Low Light"
+
+compliance_thresholds:
+  acquisition_time_max_s: 2.0   # Initial acquisition <= 2.0 s
+  reacquisition_time_max_s: 1.0 # Reacquisition <= 1.0 s
+  pixel_rmse_max_px: 2.0        # Pixel-domain error RMSE <= 2.0 px (Spec: <= 10 px)
+  target_loss_max_pct: 5.0      # Target loss < 5%

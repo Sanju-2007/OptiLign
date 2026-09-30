@@ -113,3 +113,7 @@ class LinkBudgetResult:
     ber: float
     link_margin_db: float
     state: LinkState
+    strehl_ratio: float = 1.0
+    smf_coupling_efficiency: float = 0.8145
+    ao_gain_db: float = 0.0
+

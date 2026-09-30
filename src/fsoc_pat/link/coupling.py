@@ -56,16 +56,21 @@ class ApertureCoupling:
         distance_m: float,
         pointing_error_rad: float,
         incident_power_w: float,
+        strehl_ratio: float = 1.0,
+        smf_coupling_efficiency: float | None = None,
     ) -> float:
-        """Compute total optical power collected by the receiver aperture (W).
+        """Compute total optical power collected by receiver aperture or fiber (W).
 
-        Exact enclosed power scaled by off-axis pointing offset and receiver optics efficiency:
-            P_rx = P_inc * (1 - exp(-2*(a_rx/w)^2)) * exp(-2*(r_off/w)^2) * eta_rx
+        Exact enclosed power scaled by off-axis pointing offset, receiver optics efficiency,
+        and atmospheric wavefront Strehl / Single-Mode Fiber coupling:
+            P_rx = P_inc * (1 - exp(-2*(a_rx/w)^2)) * exp(-2*(r_off/w)^2) * eta_rx * eta_coupling
 
         Args:
             distance_m: Propagation distance (m).
             pointing_error_rad: Angular pointing error (rad).
             incident_power_w: Power arriving at distance z before aperture (W).
+            strehl_ratio: Wavefront Strehl ratio [0, 1] from Adaptive Optics or turbulence.
+            smf_coupling_efficiency: Optional Single-Mode Fiber coupling efficiency [0, 0.815].
 
         Returns:
             Collected optical power in Watts.
@@ -81,6 +86,10 @@ class ApertureCoupling:
         # Off-axis pointing loss factor
         eta_pointing = math.exp(-2.0 * ((r_offset / w_z) ** 2))
 
+        # Optical coupling factor: use smf_coupling_efficiency if provided, else Strehl ratio
+        eta_wavefront = max(1e-4, smf_coupling_efficiency if smf_coupling_efficiency is not None else strehl_ratio)
+
         # Collected optical power delivered to detector
-        p_collected = p_on_axis * eta_pointing * self.receiver.rx_efficiency
+        p_collected = p_on_axis * eta_pointing * self.receiver.rx_efficiency * eta_wavefront
         return max(1e-18, p_collected)
+

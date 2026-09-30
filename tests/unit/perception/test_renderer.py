@@ -152,3 +152,55 @@ class TestSyntheticRenderer:
             beacon = BeaconProperties(intensity=200.0, size_px=6.0, shape=shape)
             frame = renderer.render(camera_state, [(target, beacon)])
             assert frame.shape == (480, 640)
+
+    def test_salt_pepper_noise_injection(
+        self, intrinsics: CameraIntrinsics, camera_state: CameraState,
+    ) -> None:
+        """Salt & Pepper noise should create hot (255) and dead (0) pixels around configured ratio."""
+        config = RenderConfig(
+            enable_gaussian_noise=False,
+            noise_std=0.0,
+            shot_noise=False,
+            enable_poisson_noise=False,
+            enable_salt_pepper_noise=True,
+            salt_pepper_ratio=0.10,
+            background_mean=128.0,
+            background_std=0.0,
+            num_stars=0,
+            seed=42,
+        )
+        renderer = SyntheticRenderer(intrinsics, config)
+        frame = renderer.render(camera_state, [])
+        # In a constant 128 background, pixels with salt=255 and pepper=0 indicate impulse noise
+        salt_pixels = np.count_nonzero(frame == 255)
+        pepper_pixels = np.count_nonzero(frame == 0)
+        total_pixels = frame.size
+        sp_ratio = (salt_pixels + pepper_pixels) / total_pixels
+        assert pytest.approx(sp_ratio, abs=0.02) == 0.10
+
+    def test_multi_noise_matrix_independent_toggles(
+        self, intrinsics: CameraIntrinsics, camera_state: CameraState,
+    ) -> None:
+        """Gaussian, Poisson, and Salt & Pepper can be toggled independently."""
+        # 1. Only S&P
+        cfg_sp = RenderConfig(
+            enable_gaussian_noise=False, noise_std=0.0,
+            enable_poisson_noise=False, shot_noise=False,
+            enable_salt_pepper_noise=True, salt_pepper_ratio=0.05,
+            seed=1,
+        )
+        r_sp = SyntheticRenderer(intrinsics, cfg_sp)
+        f_sp = r_sp.render(camera_state, [])
+        assert np.any(f_sp == 255)
+
+        # 2. All 3 combined
+        cfg_all = RenderConfig(
+            enable_gaussian_noise=True, noise_std=15.0,
+            enable_poisson_noise=True, shot_noise=True,
+            enable_salt_pepper_noise=True, salt_pepper_ratio=0.10,
+            seed=2,
+        )
+        r_all = SyntheticRenderer(intrinsics, cfg_all)
+        f_all = r_all.render(camera_state, [])
+        assert f_all.shape == (480, 640)
+

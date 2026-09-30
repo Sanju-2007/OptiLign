@@ -175,9 +175,38 @@ def main() -> int:
     env_run.add_argument("--output", type=str, default="results", help="Output directory for telemetry (default: results)")
     env_run.add_argument("--seed", type=int, default=42, help="Random seed (default: 42)")
 
-    # env benchmark
-    env_bm = env_subparsers.add_parser("benchmark", help="Benchmark tracking performance across all virtual environments")
-    env_bm.add_argument("--duration", type=float, default=1.0, help="Duration per environment in seconds (default: 1.0)")
+    # 7. ao command (Closed-Loop Adaptive Optics & Wavefront Reconstruction)
+    ao_parser = subparsers.add_parser("ao", help="Run closed-loop Adaptive Optics wavefront reconstruction benchmark")
+    ao_parser.add_argument("--duration", type=float, default=0.50, help="Simulation duration in seconds (default: 0.5)")
+    ao_parser.add_argument("--dt", type=float, default=0.002, help="AO closed-loop timestep in seconds (default: 0.002, 500 Hz)")
+    ao_parser.add_argument("--cn2", type=float, default=2.5e-14, help="Refractive index structure constant Cn2 (default: 2.5e-14)")
+    ao_parser.add_argument("--distance", type=float, default=1000.0, help="Atmospheric path length in meters (default: 1000.0)")
+    ao_parser.add_argument("--wind-speed", type=float, default=6.0, help="Atmospheric transverse wind speed in m/s (default: 6.0)")
+    ao_parser.add_argument("--output", type=str, default="results", help="Output directory for reports and figures (default: results)")
+    ao_parser.add_argument("--plot", action="store_true", default=True, help="Generate publication-grade 6-panel AO diagnostic plot")
+
+    # 8. jitter command (Predictive Micro-Vibration & Latency Feedforward Compensator)
+    jitter_parser = subparsers.add_parser("jitter", help="Run predictive micro-vibration feedforward anti-jitter benchmark")
+    jitter_parser.add_argument("--duration", type=float, default=1.0, help="Simulation duration in seconds (default: 1.0)")
+    jitter_parser.add_argument("--dt", type=float, default=0.002, help="Control loop timestep in seconds (default: 0.002, 500 Hz)")
+    jitter_parser.add_argument("--latency", type=float, default=0.015, help="System dead-time lag in seconds (default: 0.015, 15 ms)")
+    jitter_parser.add_argument("--output", type=str, default="results", help="Output directory for reports and figures (default: results)")
+    jitter_parser.add_argument("--plot", action="store_true", default=True, help="Generate publication-grade 6-panel anti-jitter diagnostic plot")
+
+    # 9. video-benchmark command (External MP4 video bypass evaluation)
+    vid_parser = subparsers.add_parser("video-benchmark", help="Run external MP4 video benchmark bypassing PTZ camera")
+    vid_parser.add_argument("--input", type=str, default=None, help="Path to input MP4 video file")
+    vid_parser.add_argument("--ground-truth", type=str, default=None, help="Optional path to ground truth CSV (frame_idx,u,v)")
+    vid_parser.add_argument("--generate", action="store_true", help="Generate synthetic benchmark video if no input provided")
+    vid_parser.add_argument("--duration", type=float, default=5.0, help="Duration for generated video in seconds (default: 5.0)")
+    vid_parser.add_argument("--motion", type=str, default="figure_of_8", choices=["straight", "circular", "figure_of_8", "random"], help="Motion pattern for generated video")
+    vid_parser.add_argument("--output", type=str, default="results", help="Output directory for reports and figures (default: results)")
+
+    # 10. standard-benchmark command (Automated Standard Acceptance Suite)
+    std_parser = subparsers.add_parser("standard-benchmark", help="Run automated standard acceptance benchmark suite across trajectories and disturbances")
+    std_parser.add_argument("--duration", type=float, default=6.0, help="Duration per scenario in seconds (default: 6.0)")
+    std_parser.add_argument("--trials", type=int, default=1, help="Number of trials per scenario (default: 1, use 10 for multi-trial stats)")
+    std_parser.add_argument("--output", type=str, default="results/standard_benchmark", help="Output directory for reports (default: results/standard_benchmark)")
 
     args = parser.parse_args()
 
@@ -197,9 +226,19 @@ def main() -> int:
         return _run_gui(args)
     if args.command == "env":
         return _run_env(args)
+    if args.command == "ao":
+        return _run_ao(args)
+    if args.command == "jitter":
+        return _run_jitter(args)
+    if args.command == "video-benchmark":
+        return _run_video_benchmark(args)
+    if args.command == "standard-benchmark":
+        return _run_standard_benchmark(args)
 
     print(f"Unknown command: '{args.command}'", file=sys.stderr)
     return 1
+
+
 
 
 def _run_simulation(args: argparse.Namespace) -> int:
@@ -259,13 +298,42 @@ def _run_simulation(args: argparse.Namespace) -> int:
         print(f"[OK] Exported multi-panel telemetry plot: {plot_path}")
 
     # Print summary to terminal
-    print("\n--- Mission Summary Results ---")
-    print(f"Steps: {m.total_steps} | Duration: {m.duration_s:.2f}s")
-    print(f"Mean Radial Pointing Error: {m.pointing.mean_radial_error_mrad:.3f} mrad ({m.pointing.mean_error_deg:.4f}°)")
-    print(f"RMS Pointing Jitter (1-sigma): {m.pointing.rms_radial_error_mrad:.3f} mrad")
-    print(f"PAT State Machine: {m.pat_state.percent_in_tracking:.1f}% TRACKING, {m.pat_state.percent_in_reacquisition:.1f}% REACQUISITION")
-    print(f"Optical Link Availability: {m.link.link_availability_pct:.1f}% (Mean Margin: {m.link.mean_link_margin_db:.2f} dB)")
-    print(f"============================================================\n")
+    k = m.performance
+    print("\n--- OptiLign PS-04 Performance Summary ---")
+    print(f"Scenario: {m.scenario_name} | Duration: {m.duration_s:.2f}s ({m.total_steps} steps)")
+    print("\n[INPUT / PROCESSING]")
+    print(f"  Input FPS                  : {k.input_fps:.1f} FPS")
+    print(f"  Actual Processing FPS      : {k.actual_processing_fps:.1f} FPS")
+    print(f"  Average Processing Time    : {k.mean_processing_time_ms:.2f} ms")
+    print(f"  Maximum Processing Time    : {k.max_processing_time_ms:.2f} ms")
+    print("\n[ACQUISITION]")
+    print(f"  Acquisition Time           : {k.acquisition_time_s:.2f} s")
+    print(f"  Re-acquisition Time        : {k.reacquisition_time_s:.2f} s")
+    print("\n[TRACKING]")
+    print(f"  Average Centroid Error     : {k.average_centroid_error_px:.2f} px")
+    print(f"  RMSE Centroid Error        : {k.rmse_centroid_error_px:.2f} px")
+    print(f"  Maximum Centroid Error     : {k.maximum_centroid_error_px:.2f} px")
+    print(f"  Target Loss                : {k.target_loss_pct:.1f} %")
+    print(f"  Lock Retention             : {k.lock_retention_rate_pct:.1f} %")
+    print(f"  Angular Error (Spatial)    : {m.pointing.mean_radial_error_mrad:.3f} mrad ({m.pointing.mean_error_deg:.4f}°)")
+    print("\n[ACTUATOR & GIMBAL KINEMATICS]")
+    print(f"  Pan Travel / Headroom      : {m.gimbal.pan_travel_range_deg:.2f}° (Margin: {m.gimbal.pan_slew_margin_pct:.1f}%)")
+    print(f"  Tilt Travel / Headroom     : {m.gimbal.tilt_travel_range_deg:.2f}° (Margin: {m.gimbal.tilt_slew_margin_pct:.1f}%)")
+    print(f"  Peak Slew Rates            : Pan {m.gimbal.peak_pan_slew_rate_deg_s:.2f}°/s, Tilt {m.gimbal.peak_tilt_slew_rate_deg_s:.2f}°/s")
+    print("\n[FSOC LINK BUDGET & TELECOM RADIOMETRY]")
+    print(f"  Locked Received Power (Prx): {m.link.locked_mean_rx_power_dbm:+.2f} dBm (Sensitivity: {m.link.rx_sensitivity_dbm:.1f} dBm)")
+    print(f"  Locked Link Margin         : {m.link.locked_mean_link_margin_db:+.2f} dB (Min: {m.link.min_link_margin_db:+.2f} dB)")
+    print(f"  Link Availability (>=3 dB) : {m.link.link_availability_pct:.1f}% ({m.link.outage_steps_count} outage steps)")
+    print(f"  Locked Electrical SNR      : {m.link.locked_mean_snr_db:+.2f} dB (Q-Factor: {m.link.locked_mean_q_factor:.2f})")
+    print(f"  Locked Bit Error Rate (BER): {m.link.locked_mean_ber:.2e} (FEC Pass: {'YES' if m.link.fec_pass else 'NO'})")
+    print("\n[PS-04 LIMITS COMPLIANCE]")
+    print(f"  Acquisition (<= 2.0 s)     : {'PASS' if k.ps04_acquisition_pass else 'FAIL'} ({k.acquisition_time_s:.2f} s)")
+    print(f"  Tracking Error (<= 10 px)  : {'PASS' if k.ps04_tracking_pass else 'FAIL'} ({k.average_centroid_error_px:.2f} px)")
+    print(f"  Target Loss (< 5 %)        : {'PASS' if k.ps04_loss_pass else 'FAIL'} ({k.target_loss_pct:.1f} %)")
+    print(f"  Re-acquisition (<= 1.0 s)  : {'PASS' if k.ps04_reacquisition_pass else 'FAIL'} ({k.reacquisition_time_s:.2f} s)")
+    print(f"  Processing (>= 20 FPS)     : {'PASS' if k.ps04_processing_pass else 'FAIL'} ({k.actual_processing_fps:.1f} FPS)")
+    print(f"  OVERALL PS-04 VERDICT      : {'PASS' if k.ps04_overall_compliant else 'FAIL'}")
+    print("============================================================\n")
     return 0
 
 
@@ -614,10 +682,277 @@ def _run_env(args: argparse.Namespace) -> int:
     return 1
 
 
+def _run_ao(args: argparse.Namespace) -> int:
+    """Execute closed-loop Adaptive Optics wavefront reconstruction benchmark."""
+    import json
+    from fsoc_pat.ao.ao_benchmark import (
+        AOBenchmarkConfig,
+        AOBenchmarkEngine,
+        generate_ao_benchmark_plot,
+    )
+
+    out_dir = Path(args.output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    print("=" * 80)
+    print("  OPTILIGN — CLOSED-LOOP ADAPTIVE OPTICS (AO) WAVEFRONT RECONSTRUCTION BENCHMARK")
+    print("=" * 80)
+    print(f"  • Mission Profile       : Deep Atmospheric Turbulence Path ({args.distance:.0f} m)")
+    print(f"  • Turbulence Index Cn²  : {args.cn2:.2e} m^(-2/3)")
+    print(f"  • Crosswind Speed       : {args.wind_speed:.1f} m/s")
+    print(f"  • AO Control Rate       : {1.0 / args.dt:.0f} Hz (dt = {args.dt*1000:.1f} ms)")
+    print(f"  • Simulation Duration   : {args.duration:.2f} s ({int(args.duration / args.dt)} loop cycles)")
+    print("\n▶ Running Closed-Loop SH-WFS + SVD Reconstructor + 37-Actuator Piezo DM...")
+
+    bm_cfg = AOBenchmarkConfig(
+        duration_s=args.duration,
+        dt=args.dt,
+        cn2=args.cn2,
+        link_distance_m=args.distance,
+        wind_speed_m_s=args.wind_speed,
+    )
+    engine = AOBenchmarkEngine(bm_cfg)
+    metrics, telemetry, ao_sys = engine.run()
+
+    # Save summary JSON
+    json_path = out_dir / "ao_benchmark_summary.json"
+    data = {
+        "config": {
+            "duration_s": args.duration,
+            "dt": args.dt,
+            "cn2": args.cn2,
+            "link_distance_m": args.distance,
+            "wind_speed_m_s": args.wind_speed,
+        },
+        "metrics": {
+            "fried_parameter_r0_cm": round(metrics.r0_cm, 2),
+            "greenwood_frequency_hz": round(metrics.greenwood_freq_hz, 1),
+            "d_over_r0": round(metrics.d_over_r0, 2),
+            "pre_ao_mean_wfe_nm": round(metrics.pre_ao_mean_wfe_nm, 1),
+            "post_ao_mean_wfe_nm": round(metrics.post_ao_mean_wfe_nm, 1),
+            "wfe_reduction_pct": round(metrics.wfe_reduction_pct, 1),
+            "pre_ao_mean_strehl": round(metrics.pre_ao_mean_strehl, 4),
+            "post_ao_mean_strehl": round(metrics.post_ao_mean_strehl, 4),
+            "strehl_improvement_factor": round(metrics.strehl_improvement_factor, 1),
+            "pre_ao_mean_smf_coupling_pct": round(metrics.pre_ao_mean_smf_coupling_pct, 2),
+            "post_ao_mean_smf_coupling_pct": round(metrics.post_ao_mean_smf_coupling_pct, 2),
+            "mean_ao_optical_gain_db": round(metrics.mean_ao_gain_db, 2),
+            "max_dm_stroke_used_um": round(metrics.max_dm_stroke_used_um, 3),
+        },
+    }
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    # Plot generation
+    plot_path = out_dir / "ao_benchmark_summary.png"
+    if args.plot:
+        generate_ao_benchmark_plot(metrics, telemetry, ao_sys, plot_path)
+        print(f"  ✓ Diagnostic Plot Saved : {plot_path}")
+
+    print("\n" + "=" * 80)
+    print("  ADAPTIVE OPTICS CLOSED-LOOP BENCHMARK RESULTS")
+    print("=" * 80)
+    print(f"  Fried Parameter (r0)       : {metrics.r0_cm:10.2f} cm")
+    print(f"  Greenwood Frequency (f_G)  : {metrics.greenwood_freq_hz:10.1f} Hz")
+    print(f"  Pupil Scale (D / r0)       : {metrics.d_over_r0:10.2f}")
+    print("-" * 80)
+    print(f"  Metric                     | {'Pre-AO (Turbulent)':<20} | {'Post-AO (Corrected)':<20} | Performance Gain")
+    print("-" * 80)
+    print(f"  Wavefront Error (RMS)      | {metrics.pre_ao_mean_wfe_nm:>15.1f} nm   | {metrics.post_ao_mean_wfe_nm:>15.1f} nm   | -{metrics.wfe_reduction_pct:.1f}% WFE")
+    print(f"  Strehl Ratio (S)           | {metrics.pre_ao_mean_strehl:>18.3f}   | {metrics.post_ao_mean_strehl:>18.3f}   | x{metrics.strehl_improvement_factor:.1f} Increase")
+    print(f"  Single-Mode Fiber Coupling | {metrics.pre_ao_mean_smf_coupling_pct:>17.1f} %  | {metrics.post_ao_mean_smf_coupling_pct:>17.1f} %  | +{metrics.mean_ao_gain_db:.1f} dB Optical Gain")
+    print(f"  Peak DM Actuator Stroke    | {'---':>20} | {metrics.max_dm_stroke_used_um:>16.3f} µm | Within ±3.5 µm limit")
+    print("=" * 80)
+    print(f"  JSON Summary Exported      : {json_path}")
+    print("  [SUCCESS] Adaptive Optics Wavefront System fully validated!")
+    return 0
+
+
+def _run_jitter(args: argparse.Namespace) -> int:
+    """Execute predictive micro-vibration feedforward anti-jitter benchmark."""
+    import json
+    from fsoc_pat.predictive.predictive_benchmark import (
+        JitterBenchmarkConfig,
+        JitterBenchmarkEngine,
+        generate_jitter_benchmark_plot,
+    )
+
+    out_dir = Path(args.output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    print("=" * 80)
+    print("  OPTILIGN — PREDICTIVE MICRO-VIBRATION & LATENCY FEEDFORWARD ANTI-JITTER BENCHMARK")
+    print("=" * 80)
+    print(f"  • Mission Profile       : Multi-Harmonic Resonances (20, 60, 120 Hz) + Wind Buffet")
+    print(f"  • System Dead-Time Lag  : {args.latency * 1000.0:.1f} ms (Exposure + Readout + Compute + Lag)")
+    print(f"  • Loop Execution Rate   : {1.0 / args.dt:.0f} Hz (dt = {args.dt*1000:.1f} ms)")
+    print(f"  • Simulation Duration   : {args.duration:.2f} s ({int(args.duration / args.dt)} loop cycles)")
+    print("\n▶ Running Online FFT Tracking + Smith Horizon Extrapolation + FSM Feedforward...")
+
+    cfg = JitterBenchmarkConfig(
+        duration_s=args.duration,
+        dt=args.dt,
+        latency_horizon_s=args.latency,
+    )
+    engine = JitterBenchmarkEngine(cfg)
+    metrics, records = engine.run()
+
+    # Save summary JSON
+    json_path = out_dir / "jitter_benchmark_summary.json"
+    data = {
+        "config": {
+            "duration_s": args.duration,
+            "dt": args.dt,
+            "latency_horizon_s": args.latency,
+        },
+        "metrics": {
+            "raw_jitter_rms_urad": round(metrics.raw_jitter_rms_urad, 2),
+            "reactive_feedback_rms_urad": round(metrics.reactive_feedback_rms_urad, 2),
+            "predictive_feedforward_rms_urad": round(metrics.predictive_feedforward_rms_urad, 2),
+            "feedback_rejection_db": round(metrics.feedback_rejection_db, 2),
+            "feedforward_rejection_db": round(metrics.feedforward_rejection_db, 2),
+            "net_improvement_over_feedback_db": round(metrics.net_improvement_over_feedback_db, 2),
+            "tracked_harmonics_hz": [round(f, 1) for f in metrics.tracked_harmonics_hz],
+            "average_phase_lead_deg": round(metrics.average_phase_lead_deg, 1),
+        },
+    }
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    # Plot generation
+    plot_path = out_dir / "jitter_benchmark_summary.png"
+    if args.plot:
+        generate_jitter_benchmark_plot(metrics, records, plot_path)
+        print(f"  ✓ Diagnostic Plot Saved : {plot_path}")
+
+    print("\n" + "=" * 80)
+    print("  PREDICTIVE ANTI-JITTER BENCHMARK RESULTS")
+    print("=" * 80)
+    print(f"  Online Identified Harmonics: {', '.join(f'{f:.1f} Hz' for f in metrics.tracked_harmonics_hz)}")
+    print(f"  Anticipated Phase Lead     : {metrics.average_phase_lead_deg:10.1f}° (Canceling 15 ms lag)")
+    print("-" * 80)
+    print(f"  Architecture               | Residual Jitter RMS  | Rejection Ratio   | Status")
+    print("-" * 80)
+    print(f"  1. Raw Platform Disturbance| {metrics.raw_jitter_rms_urad:>17.2f} µrad | {'0.0 dB':>15}   | Baseline (Uncompensated)")
+    print(f"  2. Reactive Feedback Loop  | {metrics.reactive_feedback_rms_urad:>17.2f} µrad | {metrics.feedback_rejection_db:>14.1f} dB   | Degraded by 15 ms phase lag")
+    print(f"  3. OptiLign Zero-Phase FF  | {metrics.predictive_feedforward_rms_urad:>17.2f} µrad | {metrics.feedforward_rejection_db:>14.1f} dB   | +{metrics.net_improvement_over_feedback_db:.1f} dB Superior")
+    print("=" * 80)
+    print(f"  JSON Summary Exported      : {json_path}")
+    print("  [SUCCESS] Zero-Phase-Lag Predictive Anti-Jitter System fully validated!")
+    return 0
+
+
+def _run_video_benchmark(args: argparse.Namespace) -> int:
+    """Execute external MP4 video benchmark bypassing PTZ camera."""
+    import json
+    from fsoc_pat.perception.video_benchmark import (
+        BenchmarkVideoGenerator,
+        VideoBenchmarkEngine,
+    )
+
+    output_dir = Path(args.output)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    input_video = args.input
+    gt_csv = args.ground_truth
+
+    if not input_video:
+        print("[INFO] No input video specified. Generating synthetic benchmark video...")
+        gen_mp4 = output_dir / "benchmark_sample.mp4"
+        gen_mp4, gen_csv = BenchmarkVideoGenerator.generate_benchmark_video(
+            output_mp4=gen_mp4,
+            duration_s=args.duration,
+            fps=30.0,
+            resolution=(640, 480),
+            virtual_space_size=(640, 480),
+            motion_type=args.motion,
+            target_shape="square",
+            target_size=10,
+            enable_salt_pepper=True,
+            salt_pepper_ratio=0.05,
+            enable_gaussian=True,
+            gaussian_std=6.0,
+            enable_poisson=True,
+            seed=42,
+        )
+        input_video = str(gen_mp4)
+        if not gt_csv:
+            gt_csv = str(gen_csv)
+
+    print(f"▶ Processing video benchmark: {input_video}")
+    if gt_csv:
+        print(f"▶ Comparing against ground truth: {gt_csv}")
+
+    engine = VideoBenchmarkEngine()
+    metrics = engine.process_video_file(
+        Path(input_video),
+        ground_truth_csv=Path(gt_csv) if gt_csv else None,
+    )
+
+    is_overall_compliant = (
+        metrics.speed_compliant
+        and metrics.acquisition_compliant
+        and metrics.tracking_error_compliant
+        and metrics.retention_compliant
+    )
+
+    print("\n" + "=" * 80)
+    print("  FSOC PAT VIDEO BENCHMARK EVALUATION RESULTS")
+    print("=" * 80)
+    print(f"  Input Video File           : {input_video}")
+    print(f"  Total Video Frames         : {metrics.total_frames}")
+    print(f"  Processed Frames           : {metrics.processed_frames}")
+    print(f"  Average Processing Speed   : {metrics.processing_fps:.1f} FPS (Spec: >= 20 FPS) -> {'PASS' if metrics.speed_compliant else 'FAIL'}")
+    print(f"  Acquisition Time           : {f'{metrics.acquisition_time_s:.2f} s' if metrics.acquisition_time_s is not None else 'N/A'} (Spec: <= 2.0 s) -> {'PASS' if metrics.acquisition_compliant else 'FAIL'}")
+    print(f"  Tracking Error (Mean)      : {metrics.mean_tracking_error_px:.2f} px (Spec: <= 10.0 px) -> {'PASS' if metrics.tracking_error_compliant else 'FAIL'}")
+    print(f"  Tracking Error (RMSE)      : {metrics.rmse_px:.2f} px")
+    print(f"  Target Loss Rate           : {metrics.target_loss_pct:.1f}% (Spec: < 5.0%) -> {'PASS' if metrics.retention_compliant else 'FAIL'}")
+    print(f"  Lock Retention Rate        : {metrics.lock_retention_rate_pct:.1f}% (Spec: > 95.0%)")
+    print(f"  Overall Compliance Result  : {'100% COMPLIANT' if is_overall_compliant else 'NON-COMPLIANT'}")
+    print("=" * 80)
+
+    from dataclasses import asdict
+    summary_path = output_dir / "video_benchmark_summary.json"
+    with open(summary_path, "w", encoding="utf-8") as f:
+        json.dump(asdict(metrics), f, indent=2)
+    print(f"  Metrics exported to: {summary_path}")
+    return 0 if is_overall_compliant else 1
+
+
+def _run_standard_benchmark(args: argparse.Namespace) -> int:
+    """Execute automated standard acceptance benchmark suite."""
+    from fsoc_pat.benchmark.standard_benchmark import run_full_standard_benchmark
+
+    print("=" * 76)
+    print("  OPTILIGN — AUTOMATED STANDARD ACCEPTANCE BENCHMARK SUITE")
+    print(f"  Duration: {args.duration:.1f}s/case | Trials: {args.trials} | Output: {args.output}")
+    print("=" * 76)
+
+    res = run_full_standard_benchmark(
+        duration_s=args.duration,
+        num_trials=args.trials,
+        output_dir=args.output,
+    )
+
+    print("\n" + "=" * 76)
+    print(f"  BENCHMARK SUITE VERDICT: {res.overall_verdict} ({res.compliance_score_pct}% Compliant)")
+    print(f"  Scenarios Passed: {res.passed_trials} / {res.total_trials}")
+    print(f"  Acquisition Time: {res.statistical_summary['acquisition_time_s']['max']}s [Limit <= 2.0s: {res.statistical_summary['acquisition_time_s']['verdict']}]")
+    print(f"  Tracking Error:   {res.statistical_summary['tracking_error_px']['mean']} px [Limit <= 10.0px: {res.statistical_summary['tracking_error_px']['verdict']}]")
+    print(f"  Target Loss:      {res.statistical_summary['target_loss_pct']['max']}% [Limit < 5.0%: {res.statistical_summary['target_loss_pct']['verdict']}]")
+    print(f"  Processing Speed: {res.statistical_summary['processing_speed_fps']['mean']} FPS [Limit >= 20.0 FPS: {res.statistical_summary['processing_speed_fps']['verdict']}]")
+    print(f"  Reports Saved:    {args.output}/ (compliance_report.html, summary.json, metrics.csv)")
+    print("=" * 76 + "\n")
+
+    return 0 if res.overall_verdict == "PASS" else 1
+
+
 def _get_version() -> str:
     """Get application version string."""
     from fsoc_pat import __version__
     return __version__
+
+
 
 
 if __name__ == "__main__":

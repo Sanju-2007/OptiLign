@@ -1,0 +1,808 @@
+{
+  "timestamp": "2026-09-29 16:42:18",
+  "overall_verdict": "PASS",
+  "compliance_score_pct": 100.0,
+  "total_trials": 36,
+  "passed_trials": 36,
+  "failed_trials": 0,
+  "statistical_summary": {
+    "acquisition_time_s": {
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.03,
+      "p95": 0.03,
+      "spec_limit": "<= 2.0 s",
+      "verdict": "PASS"
+    },
+    "centroiding_error_px": {
+      "mean": 0.56,
+      "median": 0.56,
+      "min": 0.32,
+      "max": 0.75,
+      "p95": 0.73
+    },
+    "tracking_error_px": {
+      "mean": 3.14,
+      "median": 2.15,
+      "min": 0.37,
+      "max": 7.36,
+      "p95": 7.22,
+      "spec_limit": "<= 10.0 px",
+      "verdict": "PASS"
+    },
+    "target_loss_pct": {
+      "mean": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "p95": 0.0,
+      "spec_limit": "< 5.0 %",
+      "verdict": "PASS"
+    },
+    "processing_speed_fps": {
+      "mean": 172.5,
+      "min": 40.0,
+      "spec_limit": ">= 20.0 FPS",
+      "verdict": "PASS"
+    }
+  },
+  "scenario_summaries": {
+    "straight_nominal": {
+      "trajectory": "straight",
+      "disturbance": "nominal",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 2.67,
+      "mean_centroid_px": 0.73,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        194.9
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 194.9,
+      "status": "PASS"
+    },
+    "straight_noise_salt_pepper": {
+      "trajectory": "straight",
+      "disturbance": "noise_salt_pepper",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 2.7,
+      "mean_centroid_px": 0.69,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        150.0
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 150.0,
+      "status": "PASS"
+    },
+    "straight_noise_gaussian": {
+      "trajectory": "straight",
+      "disturbance": "noise_gaussian",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 2.68,
+      "mean_centroid_px": 0.75,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        169.8
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 169.8,
+      "status": "PASS"
+    },
+    "straight_noise_poisson": {
+      "trajectory": "straight",
+      "disturbance": "noise_poisson",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 2.67,
+      "mean_centroid_px": 0.72,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        40.0
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 40.0,
+      "status": "PASS"
+    },
+    "straight_jitter_optical": {
+      "trajectory": "straight",
+      "disturbance": "jitter_optical",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 7.36,
+      "mean_centroid_px": 0.56,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        222.7
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 222.7,
+      "status": "PASS"
+    },
+    "straight_platform_motion": {
+      "trajectory": "straight",
+      "disturbance": "platform_motion",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 5.95,
+      "mean_centroid_px": 0.49,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        222.8
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 222.8,
+      "status": "PASS"
+    },
+    "straight_atmosphere_haze": {
+      "trajectory": "straight",
+      "disturbance": "atmosphere_haze",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 2.71,
+      "mean_centroid_px": 0.6,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        166.9
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 166.9,
+      "status": "PASS"
+    },
+    "straight_atmosphere_fog": {
+      "trajectory": "straight",
+      "disturbance": "atmosphere_fog",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 2.66,
+      "mean_centroid_px": 0.75,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        230.2
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 230.2,
+      "status": "PASS"
+    },
+    "straight_worst_case_combined": {
+      "trajectory": "straight",
+      "disturbance": "worst_case_combined",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 6.85,
+      "mean_centroid_px": 0.61,
+      "acq_time_s": [
+        0.03
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        123.2
+      ],
+      "mean_acq_s": 0.03,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 123.2,
+      "status": "PASS"
+    },
+    "circular_nominal": {
+      "trajectory": "circular",
+      "disturbance": "nominal",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.55,
+      "mean_centroid_px": 0.47,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        230.8
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 230.8,
+      "status": "PASS"
+    },
+    "circular_noise_salt_pepper": {
+      "trajectory": "circular",
+      "disturbance": "noise_salt_pepper",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.57,
+      "mean_centroid_px": 0.46,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        153.9
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 153.9,
+      "status": "PASS"
+    },
+    "circular_noise_gaussian": {
+      "trajectory": "circular",
+      "disturbance": "noise_gaussian",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.56,
+      "mean_centroid_px": 0.49,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        166.0
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 166.0,
+      "status": "PASS"
+    },
+    "circular_noise_poisson": {
+      "trajectory": "circular",
+      "disturbance": "noise_poisson",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.54,
+      "mean_centroid_px": 0.48,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        40.0
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 40.0,
+      "status": "PASS"
+    },
+    "circular_jitter_optical": {
+      "trajectory": "circular",
+      "disturbance": "jitter_optical",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 7.25,
+      "mean_centroid_px": 0.55,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        222.6
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 222.6,
+      "status": "PASS"
+    },
+    "circular_platform_motion": {
+      "trajectory": "circular",
+      "disturbance": "platform_motion",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 5.73,
+      "mean_centroid_px": 0.59,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        223.2
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 223.2,
+      "status": "PASS"
+    },
+    "circular_atmosphere_haze": {
+      "trajectory": "circular",
+      "disturbance": "atmosphere_haze",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.63,
+      "mean_centroid_px": 0.57,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        170.6
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 170.6,
+      "status": "PASS"
+    },
+    "circular_atmosphere_fog": {
+      "trajectory": "circular",
+      "disturbance": "atmosphere_fog",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.56,
+      "mean_centroid_px": 0.44,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        230.3
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 230.3,
+      "status": "PASS"
+    },
+    "circular_worst_case_combined": {
+      "trajectory": "circular",
+      "disturbance": "worst_case_combined",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 6.53,
+      "mean_centroid_px": 0.59,
+      "acq_time_s": [
+        0.03
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        123.6
+      ],
+      "mean_acq_s": 0.03,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 123.6,
+      "status": "PASS"
+    },
+    "figure_8_nominal": {
+      "trajectory": "figure_8",
+      "disturbance": "nominal",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.96,
+      "mean_centroid_px": 0.54,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        230.7
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 230.7,
+      "status": "PASS"
+    },
+    "figure_8_noise_salt_pepper": {
+      "trajectory": "figure_8",
+      "disturbance": "noise_salt_pepper",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.05,
+      "mean_centroid_px": 0.5,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        154.4
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 154.4,
+      "status": "PASS"
+    },
+    "figure_8_noise_gaussian": {
+      "trajectory": "figure_8",
+      "disturbance": "noise_gaussian",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.01,
+      "mean_centroid_px": 0.54,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        170.4
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 170.4,
+      "status": "PASS"
+    },
+    "figure_8_noise_poisson": {
+      "trajectory": "figure_8",
+      "disturbance": "noise_poisson",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.99,
+      "mean_centroid_px": 0.54,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        40.7
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 40.7,
+      "status": "PASS"
+    },
+    "figure_8_jitter_optical": {
+      "trajectory": "figure_8",
+      "disturbance": "jitter_optical",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 7.21,
+      "mean_centroid_px": 0.54,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        222.8
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 222.8,
+      "status": "PASS"
+    },
+    "figure_8_platform_motion": {
+      "trajectory": "figure_8",
+      "disturbance": "platform_motion",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 5.71,
+      "mean_centroid_px": 0.6,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        223.9
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 223.9,
+      "status": "PASS"
+    },
+    "figure_8_atmosphere_haze": {
+      "trajectory": "figure_8",
+      "disturbance": "atmosphere_haze",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 1.11,
+      "mean_centroid_px": 0.56,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        169.8
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 169.8,
+      "status": "PASS"
+    },
+    "figure_8_atmosphere_fog": {
+      "trajectory": "figure_8",
+      "disturbance": "atmosphere_fog",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.95,
+      "mean_centroid_px": 0.46,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        230.6
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 230.6,
+      "status": "PASS"
+    },
+    "figure_8_worst_case_combined": {
+      "trajectory": "figure_8",
+      "disturbance": "worst_case_combined",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 6.43,
+      "mean_centroid_px": 0.59,
+      "acq_time_s": [
+        0.03
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        123.6
+      ],
+      "mean_acq_s": 0.03,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 123.6,
+      "status": "PASS"
+    },
+    "random_nominal": {
+      "trajectory": "random",
+      "disturbance": "nominal",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.5,
+      "mean_centroid_px": 0.61,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        227.7
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 227.7,
+      "status": "PASS"
+    },
+    "random_noise_salt_pepper": {
+      "trajectory": "random",
+      "disturbance": "noise_salt_pepper",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.62,
+      "mean_centroid_px": 0.46,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        152.5
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 152.5,
+      "status": "PASS"
+    },
+    "random_noise_gaussian": {
+      "trajectory": "random",
+      "disturbance": "noise_gaussian",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.52,
+      "mean_centroid_px": 0.63,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        169.9
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 169.9,
+      "status": "PASS"
+    },
+    "random_noise_poisson": {
+      "trajectory": "random",
+      "disturbance": "noise_poisson",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.5,
+      "mean_centroid_px": 0.6,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        40.8
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 40.8,
+      "status": "PASS"
+    },
+    "random_jitter_optical": {
+      "trajectory": "random",
+      "disturbance": "jitter_optical",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 7.04,
+      "mean_centroid_px": 0.59,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        212.3
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 212.3,
+      "status": "PASS"
+    },
+    "random_platform_motion": {
+      "trajectory": "random",
+      "disturbance": "platform_motion",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 5.7,
+      "mean_centroid_px": 0.63,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        224.5
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 224.5,
+      "status": "PASS"
+    },
+    "random_atmosphere_haze": {
+      "trajectory": "random",
+      "disturbance": "atmosphere_haze",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.77,
+      "mean_centroid_px": 0.5,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        172.2
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 172.2,
+      "status": "PASS"
+    },
+    "random_atmosphere_fog": {
+      "trajectory": "random",
+      "disturbance": "atmosphere_fog",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 0.37,
+      "mean_centroid_px": 0.32,
+      "acq_time_s": [
+        0.0
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        235.0
+      ],
+      "mean_acq_s": 0.0,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 235.0,
+      "status": "PASS"
+    },
+    "random_worst_case_combined": {
+      "trajectory": "random",
+      "disturbance": "worst_case_combined",
+      "trials_count": 1,
+      "passed_count": 1,
+      "mean_tracking_px": 6.53,
+      "mean_centroid_px": 0.56,
+      "acq_time_s": [
+        0.03
+      ],
+      "loss_pct": [
+        0.0
+      ],
+      "fps": [
+        125.4
+      ],
+      "mean_acq_s": 0.03,
+      "mean_loss_pct": 0.0,
+      "mean_fps": 125.4,
+      "status": "PASS"
+    }
+  }
+}

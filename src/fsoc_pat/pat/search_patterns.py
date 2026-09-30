@@ -190,8 +190,9 @@ class OmniSearchPattern:
         tilt_max_rad: float = math.radians(45.0),
         pan_freq: float = 0.25,
         tilt_freq: float = 0.25,
-        scan_rate_rad_s: float = 0.85,
+        scan_rate_rad_s: float = 0.95,
         pan_span_rad: float | None = None,
+        tilt_amp_rad: float | None = None,
     ) -> None:
         self.pan_amplitude = pan_amplitude_rad
         self.pan_amplitude_rad = pan_amplitude_rad
@@ -205,7 +206,8 @@ class OmniSearchPattern:
         self.scan_rate = scan_rate_rad_s
 
         self.tilt_center = (tilt_min_rad + tilt_max_rad) / 2.0
-        self.tilt_amp = (tilt_max_rad - tilt_min_rad) / 2.0
+        self.tilt_amp = tilt_amp_rad if tilt_amp_rad is not None else (tilt_max_rad - tilt_min_rad) / 2.0
+        self._custom_tilt_amp = tilt_amp_rad is not None
 
         self.current_pan = 0.0
         self.current_tilt = 0.0
@@ -218,6 +220,12 @@ class OmniSearchPattern:
     def reset(self, center_pan: float = 0.0, center_tilt: float = 0.0) -> None:
         self.current_pan = center_pan
         self.current_tilt = center_tilt
+        if abs(center_tilt) > 1e-4:
+            self.tilt_center = center_tilt
+        else:
+            self.tilt_center = (self.tilt_min + self.tilt_max) / 2.0
+        if not self._custom_tilt_amp:
+            self.tilt_amp = (self.tilt_max - self.tilt_min) / 2.0
         self.elapsed_time = 0.0
         # If slewed to positive azimuth, sweep left towards center (0 rad); if negative, sweep right towards center
         self.direction = -1.0 if center_pan >= 0.0 else 1.0

@@ -25,6 +25,7 @@ but is NEVER fed to the estimator or controller.
 from __future__ import annotations
 
 import math
+import time
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -130,6 +131,19 @@ class ClosedLoopSnapshot:
     pointing_loss_db: float = 0.0
     link_margin_db: float = 0.0
     ber: float = 1e-12
+    centroid_error_px: float = float("nan")
+    tracking_error_px: float = float("nan")
+    processing_time_ms: float = 0.0
+    snr_db: float = 25.0
+    q_factor: float = 8.0
+    distance_m: float = 100.0
+    free_space_loss_db: float = 0.0
+    atmospheric_loss_db: float = 0.0
+    target_x: float = 0.0
+    target_y: float = 0.0
+    target_z: float = 0.0
+    gimbal_pan_rate: float = 0.0
+    gimbal_tilt_rate: float = 0.0
 
 
 @dataclass
@@ -166,6 +180,24 @@ class ClosedLoopResult:
     def rms_gt_error_mrad(self) -> float:
         errors = [e for e in self.gt_errors if not math.isnan(e)]
         return float(np.sqrt(np.mean(np.array(errors) ** 2))) * 1000 if errors else float("nan")
+
+    @property
+    def centroid_errors_px(self) -> list[float]:
+        return [s.centroid_error_px for s in self.snapshots if not math.isnan(s.centroid_error_px)]
+
+    @property
+    def tracking_errors_px(self) -> list[float]:
+        return [s.tracking_error_px for s in self.snapshots if not math.isnan(s.tracking_error_px)]
+
+    @property
+    def mean_centroid_error_px(self) -> float:
+        errs = self.centroid_errors_px
+        return float(np.mean(errs)) if errs else float("nan")
+
+    @property
+    def mean_tracking_error_px(self) -> float:
+        errs = self.tracking_errors_px
+        return float(np.mean(errs)) if errs else float("nan")
 
 
 class ClosedLoopEngine:
@@ -224,6 +256,7 @@ class ClosedLoopEngine:
         snapshots: list[ClosedLoopSnapshot] = []
 
         for i in range(n_steps):
+            frame_start = time.perf_counter()
             t = i * cfg.dt
 
             # 1. Target ground truth
@@ -314,6 +347,25 @@ class ClosedLoopEngine:
             eval_err = gt_error_total if not math.isnan(gt_error_total) else 0.05
             link_res = link_budget.evaluate(dist_to_tgt, eval_err)
 
+            frame_end = time.perf_counter()
+            step_proc_ms = (frame_end - frame_start) * 1000.0
+
+            # Pixel centroiding error
+            if not math.isnan(det_u) and not math.isnan(gt_u):
+                centroid_err_px = math.hypot(det_u - gt_u, det_v - gt_v)
+            elif not math.isnan(est_u) and not math.isnan(gt_u):
+                centroid_err_px = math.hypot(est_u - gt_u, est_v - gt_v)
+            else:
+                centroid_err_px = float("nan")
+
+            # Pixel tracking error (offset from optical boresight center)
+            if not math.isnan(gt_u):
+                tracking_err_px = math.hypot(gt_u - intrinsics.cx, gt_v - intrinsics.cy)
+            elif not math.isnan(det_u):
+                tracking_err_px = math.hypot(det_u - intrinsics.cx, det_v - intrinsics.cy)
+            else:
+                tracking_err_px = float("nan")
+
             snapshots.append(ClosedLoopSnapshot(
                 time=t,
                 gt_u=gt_u, gt_v=gt_v,
@@ -334,6 +386,19 @@ class ClosedLoopEngine:
                 pointing_loss_db=link_res.pointing_loss_db,
                 link_margin_db=link_res.link_margin_db,
                 ber=link_res.ber,
+                centroid_error_px=centroid_err_px,
+                tracking_error_px=tracking_err_px,
+                processing_time_ms=step_proc_ms,
+                snr_db=link_res.snr_db,
+                q_factor=math.sqrt(max(0.0, 10.0 ** (link_res.snr_db / 10.0))) / 2.0,
+                distance_m=dist_to_tgt,
+                free_space_loss_db=link_res.free_space_loss_db,
+                atmospheric_loss_db=link_res.atmospheric_loss_db,
+                target_x=float(target_pos[0]),
+                target_y=float(target_pos[1]),
+                target_z=float(target_pos[2]),
+                gimbal_pan_rate=gimbal_state.pan_rate,
+                gimbal_tilt_rate=gimbal_state.tilt_rate,
             ))
 
         return ClosedLoopResult(snapshots=snapshots, config=cfg)

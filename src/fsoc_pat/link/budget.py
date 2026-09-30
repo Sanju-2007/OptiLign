@@ -31,15 +31,23 @@ class FSOCLinkBudget:
         self.beam = GaussianBeam(self.laser)
         self.coupling = ApertureCoupling(self.beam, self.receiver)
 
-    def evaluate(self, distance_m: float, pointing_error_rad: float) -> LinkBudgetResult:
-        """Calculate complete link budget for given distance and pointing error.
+    def evaluate(
+        self,
+        distance_m: float,
+        pointing_error_rad: float,
+        strehl_ratio: float = 1.0,
+        smf_coupling_efficiency: float | None = None,
+    ) -> LinkBudgetResult:
+        """Calculate complete link budget for given distance, pointing error, and wavefront quality.
 
         Args:
             distance_m: Range to target (m).
             pointing_error_rad: Total instantaneous pointing error (rad).
+            strehl_ratio: Optical Strehl ratio [0, 1] (1.0 = diffraction-limited).
+            smf_coupling_efficiency: Optional Single-Mode Fiber coupling [0, 0.815].
 
         Returns:
-            LinkBudgetResult with all communication metrics and loss breakdown.
+            LinkBudgetResult with all communication metrics, loss breakdown, and AO gain.
         """
         dist = max(1.0, float(distance_m))
         theta_err = max(0.0, float(pointing_error_rad))
@@ -53,8 +61,10 @@ class FSOCLinkBudget:
         p_tx_eff = self.laser.power_w * self.laser.tx_efficiency
         p_incident = p_tx_eff * t_atm
 
-        # 3. Aperture collected power
-        p_rx = self.coupling.collected_power_w(dist, theta_err, p_incident)
+        # 3. Aperture / Fiber collected power with Strehl / SMF wavefront coupling
+        p_rx = self.coupling.collected_power_w(
+            dist, theta_err, p_incident, strehl_ratio, smf_coupling_efficiency
+        )
         p_rx = max(1e-18, p_rx)
         p_rx_dbm = 10.0 * math.log10(p_rx * 1000.0)
 
@@ -94,6 +104,9 @@ class FSOCLinkBudget:
         else:
             state = LinkState.OUTAGE
 
+        eff_coupling = smf_coupling_efficiency if smf_coupling_efficiency is not None else (0.8145 * strehl_ratio)
+        ao_gain_db = 10.0 * math.log10(max(1e-3, eff_coupling) / 0.05) if strehl_ratio > 0.0 else 0.0
+
         return LinkBudgetResult(
             distance_m=dist,
             pointing_error_rad=theta_err,
@@ -109,4 +122,8 @@ class FSOCLinkBudget:
             ber=ber,
             link_margin_db=link_margin_db,
             state=state,
+            strehl_ratio=strehl_ratio,
+            smf_coupling_efficiency=eff_coupling,
+            ao_gain_db=ao_gain_db,
         )
+

@@ -52,23 +52,23 @@ uv pip install -e .
 ```
 
 ### 2.3 Running the Verification Test Suite
-Verify that all 243 automated unit and integration tests pass:
+Verify that all 331 automated unit and integration tests pass:
 ```bash
 pytest --tb=short
 ```
 Expected output:
 ```text
-============================= 243 passed in 50.65s =============================
+======================== 331 passed in 69.71s (0:01:09) ========================
 ```
 
 ---
 
 ## 3. Standalone Application CLI Operations
 
-The `fsoc-pat` command-line executable provides 6 primary subcommands:
+The `fsoc-pat` command-line executable provides 9 primary subcommands:
 
 ```text
-fsoc-pat [-h] [--version] {run, benchmark, monte-carlo, report, gui, env} ...
+fsoc-pat [-h] [--version] {run, benchmark, monte-carlo, report, gui, env, ao, jitter, video-benchmark} ...
 ```
 
 ### 3.1 `fsoc-pat run` — Execute Single PAT Simulation
@@ -132,6 +132,23 @@ Launches the interactive real-time Web Dashboard:
 ```bash
 fsoc-pat gui --port 8088 --host 127.0.0.1
 ```
+
+### 3.7 `fsoc-pat video-benchmark` — External MP4 Video Bypass Ingestion
+Directly evaluates tracking performance on arbitrary external 30 FPS `.mp4` video files, bypassing the PTZ camera:
+```bash
+# Evaluate against an external MP4 video with optional ground truth CSV
+fsoc-pat video-benchmark --input path/to/evaluator_video.mp4 --ground-truth path/to/gt.csv
+
+# Generate a synthetic benchmark video and run self-test evaluation
+fsoc-pat video-benchmark --generate --duration 5.0 --motion figure_of_8 --output results/video_bench
+```
+**Flags:**
+- `--input <path>`: Path to input MP4 video file.
+- `--ground-truth <path>`: Optional path to ground truth CSV (`frame_idx,gt_u,gt_v,is_visible`).
+- `--generate`: Synthesizes a test benchmark video with salt & pepper, Gaussian noise, and Poisson shot noise if no input is provided.
+- `--duration <float>`: Duration in seconds for generated video (default: 5.0).
+- `--motion <type>`: Motion pattern (`straight`, `circular`, `figure_of_8`, `random`).
+- `--output <dir>`: Directory to export JSON performance summary (default: `results`).
 
 ---
 
@@ -314,7 +331,7 @@ This script can be used for recording a video demonstration of the OptiLign virt
   *"Free Space Optical Communication provides terabit-class data transmission with zero electromagnetic interference, but requires aligning narrow laser beams between mobile platforms. Coarse alignment is the critical first stage: locating, identifying, and keeping the remote optical beacon centered within the camera viewport. OptiLign is an end-to-end software simulation platform that models and verifies this tracking process without expensive physical gimbals."*
 
 #### Scene 2: System Architecture & Subsystems (0:45 – 1:30)
-- **Visual**: Screen capture showing code repository, running `pytest --tb=short` (243 passed), and system architecture diagram.
+- **Visual**: Screen capture showing code repository, running `pytest --tb=short` (331 passed), and system architecture diagram.
 - **Narrator**:  
   *"OptiLign implements physical pinhole camera projection, virtual gimbal actuators with motor inertia and slew rate limits, synthetic sensor rendering with atmospheric turbulence, morphological beacon perception, and an adaptive Extended Kalman filter. Crucially, it features a dual-stage architecture: a 2-DOF coarse gimbal for wide acquisition, cooperating with an 800 Hz Fast Steering Mirror for jitter rejection."*
 
