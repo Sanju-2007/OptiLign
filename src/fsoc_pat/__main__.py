@@ -282,20 +282,23 @@ def _run_simulation(args: argparse.Namespace) -> int:
     rep_gen = SimulationReportGenerator(snapshots, scenario_name="OptiLign Mission Run")
     m = rep_gen.metrics
 
+    # Plot generation
+    plot_img_name: str | None = None
+    if args.plot:
+        plot_path = out_dir / "mission_summary.png"
+        generate_mission_summary_plot(snapshots, output_path=plot_path)
+        plot_img_name = "mission_summary.png"
+        print(f"[OK] Exported multi-panel telemetry plot: {plot_path}")
+
     # Always generate Markdown summary
     md_path = out_dir / "mission_report.md"
-    rep_gen.generate_markdown_report(md_path)
+    rep_gen.generate_markdown_report(md_path, plot_image_path=plot_img_name)
     print(f"[OK] Exported Markdown report: {md_path}")
 
     if args.html:
         html_path = out_dir / "mission_report.html"
-        rep_gen.generate_html_report(html_path)
+        rep_gen.generate_html_report(html_path, plot_image_path=plot_img_name)
         print(f"[OK] Exported interactive HTML report: {html_path}")
-
-    if args.plot:
-        plot_path = out_dir / "mission_summary.png"
-        generate_mission_summary_plot(snapshots, output_path=plot_path)
-        print(f"[OK] Exported multi-panel telemetry plot: {plot_path}")
 
     # Print summary to terminal
     k = m.performance
@@ -546,15 +549,17 @@ def _run_report(args: argparse.Namespace) -> int:
     html_path = out_dir / "report.html"
     md_path = out_dir / "report.md"
 
-    gen.generate_html_report(html_path, title=args.title)
-    gen.generate_markdown_report(md_path)
-    print(f"[OK] Generated HTML report: {html_path}")
-    print(f"[OK] Generated Markdown report: {md_path}")
-
+    plot_img_name: str | None = None
     if args.plot:
         plot_path = out_dir / "report_plots.png"
         generate_mission_summary_plot(records, output_path=plot_path, scenario_name=args.title)
+        plot_img_name = "report_plots.png"
         print(f"[OK] Generated telemetry plots: {plot_path}")
+
+    gen.generate_html_report(html_path, title=args.title, plot_image_path=plot_img_name)
+    gen.generate_markdown_report(md_path, plot_image_path=plot_img_name)
+    print(f"[OK] Generated HTML report: {html_path}")
+    print(f"[OK] Generated Markdown report: {md_path}")
 
     return 0
 
