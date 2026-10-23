@@ -1,44 +1,92 @@
 # OptiLign: AI-Assisted FSOC Virtual Camera PAT Tracking System
 
-[![Tests](https://img.shields.io/badge/tests-243%20passed-brightgreen.svg)](tests/)
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](pyproject.toml)
+[![Tests](https://img.shields.io/badge/tests-337%20passed-brightgreen.svg)](tests/)
+[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue.svg)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pointing Accuracy](https://img.shields.io/badge/FSM%20Accuracy-18--22%20nrad-cyan.svg)](docs/TECHNICAL_REPORT.md)
 [![Lock Availability](https://img.shields.io/badge/Lock%20Availability-100.0%25-emerald.svg)](results/demo_environments/)
+[![Typing: Mypy Strict](https://img.shields.io/badge/typing-mypy%20strict-blue.svg)](pyproject.toml)
+[![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](pyproject.toml)
 
-**OptiLign** is a modular software platform for simulating, evaluating, and verifying **Free-Space Optical Communication (FSOC)** Pointing, Acquisition, and Tracking (PAT) algorithms. It implements an autonomous coarse-to-fine camera tracking pipeline with sub-micro-radian (nano-radian) precision across diverse, highly turbulent operational environments.
+**OptiLign** is a modular, physics-based software platform for simulating, evaluating, and verifying **Free-Space Optical Communication (FSOC)** Pointing, Acquisition, and Tracking (PAT) algorithms. It provides an autonomous coarse-to-fine virtual camera tracking pipeline with sub-micro-radian (nano-radian) precision across diverse, turbulent operational environments—without requiring expensive physical gimbals, optical benches, or dedicated hardware.
 
 ---
 
 ## 1. Background & Operational Context
 
-Free Space Optical Communication (FSOC) offers unprecedented advantages for next-generation mobile networks, including:
+Free Space Optical Communication (FSOC) provides an order-of-magnitude leap over legacy radio-frequency (RF) wireless systems, offering:
 - **Gigabit-to-Terabit Data Rates**: Extreme carrier frequencies ($>193\ \text{THz}$) exceeding conventional RF throughput by orders of magnitude.
 - **License-Free Spectrum Operation**: Global deployment without international spectrum coordination hurdles.
 - **High Immunity to Electromagnetic Interference**: Immune to RF jamming, spoofing, and side-lobe interception.
 - **Low SWaP Footprint**: Reduced size, weight, and power suitable for mobile space, airborne, and ground nodes.
 
-However, deploying FSOC links between mobile platforms (satellites, UAVs, ships, high-speed ground terminals) presents a severe challenge of **Pointing, Acquisition, and Tracking (PAT)** of highly narrow laser beams (typically $0.1 - 2.0\ \text{mrad}$). PAT typically happens in two stages: **coarse alignment** and **fine alignment**. 
+However, deploying FSOC links between mobile platforms (satellites, UAVs, ships, high-speed ground terminals) presents a severe challenge of **Pointing, Acquisition, and Tracking (PAT)** of highly narrow laser beams (typically $0.1 - 2.0\ \text{mrad}$). PAT fundamentally operates in sequential stages:
+1. **Coarse Alignment**: Wide Field-of-View (FOV) camera on a 2-DOF pan-tilt gimbal acquiring and centering the remote optical beacon within the optical boresight.
+2. **Fine Alignment**: High-bandwidth Fast Steering Mirror (FSM) rejecting residual micro-vibrations and beam wander down to nano-radian precision.
+3. **Wavefront Flattening & Adaptive Optics**: Deformable mirror correcting higher-order atmospheric wavefront aberrations to preserve fiber coupling efficiency.
 
-Coarse alignment is one of the key challenges of PAT, where the transmitting terminal must first locate and maintain the remote terminal within its camera Field-of-View (FOV). Developing and testing such algorithms on real hardware requires expensive cameras, pan-tilt mechanisms, and optical components & equipment. A software-based virtual camera tracking system provides an accessible, high-fidelity platform for algorithm development and validation.
+OptiLign provides an accessible, high-fidelity software testbed for developing, stress-testing, and verifying these algorithms in a deterministic, fully repeatable simulation environment.
 
 ---
 
-## 2. Functional Objective & Expected Solution
+## 2. Functional Objective & Architecture
 
 ### Functional Objective
 Develop a software system that autonomously detects, identifies, and continuously tracks a designated moving target within a virtual scene by controlling a virtual camera viewport and gimbal platform.
 
-### Expected Solution
-OptiLign provides an AI-assisted camera tracking system capable of automatically detecting and continuously tracking a moving optical beacon in a simulated video stream while controlling a virtual pan-tilt camera:
-- **Configurable Virtual Environments**: Multi-environment engine supporting Deep Space ISL, LEO Downlink, Airborne UAV, Maritime Vessel, Urban Rooftop, and user-defined custom platforms.
-- **One or More Moving Targets**: Analytical 3D trajectories (circular passes, linear transits, sinusoidal maneuvers) with ground truth position, velocity, and acceleration.
-- **Movable Virtual Camera**: 2-DOF pan-tilt camera viewport with physical actuator lag ($\tau=0.015\ \text{s}$), rate limiting, and acceleration limits.
-- **Automatic Beacon Detection**: Computer vision perception pipeline utilizing morphological top-hat background subtraction and sub-pixel intensity-weighted centroiding.
-- **Continuous Tracking**: Adaptive Extended Kalman Filter (EKF) and Interacting Multiple Model (IMM) filter with dynamic measurement covariance scaling ($R_k$) coupled to atmospheric scintillation.
-- **Virtual Camera & FSM Control**: Dual-stage pointing combining a coarse mechanical gimbal with an 800–1000 Hz Fast Steering Mirror (FSM) utilizing DC momentum offloading.
-- **Disturbance Modeling**: Injects atmospheric turbulence ($C_n^2$), scintillation fading, platform vibration harmonics (8–180 Hz), aerodynamic wind buffet, sensor read/shot noise, and optical clutter.
-- **Real-Time Performance Display**: Interactive 30 FPS Web Dashboard with canvas viewport, HUD gauges, rolling error charts, and auto-generated performance logs.
+### System Architecture & Data Flow
+
+```
+                                  OPTILIGN SYSTEM ARCHITECTURE
+                                  
+  ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+  │                              VIRTUAL ENVIRONMENT & DISTURBANCES                          │
+  │  • 3D Kinematics (Circular, Linear, Sinusoid, Random)  • Kolmogorov Turbulence (Cn²)      │
+  │  • Platform Sway & Aerodynamic Wind Gusts             • Multi-Harmonic Micro-Vibrations  │
+  │  • Background Star/Urban Clutter                       • Sensor Read & Photon Shot Noise  │
+  └──────────────────────────────┬───────────────────────────────────────────────────────────┘
+                                 │ Target 3D Position & Optical Flux
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+  │                         VIRTUAL SENSOR & GIMBAL PLATFORM                                 │
+  │  • Pinhole Camera Intrinsics (fx, fy, cx, cy)         • 2-DOF Pan-Tilt Actuator Dynamics │
+  │  • First-Order Actuator Inertial Lag (τ = 15 ms)       • Slew Rate & Acceleration Limits  │
+  │  • Mechanical Backlash & Deadband Modeling            • Synthetic Focal Plane Rendering  │
+  └──────────────────────────────┬───────────────────────────────────────────────────────────┘
+                                 │ Synthetic Video Stream (50 Hz / 30 FPS)
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+  │                           PERCEPTION & IMAGE CENTROIDING                                 │
+  │  • Morphological Top-Hat Background Subtraction       • Dynamic Adaptive Thresholding    │
+  │  • Sub-Pixel Intensity-Weighted Centroiding           • Mahalanobis Ellipsoidal Gating   │
+  └──────────────────────────────┬───────────────────────────────────────────────────────────┘
+                                 │ Measured Pixel Centroid (u, v) + SNR
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+  │                        KINEMATIC ESTIMATION & TRACKING FILTER                            │
+  │  • Adaptive Extended Kalman Filter (EKF)              • Interacting Multiple Model (IMM) │
+  │  • Dynamic Covariance Scaling Rk(σ_I²)                • Scintillation-Aware Filtering    │
+  └──────────────────────────────┬───────────────────────────────────────────────────────────┘
+                                 │ Estimated Target Line-of-Sight (Yaw, Pitch, Rates)
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+  │                             DUAL-STAGE POINTING CONTROLLER                               │
+  │  ┌──────────────────────────────────────┐     ┌────────────────────────────────────────┐ │
+  │  │   STAGE 1: COARSE GIMBAL (PID/LQR)   │     │    STAGE 2: FAST STEERING MIRROR (FSM) │ │
+  │  │   • Large Travel (±180° pan, ±45° tilt)│ ◄───┤    • Ultra-Fast Piezo (800–1000 Hz)    │ │
+  │  │   • 60°/s Slew, holds target in FOV  │ DC  │    • Sub-µrad Precision (18–22 nrad)   │ │
+  │  └──────────────────────────────────────┘ Offload  • Predictive Zero-Lag Anti-Jitter  │ │
+  │                                               └────────────────────────────────────────┘ │
+  └──────────────────────────────┬───────────────────────────────────────────────────────────┘
+                                 │ Corrected Optical Axis & Residual Pointing Error
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+  │                         FSOC LINK BUDGET & TELEMETRY STREAMING                           │
+  │  • Gaussian Beam Propagation & Coupling Loss          • Adaptive Optics Wavefront Strehl │
+  │  • Real-Time Received Power, SNR, Margin & BER        • Standard Performance Logging     │
+  │  • Web GUI Dashboard (30 FPS Canvas + HUD)            • CSV, JSON, HTML & Markdown Exporters│
+  └──────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -97,11 +145,11 @@ OptiLign provides an AI-assisted camera tracking system capable of automatically
 
 | Stage | Stage Title | Weightage | Evaluation Methods & Focus Areas | Acceptance Criteria & Benchmarks |
 | :---: | :--- | :---: | :--- | :--- |
-| **1** | **System Functionality & Software Modularity** | **25%** | Automated unit and integration test suite coverage; clean architectural separation of geometry, kinematics, perception, estimation, and control; deterministic seed control. | 100% test pass rate across all suites ($>200$ tests); zero unhandled exceptions; PEP 8 and strict typing compliance. |
+| **1** | **System Functionality & Software Modularity** | **25%** | Automated unit and integration test suite coverage; clean architectural separation of geometry, kinematics, perception, estimation, and control; deterministic seed control. | 100% test pass rate across all suites (**337 passed tests**); zero unhandled exceptions; PEP 8 and strict typing compliance (`mypy`, `ruff`). |
 | **2** | **Target Detection & Tracking Accuracy** | **30%** | Robustness in synthetic video feeds with background clutter and noise; sub-pixel centroiding precision; closed-loop tracking across dynamic 3D target trajectories. | Coarse Tracking Error $\le 2.5$ mrad; Dual-Stage Fine Error $\le 15.0\ \mu\text{rad}$ (nominal $\le 0.05\ \mu\text{rad}$); Lock Retention Rate $\ge 95.0\%$. |
 | **3** | **Disturbance Rejection & Operational Robustness** | **20%** | Generation of atmospheric turbulence, scintillation fading, platform sway, motor vibration harmonics; multi-environment stress testing (Space, LEO, UAV, Maritime, Urban). | Maintained tracking lock under vibration harmonics $>30\ \mu\text{rad}$ and $C_n^2 \ge 2.5 \times 10^{-14}\ \text{m}^{-2/3}$; Autonomous reacquisition $\le 0.50$ s. |
-| **4** | **Software Deliverables & Usability** | **15%** | Standalone executable CLI (`run`, `benchmark`, `monte-carlo`, `report`, `gui`, `env`); interactive 30 FPS Web GUI dashboard; automated performance logging. | Zero-install Web GUI with canvas viewport and HUD; automated CSV/JSON/HTML report generation; custom virtual environment builder. |
-| **5** | **Technical Documentation & Reporting** | **10%** | Comprehensive Technical Report (10–15 pages) and User Manual detailing architecture, mathematics, benchmarks, and step-by-step reproduction instructions. | Full IEEE/AIAA structured report; clear equations, diagrams, benchmark tables, and reproduction steps. |
+| **4** | **Software Deliverables & Usability** | **15%** | Standalone executable CLI (`run`, `benchmark`, `monte-carlo`, `report`, `gui`, `env`, `ao`, `jitter`, `video-benchmark`, `standard-benchmark`); interactive 30 FPS Web GUI dashboard; automated performance logging. | Zero-install Web GUI with canvas viewport and HUD; automated CSV/JSON/HTML report generation; custom virtual environment builder. |
+| **5** | **Technical Documentation & Reporting** | **10%** | Comprehensive Technical Report (10–15 pages), User Manual, Performance Log, and Reference Tables detailing architecture, mathematics, benchmarks, and reproduction instructions. | Full IEEE/AIAA structured report; clear equations, diagrams, benchmark tables, and reproduction steps. |
 
 ---
 
@@ -109,12 +157,14 @@ OptiLign provides an AI-assisted camera tracking system capable of automatically
 
 | Required Deliverable | Description & Location in Repository |
 | :--- | :--- |
-| **1. Software Application** | Standalone executable CLI (`fsoc-pat`) and interactive Web GUI (`fsoc-pat gui` / `python3 run_gui.py`) providing full tracking and simulation capabilities. |
-| **2. Source Code** | Modular, documented, PEP-8 compliant Python package located in [`src/fsoc_pat/`](src/fsoc_pat/) with 243 automated tests in [`tests/`](tests/). |
-| **3. Technical Report** | 10–15 page formal IEEE/AIAA Technical Report detailing problem understanding, system architecture, mathematics, benchmarks, and roadmap: [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md). |
-| **4. User Manual** | Comprehensive operational guide covering installation, CLI commands, GUI operations, custom environments, and a 4-minute video demonstration script: [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md). |
-| **5. Performance Log** | Auto-generated standardized mission performance logs (CSV, JSON, HTML, Markdown) containing simulation duration, FPS, acquisition time, average and maximum tracking error, lock retention rate, and processing time: [`src/fsoc_pat/reporting/`](src/fsoc_pat/reporting/). |
+| **1. Software Application** | Standalone executable CLI (`fsoc-pat`) and interactive Web GUI (`fsoc-pat gui` / `python3 run_gui.py`) providing complete tracking and simulation capabilities. |
+| **2. Source Code & Tests** | Modular, documented, PEP-8 compliant Python package in [`src/fsoc_pat/`](src/fsoc_pat/) with **337 automated tests** passing in [`tests/`](tests/). |
+| **3. Technical Report** | Comprehensive formal IEEE/AIAA Technical Report detailing problem understanding, system architecture, mathematics, benchmarks, and roadmap: [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md). |
+| **4. User Manual** | Operational guide covering installation, CLI commands, GUI operations, custom environments, and a 4-minute demonstration video script: [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md). |
+| **5. Performance Log** | Auto-generated standardized mission performance logs complying with ISRO/CCSDS specifications: [`docs/PERFORMANCE_LOG.md`](docs/PERFORMANCE_LOG.md) and [`src/fsoc_pat/reporting/`](src/fsoc_pat/reporting/). |
 | **6. Reference Tables** | Dedicated reference tables for [Parameters & Specifications](docs/PARAMETERS_AND_SPECIFICATIONS.md) and [Evaluation Criteria](docs/EVALUATION_CRITERIA.md). |
+| **7. Advanced Optical Modules** | Closed-Loop Adaptive Optics & Wavefront Reconstruction: [`docs/ADAPTIVE_OPTICS.md`](docs/ADAPTIVE_OPTICS.md); Predictive Micro-Vibration & Latency Feedforward Compensator: [`docs/PREDICTIVE_ANTI_JITTER.md`](docs/PREDICTIVE_ANTI_JITTER.md). |
+| **8. System Architecture** | Formal subsystem decomposition, coordinate frame conventions, and layered architecture specification: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md). |
 
 ---
 
@@ -131,59 +181,143 @@ Closed-loop tracking was validated across 6 diverse operational scenarios using 
 | **Urban Rooftop** | 45m Rooftop, HVAC tremor | $1559.4\ \mu\text{rad}$ | **$0.0208\ \mu\text{rad}$** | **$20.8\ \text{nrad}$** | $97.2\ \text{dB}$ | **100.0%** |
 | **Custom Balloon** | 24,000m Stratosphere | $1554.6\ \mu\text{rad}$ | **$0.0212\ \mu\text{rad}$** | **$21.2\ \text{nrad}$** | $113.8\ \text{dB}$ | **100.0%** |
 
+*Comparative 6-panel multi-environment analysis plot saved to [`results/demo_environments/multi_environment_comparison.png`](results/demo_environments/multi_environment_comparison.png).*
+
 ---
 
 ## 7. Quick Start & Execution Guide
 
-### Installation
+### Prerequisites & Installation
+OptiLign requires **Python 3.12 or newer** and runs on macOS, Linux, and Windows:
+
 ```bash
 # Clone the repository
+git clone https://github.com/Sanju-2007/OptiLign.git
 cd OptiLign
 
-# Create virtual environment and install in editable mode
+# Create virtual environment and activate
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate       # On Windows: .venv\Scripts\activate
+
+# Install OptiLign in editable mode with all optional dependencies
 pip install -e .
 
-# Run test suite (243 passed)
+# Run complete automated verification test suite (337 passed)
 pytest --tb=short
 ```
 
-### Run Demonstration Scripts
+### Demonstration Scripts Walkthrough
+OptiLign includes ready-to-run demonstration scripts demonstrating individual subsystems and end-to-end mission scenarios:
+
 ```bash
-# 1. Master Multi-Environment Verification Demo (Generates 6-panel plot)
+# 1. Master Multi-Environment Benchmark (Exports telemetry CSVs & 6-panel comparison figure)
 python3 demo_custom_environments.py
 
-# 2. Complete Closed-Loop PAT Verification (Gaussian beam & HTML report)
+# 2. Complete Closed-Loop PAT Verification (Gaussian beam, HTML report & trajectory plots)
 python3 demo_full_system.py
 
-# 3. Launch Interactive Web Dashboard
-python3 run_gui.py   # Access at http://localhost:8088
+# 3. Launch Interactive Real-Time Web Dashboard (30 FPS canvas + HUD)
+python3 run_gui.py   # Access dashboard at http://localhost:8088
+
+# 4. Modular Subsystem Verification Scripts (Phases 1 through 6)
+python3 demo_phase1.py   # 3D Trajectory kinematics & gimbal dynamics
+python3 demo_phase2.py   # Pinhole projection, sensor noise & centroiding
+python3 demo_phase3.py   # Closed-loop tracking & EKF estimation
+python3 demo_phase4.py   # Supervisory PAT state machine & reacquisition
+python3 demo_phase5.py   # Atmospheric turbulence & disturbance rejection
+python3 demo_phase6.py   # FSOC link budget, Gaussian beam & BER margin
 ```
 
-### CLI Command Summary (`fsoc-pat`)
+### Complete CLI Command Suite (`fsoc-pat`)
+The standalone `fsoc-pat` executable provides 10 powerful subcommands:
+
 ```bash
-# List all built-in environment presets and custom telemetry channels
-fsoc-pat env list
+# 1. Virtual Environment Studio & Presets
+fsoc-pat env list                                     # List all presets and custom telemetry channels
+fsoc-pat env run --preset space_isl --duration 2.0    # Run simulation in Space ISL preset
+fsoc-pat env run --config custom_env.json             # Run user-defined custom JSON environment
+fsoc-pat env benchmark --duration 1.0                 # Comparative benchmark across all 6 environments
 
-# Run simulation in a specific environment preset
-fsoc-pat env run --preset space_isl --duration 2.0
-
-# Benchmark tracking accuracy across all environments
-fsoc-pat env benchmark --duration 1.0
-
-# Run nominal closed-loop simulation with HTML report and plot
+# 2. Closed-Loop Mission Simulation & Reporting
 fsoc-pat run --duration 5.0 --output results/run1 --plot --html
+# Generates telemetry.csv, mission_summary.png, mission_report.md, and interactive mission_report.html
 
-# Monte Carlo randomized disturbance study
-fsoc-pat monte-carlo --runs 20 --duration 3.0 --output results/mc.json
+# 3. Computer Vision Detector Benchmark
+fsoc-pat benchmark --frames 100 --output results/detector_benchmark.json
 
-# Launch interactive Web GUI on custom port
-fsoc-pat gui --port 8088
+# 4. Monte Carlo Statistical Analysis
+fsoc-pat monte-carlo --runs 20 --duration 3.0 --output results/monte_carlo.json
+
+# 5. Post-Processing Report Generator from Telemetry CSV
+fsoc-pat report --input results/telemetry.csv --output results/report --plot
+
+# 6. Interactive Web GUI Dashboard
+fsoc-pat gui --port 8088 --host 127.0.0.1
+
+# 7. Closed-Loop Adaptive Optics (AO) & Wavefront Reconstruction
+fsoc-pat ao --duration 0.50 --cn2 2.5e-14 --wind-speed 6.0 --output results/ao
+
+# 8. Predictive Zero-Lag Anti-Jitter Compensator
+fsoc-pat jitter --duration 1.0 --dt 0.002 --latency 0.015 --output results/jitter
+
+# 9. External MP4 Video Bypass Ingestion & Evaluation
+fsoc-pat video-benchmark --generate --duration 5.0 --motion figure_of_8 --output results/video
+
+# 10. Standard Automated Acceptance Benchmark Suite
+fsoc-pat standard-benchmark --duration 6.0 --trials 1 --output results/standard_benchmark
 ```
 
 ---
 
-## 8. License
+## 8. Repository Structure
 
-OptiLign is released under the MIT Open-Source License. See [LICENSE](LICENSE) for details.
+```text
+OptiLign/
+├── configs/                      # YAML scenario configurations
+├── data/                         # Test fixtures & trajectory definitions
+├── docs/                         # Technical documentation & reports
+│   ├── ADAPTIVE_OPTICS.md        # 3-Stage Wavefront correction & AO theory
+│   ├── EVALUATION_CRITERIA.md    # Quantitative scoring rubric & benchmarks
+│   ├── PARAMETERS_AND_SPECIFICATIONS.md # Full parameter specifications
+│   ├── PERFORMANCE_LOG.md        # ISRO/CCSDS standard performance log
+│   ├── PREDICTIVE_ANTI_JITTER.md # Zero-phase-lag feedforward compensator
+│   ├── TECHNICAL_REPORT.md       # 15-page IEEE/AIAA formal technical report
+│   ├── USER_MANUAL.md            # Comprehensive user manual & video script
+│   └── architecture/             # Architecture specifications
+├── results/                      # Output telemetry, plots, HTML reports & videos
+├── src/fsoc_pat/                 # Production source code
+│   ├── __main__.py               # Standalone CLI entrypoint (10 subcommands)
+│   ├── ai/                       # Neural perception & adaptive models
+│   ├── ao/                       # Adaptive optics & deformable mirror
+│   ├── benchmark/                # Detector & environment benchmark runners
+│   ├── config/                   # Configuration loaders & schema models
+│   ├── control/                  # Dual-stage PID/LQR & FSM controllers
+│   ├── core/                     # Fundamental domain types & interfaces
+│   ├── disturbances/             # Kolmogorov turbulence, vibration & clutter
+│   ├── environments/             # Multi-environment engine & JSON builder
+│   ├── estimation/               # Adaptive EKF & IMM kinematic filters
+│   ├── geometry/                 # Pinhole projection, frames & rotations
+│   ├── gui/                      # Real-time Web GUI server & static frontend
+│   ├── link/                     # Gaussian beam propagation & link budget
+│   ├── pat/                      # Supervisory PAT state machine
+│   ├── perception/               # Top-hat background filter & centroiding
+│   ├── predictive/               # Micro-vibration spectral analyzer & feedforward
+│   ├── reporting/                # HTML, Markdown, CSV report & plot generators
+│   ├── simulation/               # Simulation clock, world, targets & gimbal
+│   └── telemetry/                # Custom schemas, sinks & telemetry streaming
+├── tests/                        # 337 automated unit and integration tests
+│   ├── integration/              # End-to-end mission & CLI integration tests
+│   └── unit/                     # Unit test suites across all 16 modules
+├── demo_custom_environments.py   # Multi-environment benchmark demo
+├── demo_full_system.py           # Complete closed-loop PAT verification demo
+├── demo_phase1.py ... phase6.py  # Modular subsystem verification scripts
+├── run_gui.py                    # Zero-config Web GUI launcher
+├── pyproject.toml                # Build system & package dependencies
+└── README.md                     # Project overview & reference guide
+```
+
+---
+
+## 9. License
+
+OptiLign is released under the **MIT Open-Source License**. See the [LICENSE](LICENSE) file for complete terms.

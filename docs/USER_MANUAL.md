@@ -52,13 +52,13 @@ uv pip install -e .
 ```
 
 ### 2.3 Running the Verification Test Suite
-Verify that all 331 automated unit and integration tests pass:
+Verify that all 337 automated unit and integration tests pass:
 ```bash
 pytest --tb=short
 ```
 Expected output:
 ```text
-======================== 331 passed in 69.71s (0:01:09) ========================
+======================== 337 passed in 71.83s (0:01:11) ========================
 ```
 
 ---
@@ -331,7 +331,7 @@ This script can be used for recording a video demonstration of the OptiLign virt
   *"Free Space Optical Communication provides terabit-class data transmission with zero electromagnetic interference, but requires aligning narrow laser beams between mobile platforms. Coarse alignment is the critical first stage: locating, identifying, and keeping the remote optical beacon centered within the camera viewport. OptiLign is an end-to-end software simulation platform that models and verifies this tracking process without expensive physical gimbals."*
 
 #### Scene 2: System Architecture & Subsystems (0:45 – 1:30)
-- **Visual**: Screen capture showing code repository, running `pytest --tb=short` (331 passed), and system architecture diagram.
+- **Visual**: Screen capture showing code repository, running `pytest --tb=short` (337 passed), and system architecture diagram.
 - **Narrator**:  
   *"OptiLign implements physical pinhole camera projection, virtual gimbal actuators with motor inertia and slew rate limits, synthetic sensor rendering with atmospheric turbulence, morphological beacon perception, and an adaptive Extended Kalman filter. Crucially, it features a dual-stage architecture: a 2-DOF coarse gimbal for wide acquisition, cooperating with an 800 Hz Fast Steering Mirror for jitter rejection."*
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OptiLign FSOC PAT Mission Telemetry Report</title>
+  <title>OptiLign FSOC PAT Mission Verification Report</title>
   <style>
     :root {
       --bg: #0a0e17;
@@ -195,7 +195,7 @@
           <span class="badge">OptiLign Production Release</span>
           <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.3);">PS-04 COMPLIANT (PASS)</span>
         </div>
-        <h1 style="margin-top: 8px;">OptiLign Mission Run</h1>
+        <h1 style="margin-top: 8px;">OptiLign Aerospace FSOC PAT Mission</h1>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
           End-to-End FSOC PAT Telemetry Verification, Runtime Benchmark & Detailed Performance Report
         </p>
@@ -211,13 +211,13 @@
     <div class="grid-kpi">
       <div class="card">
         <div class="card-title">Centroid Error (Pixel)</div>
-        <div class="card-value val-good">0.51 <span style="font-size: 1rem;">px</span></div>
-        <div class="card-sub">PS-04 Limit: &le; 10 px (RMSE: 0.55 px) &bull; PASS</div>
+        <div class="card-value val-good">1.49 <span style="font-size: 1rem;">px</span></div>
+        <div class="card-sub">PS-04 Limit: &le; 10 px (RMSE: 1.54 px) &bull; PASS</div>
       </div>
       <div class="card">
         <div class="card-title">Actual Processing Speed</div>
-        <div class="card-value val-good">43.9 <span style="font-size: 1rem;">FPS</span></div>
-        <div class="card-sub">PS-04 Limit: &ge; 20 FPS (Avg: 22.80ms, P95: 22.98ms)</div>
+        <div class="card-value val-good">41.4 <span style="font-size: 1rem;">FPS</span></div>
+        <div class="card-sub">PS-04 Limit: &ge; 20 FPS (Avg: 24.17ms, P95: 25.83ms)</div>
       </div>
       <div class="card">
         <div class="card-title">Autonomous Acquisition</div>
@@ -226,8 +226,8 @@
       </div>
       <div class="card">
         <div class="card-title">Lock Retention & Target Loss</div>
-        <div class="card-value val-good">100.0%</div>
-        <div class="card-sub">Target Loss: 0.0% (Limit: &lt; 5%) &bull; Outage: 0.00s</div>
+        <div class="card-value val-good">95.8%</div>
+        <div class="card-sub">Target Loss: 4.2% (Limit: &lt; 5%) &bull; Outage: 0.34s</div>
       </div>
     </div>
 
@@ -248,29 +248,29 @@
         <tr>
           <td><strong>Image-Plane Tracking Error</strong></td>
           <td>&le; 10.0 px (Centroid displacement)</td>
-          <td><code>0.51 px</code> (RMSE: 0.55 px, Max: 1.01 px)</td>
-          <td>+9.49 px headroom</td>
+          <td><code>1.49 px</code> (RMSE: 1.54 px, Max: 3.88 px)</td>
+          <td>+8.51 px headroom</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td>
         </tr>
         <tr>
           <td><strong>Target Loss / Disruption</strong></td>
           <td>&lt; 5.0% of operational timeline</td>
-          <td><code>0.0%</code> (Lock Retention: 100.0%)</td>
-          <td>+5.0% margin</td>
+          <td><code>4.2%</code> (Lock Retention: 95.8%)</td>
+          <td>+0.8% margin</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td>
         </tr>
         <tr>
           <td><strong>Fast Re-acquisition Time</strong></td>
           <td>&le; 1.00 s upon Line-of-Sight recovery</td>
-          <td><code>0.00 s</code></td>
-          <td>+1.00 s margin</td>
+          <td><code>0.30 s</code></td>
+          <td>+0.70 s margin</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td>
         </tr>
         <tr>
           <td><strong>Execution Processing Speed</strong></td>
           <td>&ge; 20.0 FPS (Real-time latency)</td>
-          <td><code>43.9 FPS</code> (Latency: 22.80 ms)</td>
-          <td>+23.9 FPS headroom</td>
+          <td><code>41.4 FPS</code> (Latency: 24.17 ms)</td>
+          <td>+21.4 FPS headroom</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td>
         </tr>
       </tbody>
@@ -280,37 +280,37 @@
     <div class="grid-kpi">
       <div class="card">
         <div class="card-title">Mean Radial Error</div>
-        <div class="card-value val-info">11.487 <span style="font-size: 1rem;">mrad</span></div>
-        <div class="card-sub">0.6581° &bull; 11486.6 µrad</div>
+        <div class="card-value val-info">4.395 <span style="font-size: 1rem;">mrad</span></div>
+        <div class="card-sub">0.2518° &bull; 4395.4 µrad</div>
       </div>
       <div class="card">
         <div class="card-title">RMS Pointing Jitter</div>
-        <div class="card-value val-info">12.805 <span style="font-size: 1rem;">mrad</span></div>
-        <div class="card-sub">P95: 19.369 mrad &bull; Peak: 20.104 mrad</div>
+        <div class="card-value val-info">4.814 <span style="font-size: 1rem;">mrad</span></div>
+        <div class="card-sub">P95: 7.941 mrad &bull; Peak: 10.031 mrad</div>
       </div>
       <div class="card">
         <div class="card-title">Locked Electrical SNR</div>
-        <div class="card-value val-good">-52.9 <span style="font-size: 1rem;">dB</span></div>
-        <div class="card-sub">FEC Margin: -63.7 dB (Q: 0.00)</div>
+        <div class="card-value val-good">+83.9 <span style="font-size: 1rem;">dB</span></div>
+        <div class="card-sub">FEC Margin: +73.1 dB (Q: 7805.34)</div>
       </div>
       <div class="card">
         <div class="card-title">Link Availability</div>
-        <div class="card-value val-good">4.8%</div>
-        <div class="card-sub">Margin &ge; 3.0 dB (381 outage steps, 7.62s)</div>
+        <div class="card-value val-good">96.0%</div>
+        <div class="card-sub">Margin &ge; 3.0 dB (16 outage steps, 0.32s)</div>
       </div>
     </div>
 
     <!-- PAT State Machine Allocation Bar -->
     <div class="section-title">PAT State Machine Timeline Allocation</div>
     <div class="bar-container">
-      <div class="bar-segment" style="width: 100.3%; background: var(--accent-emerald);" title="TRACKING: 100.3%"></div>
-      <div class="bar-segment" style="width: 0.0%; background: var(--accent-rose);" title="REACQUISITION: 0.0%"></div>
+      <div class="bar-segment" style="width: 96.5%; background: var(--accent-emerald);" title="TRACKING: 96.5%"></div>
+      <div class="bar-segment" style="width: 3.8%; background: var(--accent-rose);" title="REACQUISITION: 3.8%"></div>
       <div class="bar-segment" style="width: 0.0%; background: var(--accent-amber);" title="SEARCH: 0.0%"></div>
       <div class="bar-segment" style="width: 0.0%; background: var(--accent-cyan);" title="ACQUISITION: 0.0%"></div>
     </div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background: var(--accent-emerald);"></div> TRACKING (100.3%)</div>
-      <div class="legend-item"><div class="legend-dot" style="background: var(--accent-rose);"></div> REACQUISITION (0.0%)</div>
+      <div class="legend-item"><div class="legend-dot" style="background: var(--accent-emerald);"></div> TRACKING (96.5%)</div>
+      <div class="legend-item"><div class="legend-dot" style="background: var(--accent-rose);"></div> REACQUISITION (3.8%)</div>
       <div class="legend-item"><div class="legend-dot" style="background: var(--accent-amber);"></div> SEARCH (0.0%)</div>
       <div class="legend-item"><div class="legend-dot" style="background: var(--accent-cyan);"></div> ACQUISITION (0.0%)</div>
     </div>
@@ -322,7 +322,15 @@
         <tr><th>Event Identifier</th><th>Disruption Start Time</th><th>Lock Re-established Time</th><th>Recovery Duration</th><th>Resolution Status</th></tr>
       </thead>
       <tbody>
-        <tr><td colspan='5' style='text-align: center; color: var(--text-muted);'>No link disruption events observed during mission timeline.</td></tr>
+        
+                <tr>
+                  <td><strong>Event #1</strong></td>
+                  <td><code>2.44 s</code></td>
+                  <td><code>2.74 s</code></td>
+                  <td><code>0.30 s</code></td>
+                  <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">RECOVERED & LOCKED</span></td>
+                </tr>
+                
       </tbody>
     </table>
 
@@ -333,16 +341,16 @@
         <tr><th>Metric Identifier</th><th>Domain / Coordinate</th><th>Measured Value</th><th>Specification Limit</th><th>Status</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>Average Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>0.51 px</code></td><td>&le; 10.0 px (PS-04 Headline)</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
-        <tr><td><strong>RMSE Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>0.55 px</code></td><td>Sub-pixel precision / low jitter</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
-        <tr><td><strong>Peak Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>1.01 px</code></td><td>Within camera sensor FOV</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
-        <tr><td><strong>95th Percentile Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>0.83 px</code></td><td>Statistical 2-sigma bound</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
-        <tr><td><strong>Horizontal / Vertical Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>Δu: 0.31 px, Δv: 0.35 px</code></td><td>Balanced orthogonal tracking</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">BALANCED</span></td></tr>
-        <tr><td><strong>Average Boresight Tracking Error</strong></td><td>Pixel (Image Plane)</td><td><code>6.37 px</code></td><td>Centering on optical boresight (320, 240)</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">OPTIMAL</span></td></tr>
-        <tr><td><strong>Mean Radial Error (MRE)</strong></td><td>Angular (Spatial)</td><td><code>11.487 mrad</code> (0.6581°, 11486.6 µrad)</td><td>Ground truth spatial offset</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">MEASURED</span></td></tr>
-        <tr><td><strong>RMS Pointing Jitter (&sigma;_&theta;)</strong></td><td>Angular (Spatial)</td><td><code>12.805 mrad</code> (12804.8 µrad)</td><td>Standard 1-sigma optical jitter</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">STABLE</span></td></tr>
-        <tr><td><strong>Peak Pointing Error</strong></td><td>Angular (Spatial)</td><td><code>20.104 mrad</code> (1.1519°)</td><td>Maximum observed excursion</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">BOUNDED</span></td></tr>
-        <tr><td><strong>Filter Estimated Mean Error</strong></td><td>Angular (Spatial)</td><td><code>12.353 mrad</code> (Bias: 0.867 mrad)</td><td>Onboard EKF perception estimate</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">EKF LIKELIHOOD</span></td></tr>
+        <tr><td><strong>Average Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>1.49 px</code></td><td>&le; 10.0 px (PS-04 Headline)</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
+        <tr><td><strong>RMSE Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>1.54 px</code></td><td>Sub-pixel precision / low jitter</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
+        <tr><td><strong>Peak Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>3.88 px</code></td><td>Within camera sensor FOV</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
+        <tr><td><strong>95th Percentile Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>2.00 px</code></td><td>Statistical 2-sigma bound</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
+        <tr><td><strong>Horizontal / Vertical Centroid Error</strong></td><td>Pixel (Image Plane)</td><td><code>Δu: 0.99 px, Δv: 1.02 px</code></td><td>Balanced orthogonal tracking</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">BALANCED</span></td></tr>
+        <tr><td><strong>Average Boresight Tracking Error</strong></td><td>Pixel (Image Plane)</td><td><code>2.44 px</code></td><td>Centering on optical boresight (320, 240)</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">OPTIMAL</span></td></tr>
+        <tr><td><strong>Mean Radial Error (MRE)</strong></td><td>Angular (Spatial)</td><td><code>4.395 mrad</code> (0.2518°, 4395.4 µrad)</td><td>Ground truth spatial offset</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">MEASURED</span></td></tr>
+        <tr><td><strong>RMS Pointing Jitter (&sigma;_&theta;)</strong></td><td>Angular (Spatial)</td><td><code>4.814 mrad</code> (4813.8 µrad)</td><td>Standard 1-sigma optical jitter</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">STABLE</span></td></tr>
+        <tr><td><strong>Peak Pointing Error</strong></td><td>Angular (Spatial)</td><td><code>10.031 mrad</code> (0.5747°)</td><td>Maximum observed excursion</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">BOUNDED</span></td></tr>
+        <tr><td><strong>Filter Estimated Mean Error</strong></td><td>Angular (Spatial)</td><td><code>3.996 mrad</code> (Bias: 0.399 mrad)</td><td>Onboard EKF perception estimate</td><td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">EKF LIKELIHOOD</span></td></tr>
       </tbody>
     </table>
 
@@ -355,21 +363,21 @@
       <tbody>
         <tr>
           <td><strong>Pan / Azimuth Axis</strong></td>
-          <td><code>0.64°</code></td>
-          <td><code>-5.80° / 5.77°</code></td>
-          <td><code>11.57°</code></td>
-          <td><code>6.55°/s</code></td>
+          <td><code>2.28°</code></td>
+          <td><code>-4.58° / 5.58°</code></td>
+          <td><code>10.16°</code></td>
+          <td><code>3.36°/s</code></td>
           <td>60.0°/s</td>
-          <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">89.1% HEADROOM</span></td>
+          <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">94.4% HEADROOM</span></td>
         </tr>
         <tr>
           <td><strong>Tilt / Elevation Axis</strong></td>
-          <td><code>0.00°</code></td>
-          <td><code>-0.01° / 0.01°</code></td>
-          <td><code>0.02°</code></td>
-          <td><code>0.29°/s</code></td>
+          <td><code>0.10°</code></td>
+          <td><code>0.00° / 0.14°</code></td>
+          <td><code>0.14°</code></td>
+          <td><code>0.75°/s</code></td>
           <td>45.0°/s</td>
-          <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">99.4% HEADROOM</span></td>
+          <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">98.3% HEADROOM</span></td>
         </tr>
       </tbody>
     </table>
@@ -383,44 +391,44 @@
       <tbody>
         <tr>
           <td><strong>Platform Base Vibration Jitter</strong></td>
-          <td><code>RMS: 35.0 µrad, Peak: 65.0 µrad</code></td>
+          <td><code>RMS: 1201.5 µrad, Peak: 2456.7 µrad</code></td>
           <td>Multichannel satellite harmonics (8, 45, 120 Hz)</td>
           <td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">SIMULATED</span></td>
         </tr>
         <tr>
           <td><strong>Jitter Rejection Ratio</strong></td>
-          <td><code>+-51.3 dB</code></td>
+          <td><code>+-12.1 dB</code></td>
           <td>Active closed-loop disturbance attenuation</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">REJECTED</span></td>
         </tr>
         <tr>
           <td><strong>Atmospheric Structure Constant ($C_n^2$)</strong></td>
-          <td><code>6.18e-14 m<sup>-2/3</sup></code></td>
+          <td><code>1.49e-12 m<sup>-2/3</sup></code></td>
           <td>Boundary layer turbulence model</td>
           <td><span class="badge" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">NOMINAL</span></td>
         </tr>
         <tr>
           <td><strong>Fried Coherence Length ($r_0$)</strong></td>
-          <td><code>8.2 cm</code></td>
+          <td><code>1.2 cm</code></td>
           <td>Spatial optical seeing coherence diameter</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">OPTIMAL</span></td>
         </tr>
         <tr>
           <td><strong>Scintillation Rytov Index (&sigma;_R&sup2;)</strong></td>
-          <td><code>0.038</code> (Max: 0.075)</td>
+          <td><code>0.914</code> (Max: 3.000)</td>
           <td>&sigma;_R&sup2; &lt; 0.20 (Weak Turbulence Regime)</td>
-          <td><span class="badge" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">Weak Turbulence (σ_R² < 0.2)</span></td>
+          <td><span class="badge" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">Moderate Turbulence (0.2 ≤ σ_R² < 1.0)</span></td>
         </tr>
         <tr>
           <td><strong>Scintillation Fade Reserve</strong></td>
-          <td><code>-2.57 dB</code></td>
+          <td><code>-12.60 dB</code></td>
           <td>99% availability optical fade reserve requirement</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">RESERVE OK</span></td>
         </tr>
         <tr>
           <td><strong>Cloud Blockage Disruption</strong></td>
-          <td><code>0 event (0.00 s, 0.0% duty)</code></td>
-          <td>Extinction attenuation: 0.0 dB</td>
+          <td><code>1 event (0.36 s, 4.5% duty)</code></td>
+          <td>Extinction attenuation: 100.0 dB</td>
           <td><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">TRANSIENT FADE</span></td>
         </tr>
       </tbody>
@@ -442,64 +450,64 @@
         </tr>
         <tr>
           <td><strong>Free Space Path Loss ($L_{fs}$)</strong></td>
-          <td><code>-178.3 dB</code></td>
-          <td><code>-178.3 dB</code></td>
-          <td>Geometric expansion over 101.5m</td>
+          <td><code>-178.0 dB</code></td>
+          <td><code>-178.0 dB</code></td>
+          <td>Geometric expansion over 98.3m</td>
           <td>DIFFRACTION</td>
         </tr>
         <tr>
           <td><strong>Mean Optical Pointing Loss ($L_p$)</strong></td>
-          <td><code>-37.77 dB</code></td>
-          <td><code>-37.77 dB</code></td>
+          <td><code>-4.29 dB</code></td>
+          <td><code>-4.37 dB</code></td>
           <td>Spatial Gaussian beam profile</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">LOW LOSS</span></td>
         </tr>
         <tr>
           <td><strong>Peak Optical Pointing Loss</strong></td>
-          <td><code>-95.83 dB</code></td>
-          <td><code>-95.83 dB</code></td>
+          <td><code>-18.99 dB</code></td>
+          <td><code>-18.99 dB</code></td>
           <td>Peak angular jitter excursion</td>
           <td>BOUNDED</td>
         </tr>
         <tr>
           <td><strong>Mean Received Power ($P_{rx}$)</strong></td>
-          <td><code>-140.58 dBm</code></td>
-          <td><code>-140.58 dBm</code></td>
+          <td><code>+3.92 dBm</code></td>
+          <td><code>-0.28 dBm</code></td>
           <td>Sensitivity: -38.0 dBm</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">EXCELLENT</span></td>
         </tr>
         <tr>
           <td><strong>Minimum Received Power ($P_{rx,min}$)</strong></td>
           <td>—</td>
-          <td><code>-150.00 dBm</code></td>
+          <td><code>-100.00 dBm</code></td>
           <td>Cloud occlusion fade floor</td>
           <td>FADE EVENT</td>
         </tr>
         <tr>
           <td><strong>Mean Link Margin</strong></td>
-          <td><code>-102.58 dB</code></td>
-          <td><code>-102.58 dB</code></td>
+          <td><code>+41.92 dB</code></td>
+          <td><code>+37.72 dB</code></td>
           <td>Target: &ge; 3.0 dB</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">HEALTHY</span></td>
         </tr>
         <tr>
           <td><strong>Link Availability</strong></td>
           <td><strong>100.0%</strong></td>
-          <td><code>4.8%</code></td>
+          <td><code>96.0%</code></td>
           <td>Margin &ge; 3.0 dB threshold</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">HIGH UPTIME</span></td>
         </tr>
         <tr>
           <td><strong>Operating Electrical SNR</strong></td>
-          <td><code>-52.86 dB</code></td>
-          <td><code>-52.86 dB</code></td>
+          <td><code>+83.87 dB</code></td>
+          <td><code>+80.45 dB</code></td>
           <td>&ge; 15.6 dB (Error-free direct detection)</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">OPTIMAL</span></td>
         </tr>
         <tr>
           <td><strong>Uncoded OOK Bit Error Rate (BER)</strong></td>
           <td><code>&lt; 1.0e-15</code></td>
-          <td><code>4.76e-01</code></td>
+          <td><code>2.00e-02</code></td>
           <td>FEC Threshold: 1.0e-6</td>
           <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">ERROR FREE IN LOCK</span></td>
         </tr>
@@ -514,12 +522,12 @@
       </thead>
       <tbody>
         <tr><td><strong>Input / Simulation Rate</strong></td><td><code>50.1 FPS</code></td><td>Sampling generation rate</td><td>&Delta;t = 20.0 ms</td><td>PASS</td></tr>
-        <tr><td><strong>Actual Processing Throughput</strong></td><td><code>43.9 FPS</code></td><td>&ge; 20.0 FPS (PS-04 Headline Requirement)</td><td>+23.9 FPS headroom</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
-        <tr><td><strong>Mean Step Latency</strong></td><td><code>22.80 ms</code></td><td>&le; 50.0 ms per step (Nominal target &le; 20.0 ms)</td><td>54.4% headroom</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
-        <tr><td><strong>Median / Min Latency</strong></td><td><code>22.77 ms / 22.10 ms</code></td><td>Algorithmic loop execution core</td><td>Consistent</td><td>NOMINAL</td></tr>
-        <tr><td><strong>Maximum / Peak Latency</strong></td><td><code>38.73 ms</code></td><td>Peak excursion under heavy rendering</td><td>Within bound</td><td>BOUNDED</td></tr>
-        <tr><td><strong>95th Percentile Latency</strong></td><td><code>22.98 ms</code></td><td>Statistical 2-sigma computational bound</td><td>Predictable</td><td>PREDICTABLE</td></tr>
-        <tr><td><strong>Latency Standard Deviation (&sigma;)</strong></td><td><code>0.83 ms</code></td><td>Low execution jitter / stable throughput</td><td>Deterministic</td><td>STABLE</td></tr>
+        <tr><td><strong>Actual Processing Throughput</strong></td><td><code>41.4 FPS</code></td><td>&ge; 20.0 FPS (PS-04 Headline Requirement)</td><td>+21.4 FPS headroom</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
+        <tr><td><strong>Mean Step Latency</strong></td><td><code>24.17 ms</code></td><td>&le; 50.0 ms per step (Nominal target &le; 20.0 ms)</td><td>51.7% headroom</td><td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">PASS</span></td></tr>
+        <tr><td><strong>Median / Min Latency</strong></td><td><code>23.64 ms / 23.24 ms</code></td><td>Algorithmic loop execution core</td><td>Consistent</td><td>NOMINAL</td></tr>
+        <tr><td><strong>Maximum / Peak Latency</strong></td><td><code>53.19 ms</code></td><td>Peak excursion under heavy rendering</td><td>Within bound</td><td>BOUNDED</td></tr>
+        <tr><td><strong>95th Percentile Latency</strong></td><td><code>25.83 ms</code></td><td>Statistical 2-sigma computational bound</td><td>Predictable</td><td>PREDICTABLE</td></tr>
+        <tr><td><strong>Latency Standard Deviation (&sigma;)</strong></td><td><code>2.44 ms</code></td><td>Low execution jitter / stable throughput</td><td>Deterministic</td><td>STABLE</td></tr>
       </tbody>
     </table>
 
@@ -527,7 +535,7 @@
     <!-- Performance Visualizations & Telemetry Graphs -->
     <div class="section-title">Performance Visualizations & Telemetry Graphs</div>
     <div style="text-align: center; margin: 24px 0;">
-      <img src="mission_summary.png" alt="OptiLign Comprehensive Telemetry & Performance Analysis" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 8px 24px rgba(0,0,0,0.5);" />
+      <img src="report_plots.png" alt="OptiLign Comprehensive Telemetry & Performance Analysis" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 8px 24px rgba(0,0,0,0.5);" />
       <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 10px; font-style: italic;">
         10-panel synchronized telemetry recording showing 2-DOF gimbal tracking, spatial angular error, image-plane centroiding vs 10 px limit, computational latency & wall-clock FPS vs 50 ms deadline, supervisory PAT transitions, optical received power, link margin fade headroom, electrical SNR, uncoded BER, and atmospheric scintillation fade depth.
       </p>
